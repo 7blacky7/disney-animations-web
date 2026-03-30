@@ -37,25 +37,25 @@ const quizDemos: QuizDemo[] = [
     id: "multiple-choice",
     title: "Multiple Choice",
     description: "Klassische Auswahlfragen mit animiertem Feedback",
-    color: "from-blue-500/10 to-blue-600/5",
+    color: "from-primary/10 to-primary/5",
   },
   {
     id: "drag-drop",
     title: "Drag & Drop",
     description: "Elemente sortieren mit Spring-Physik",
-    color: "from-amber-500/10 to-amber-600/5",
+    color: "from-accent/30 to-accent/15",
   },
   {
     id: "matching",
     title: "Matching",
     description: "Paare verbinden mit animierten Linien",
-    color: "from-emerald-500/10 to-emerald-600/5",
+    color: "from-chart-5/10 to-chart-5/5",
   },
   {
     id: "slider",
     title: "Slider",
     description: "Wert schaetzen mit Thumb-Animation",
-    color: "from-violet-500/10 to-violet-600/5",
+    color: "from-chart-1/10 to-chart-1/5",
   },
 ];
 
