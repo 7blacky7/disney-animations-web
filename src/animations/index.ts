@@ -85,6 +85,37 @@ export {
   QUIZ_SPRING,
 } from "./variants/quiz";
 
+// SVG Animation Variants (motion.path, pathLength, draw effects)
+export {
+  // Path draw effects
+  pathDraw,
+  pathDrawLoop,
+  checkmarkContainer,
+  checkmarkStroke,
+  // Circle/shape effects
+  circleGrow,
+  circlePulse,
+  circleRing,
+  // Stroke dash
+  dashMarch,
+  // SVG element motion
+  svgBounceIn,
+  svgRotateLoop,
+  svgWiggle,
+  svgFloatY,
+  // Multi-path stagger
+  svgStaggerContainer,
+  svgStaggerPath,
+  // Quiz-specific SVG
+  handGrab,
+  cursorBlink,
+  scaleToggle,
+  timerHand,
+  sortArrowUp,
+  sortArrowDown,
+  imageFrame,
+} from "./variants/svg";
+
 // GSAP Presets
 export {
   heroEntrance as gsapHeroEntrance,
