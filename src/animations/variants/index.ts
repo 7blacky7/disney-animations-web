@@ -231,17 +231,15 @@ export const exaggeration: Variants = {
  * Principles: Staging, Timing, Appeal
  */
 export const staging: Variants = {
-  rest: { opacity: 1, scale: 1, filter: "blur(0px)" },
+  rest: { opacity: 1, scale: 1 },
   focused: {
     opacity: 1,
     scale: 1.03,
-    filter: "blur(0px)",
     transition: { ...SPRING.snappy },
   },
   unfocused: {
-    opacity: 0.5,
-    scale: 0.97,
-    filter: "blur(2px)",
+    opacity: 0.4,
+    scale: 0.96,
     transition: { duration: TIMING.normal, ease: [...EASING.easeOut] },
   },
 };
@@ -294,4 +292,183 @@ export const textRevealContainer: Variants = {
 export const textRevealItem: Variants = {
   hidden: { opacity: 0, y: 20, rotateX: -60 },
   visible: { opacity: 1, y: 0, rotateX: 0, transition: { ...SPRING.snappy } },
+};
+
+// ---------------------------------------------------------------------------
+// Page Transition Variants
+// ---------------------------------------------------------------------------
+
+/**
+ * Page enter — smooth reveal for route transitions.
+ * Principles: Staging, Timing, Slow In Slow Out
+ */
+export const pageEnter: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: TIMING.normal, ease: [...EASING.slowInSlowOut] },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    transition: { duration: TIMING.quick, ease: [...EASING.easeIn] },
+  },
+};
+
+/**
+ * Page scale — zoom-like page transition.
+ * Principles: Squash & Stretch, Staging, Timing
+ */
+export const pageScale: Variants = {
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { ...SPRING.snappy },
+  },
+  exit: {
+    opacity: 0,
+    scale: 1.02,
+    transition: { duration: TIMING.quick, ease: [...EASING.easeIn] },
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Interactive Element Variants
+// ---------------------------------------------------------------------------
+
+/**
+ * Button press — micro-interaction with anticipation.
+ * Principles: Anticipation, Squash & Stretch, Timing, Appeal
+ */
+export const buttonPress: Variants = {
+  rest: { scale: 1 },
+  hover: { scale: 1.04, transition: { ...SPRING.snappy } },
+  tap: { scale: 0.96, transition: { duration: TIMING.instant } },
+};
+
+/**
+ * Floating element — gentle ambient motion.
+ * Principles: Slow In Slow Out, Arcs, Secondary Action, Appeal
+ */
+export const floatingElement: Variants = {
+  rest: { y: 0, rotate: 0 },
+  float: {
+    y: [-8, 8, -8],
+    rotate: [-1, 1, -1],
+    transition: {
+      duration: 4,
+      ease: "easeInOut",
+      repeat: Infinity,
+      repeatType: "loop" as const,
+    },
+  },
+};
+
+/**
+ * Magnetic hover — element subtly follows cursor direction.
+ * Principles: Follow Through, Secondary Action, Appeal, Timing
+ */
+export const magneticHover: Variants = {
+  rest: { x: 0, y: 0, transition: { ...SPRING.gentle } },
+  hover: { transition: { ...SPRING.snappy } },
+};
+
+// ---------------------------------------------------------------------------
+// Notification / Toast Variants
+// ---------------------------------------------------------------------------
+
+/**
+ * Toast slide in from top.
+ * Principles: Anticipation, Follow Through, Timing, Appeal
+ */
+export const toastEnter: Variants = {
+  hidden: { opacity: 0, y: -40, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { ...SPRING.bouncy },
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    scale: 0.95,
+    transition: { duration: TIMING.quick, ease: [...EASING.easeIn] },
+  },
+};
+
+// ---------------------------------------------------------------------------
+// List / Grid Stagger Variants
+// ---------------------------------------------------------------------------
+
+/**
+ * Grid stagger container — slower stagger for card grids.
+ * Principles: Staging, Timing, Straight Ahead Action
+ */
+export const gridStaggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06,
+      delayChildren: 0.15,
+      when: "beforeChildren",
+    },
+  },
+};
+
+/**
+ * Grid stagger item — scale + fade for card appearance.
+ * Principles: Squash & Stretch, Follow Through, Timing, Appeal
+ */
+export const gridStaggerItem: Variants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { ...SPRING.snappy },
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Modal / Overlay Variants
+// ---------------------------------------------------------------------------
+
+/**
+ * Modal backdrop — simple fade.
+ * Principles: Staging, Timing
+ */
+export const modalBackdrop: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: TIMING.quick },
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: TIMING.quick, delay: 0.1 },
+  },
+};
+
+/**
+ * Modal content — spring-driven scale entrance.
+ * Principles: Anticipation, Squash & Stretch, Follow Through, Staging, Appeal
+ */
+export const modalContent: Variants = {
+  hidden: { opacity: 0, scale: 0.9, y: 20 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { ...SPRING.bouncy, delay: 0.05 },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    y: 10,
+    transition: { duration: TIMING.quick, ease: [...EASING.easeIn] },
+  },
 };

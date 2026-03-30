@@ -37,7 +37,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
  * @example
  * ```tsx
  * const { prefersReducedMotion } = useAccessibility();
- * const transition = prefersReducedMotion ? REDUCED_MOTION.transition : SPRING.default;
+ * const transition = prefersReducedMotion ? { duration: 0.01 } : SPRING.snappy;
  * ```
  */
 export function useAccessibility(): AccessibilityContextValue {
