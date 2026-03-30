@@ -275,6 +275,20 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Theme Transition — smooth color crossfade on theme/accent switch
+   --------------------------------------------------------------------------- */
+
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 400ms cubic-bezier(0.4, 0, 0.2, 1),
+              color 400ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 400ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 400ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ---------------------------------------------------------------------------
    Reduced Motion — system-level override
    --------------------------------------------------------------------------- */
 

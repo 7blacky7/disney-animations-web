@@ -136,7 +136,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute("data-accent", accent);
   }, [accent]);
 
+  /** Temporarily add transition class for smooth theme crossfade */
+  const triggerTransition = useCallback(() => {
+    const root = document.documentElement;
+    root.classList.add("theme-transitioning");
+    const timeout = setTimeout(() => {
+      root.classList.remove("theme-transitioning");
+    }, 450);
+    return () => clearTimeout(timeout);
+  }, []);
+
   const setMode = useCallback((newMode: ThemeMode) => {
+    triggerTransition();
     setModeState(newMode);
     try {
       if (newMode === "system") {
@@ -147,16 +158,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch {
       // localStorage not available
     }
-  }, []);
+  }, [triggerTransition]);
 
   const setAccent = useCallback((newAccent: AccentTheme) => {
+    triggerTransition();
     setAccentState(newAccent);
     try {
       localStorage.setItem(STORAGE_KEY_ACCENT, newAccent);
     } catch {
       // localStorage not available
     }
-  }, []);
+  }, [triggerTransition]);
 
   return (
     <ThemeContext.Provider

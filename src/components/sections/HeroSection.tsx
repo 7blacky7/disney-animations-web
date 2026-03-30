@@ -30,28 +30,57 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2,
+      staggerChildren: 0.18,
+      delayChildren: 0.15,
     },
   },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { ...SPRING.snappy },
-  },
-};
-
-const ctaVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
+/** Badge — subtle fade + slight scale for anticipation */
+const badgeVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.95 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { ...SPRING.bouncy, delay: 0.6 },
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+/** Headline — dramatic spring entrance (Syne font benefits from bold motion) */
+const headlineVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 200,
+      damping: 18,
+      mass: 1,
+    },
+  },
+};
+
+/** Subtitle — gentle follow-through after headline */
+const subtitleVariants = {
+  hidden: { opacity: 0, y: 25 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { ...SPRING.gentle, delay: 0.05 },
+  },
+};
+
+/** CTA — bouncy entrance with overshoot (Disney follow-through) */
+const ctaVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.92 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { ...SPRING.bouncy, delay: 0.1 },
   },
 };
 
@@ -92,7 +121,7 @@ export function HeroSection() {
       >
         {/* Badge */}
         <motion.div
-          variants={prefersReducedMotion ? undefined : itemVariants}
+          variants={prefersReducedMotion ? undefined : badgeVariants}
           className={cn(
             "mb-8 inline-flex items-center gap-2",
             "rounded-full border border-primary/20 bg-primary/5 px-5 py-2",
@@ -109,7 +138,7 @@ export function HeroSection() {
 
         {/* Headline — larger, bolder, more impact */}
         <motion.h1
-          variants={prefersReducedMotion ? undefined : itemVariants}
+          variants={prefersReducedMotion ? undefined : headlineVariants}
           className={cn(
             "font-heading text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl",
             "bg-gradient-to-b from-foreground via-foreground/90 to-foreground/50 bg-clip-text text-transparent",
@@ -137,7 +166,7 @@ export function HeroSection() {
 
         {/* Subtitle — more breathing room */}
         <motion.p
-          variants={prefersReducedMotion ? undefined : itemVariants}
+          variants={prefersReducedMotion ? undefined : subtitleVariants}
           className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl lg:text-2xl lg:leading-relaxed"
         >
           Eine Showcase-Website, die zeigt wie Disney&apos;s zeitlose
