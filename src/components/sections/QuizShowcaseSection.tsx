@@ -404,7 +404,7 @@ function DragDropDemo({ isPaused }: { isPaused: boolean }) {
         <motion.div
           key={items[idx]}
           layout
-          transition={{ ...QUIZ_SPRING.celebration }}
+          transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
           className="flex items-center gap-2 rounded-xl border border-border/40 bg-background/60 px-3 py-2 text-xs"
         >
           <span className="text-muted-foreground/50 font-mono text-[10px]">{pos + 1}</span>
@@ -446,7 +446,7 @@ function MatchingDemo({ isPaused }: { isPaused: boolean }) {
             </motion.span>
             <motion.div
               animate={{ scaleX: isConnected ? 1 : 0, opacity: isConnected ? 1 : 0.3 }}
-              transition={{ ...QUIZ_SPRING.celebration }}
+              transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
               className="h-px w-6 origin-left bg-primary"
             />
             <motion.span
@@ -482,7 +482,7 @@ function SliderDemo({ isPaused, hue }: { isPaused: boolean; hue: string }) {
         key={val}
         initial={{ scale: 1.3, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ ...QUIZ_SPRING.celebration }}
+        transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
         className="text-center font-heading text-3xl font-bold"
         style={{ color: hue }}
       >
@@ -491,7 +491,7 @@ function SliderDemo({ isPaused, hue }: { isPaused: boolean; hue: string }) {
       <div className="relative h-2 rounded-full bg-muted">
         <motion.div
           animate={{ width: `${val}%` }}
-          transition={{ ...QUIZ_SPRING.celebration }}
+          transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
           className="h-full rounded-full"
           style={{ backgroundColor: hue }}
         />
@@ -501,7 +501,7 @@ function SliderDemo({ isPaused, hue }: { isPaused: boolean; hue: string }) {
             scaleX: [1, 0.8, 1],
             scaleY: [1, 1.2, 1],
           }}
-          transition={{ ...QUIZ_SPRING.celebration }}
+          transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
           className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background shadow-md"
           style={{ backgroundColor: hue }}
         />
@@ -534,7 +534,7 @@ function FillInDemo({ isPaused }: { isPaused: boolean }) {
       </p>
       <motion.div
         animate={showCheck ? { scale: [1, 1.05, 1] } : {}}
-        transition={{ ...QUIZ_SPRING.celebration }}
+        transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
         className={cn(
           "flex items-center rounded-xl border px-3 py-2",
           showCheck ? "border-green-500/40 bg-green-500/5" : "border-primary/30 bg-primary/5",
@@ -624,7 +624,7 @@ function TrueFalseDemo({ isPaused }: { isPaused: boolean }) {
                 scale: isSelected && !revealed ? [1, 1.08, 1] : 1,
                 rotate: isWrongReveal ? [0, -3, 3, 0] : 0,
               }}
-              transition={{ ...QUIZ_SPRING.celebration }}
+              transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
               className={cn(
                 "flex-1 rounded-xl border py-3 text-xs font-bold uppercase tracking-wider",
                 !isSelected && "border-border/40 text-muted-foreground",
@@ -671,7 +671,7 @@ function ImageChoiceDemo({ isPaused }: { isPaused: boolean }) {
                 scale: isActive ? 1.04 : 1,
                 rotate: isCorrect ? [0, -2, 2, 0] : 0,
               }}
-              transition={{ ...QUIZ_SPRING.celebration }}
+              transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
               className={cn(
                 "flex flex-col items-center gap-1 rounded-xl border p-2",
                 !isActive && "border-border/40",
@@ -727,7 +727,7 @@ function SortingDemo({ isPaused }: { isPaused: boolean }) {
         <motion.div
           key={items[idx]}
           layout
-          transition={{ ...QUIZ_SPRING.celebration }}
+          transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
           className={cn(
             "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs",
             isDone && idx === pos
@@ -802,7 +802,7 @@ function TimerDemo({ isPaused, hue }: { isPaused: boolean; hue: string }) {
             animate={answered && i === 0 ? {
               scale: [1, 1.08, 1],
             } : {}}
-            transition={{ ...QUIZ_SPRING.celebration }}
+            transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
             className={cn(
               "rounded-lg border px-2 py-1.5 text-center text-[10px] font-medium",
               answered && i === 0
