@@ -362,7 +362,7 @@ function MCDemo({ isPaused }: { isPaused: boolean }) {
               isSelected ? "bg-primary text-primary-foreground" :
               "border border-muted-foreground/30 text-muted-foreground",
             )}>
-              {isCorrect ? "✓" : isWrong ? "✗" : String.fromCharCode(65 + i)}
+              {isCorrect ? <CheckSvg className="h-2 w-2" /> : isWrong ? <CrossSvg className="h-2 w-2" /> : String.fromCharCode(65 + i)}
             </span>
             <span className={cn(isSelected && "font-medium")}>{opt}</span>
           </motion.div>
@@ -538,7 +538,7 @@ function FillInDemo({ isPaused }: { isPaused: boolean }) {
             className="ml-px inline-block h-4 w-px bg-primary"
           />
         )}
-        {showCheck && <span className="ml-auto text-green-500 text-sm">✓</span>}
+        {showCheck && <span className="ml-auto text-green-500"><CheckSvg className="h-3.5 w-3.5" /></span>}
       </motion.div>
     </div>
   );
@@ -578,7 +578,7 @@ function FreetextDemo({ isPaused }: { isPaused: boolean }) {
           transition={{ ...QUIZ_SPRING.pop }}
           className="flex items-center gap-1.5 text-[10px] text-primary font-medium"
         >
-          <svg viewBox="0 0 12 12" fill="currentColor" className="h-3 w-3 inline-block"><path d="M6 0L7.4 4.6L12 6L7.4 7.4L6 12L4.6 7.4L0 6L4.6 4.6Z" /></svg>
+          <SparkleSvg className="h-3 w-3 inline-block" />
           {" "}Gespeichert
         </motion.div>
       )}
@@ -624,8 +624,8 @@ function TrueFalseDemo({ isPaused }: { isPaused: boolean }) {
               )}
             >
               {opt === "true" ? "Wahr" : "Falsch"}
-              {isCorrectReveal && " ✓"}
-              {isWrongReveal && " ✗"}
+              {isCorrectReveal && <> <CheckSvg className="inline h-2.5 w-2.5" /></>}
+              {isWrongReveal && <> <CrossSvg className="inline h-2.5 w-2.5" /></>}
             </motion.button>
           );
         })}
@@ -732,7 +732,7 @@ function SortingDemo({ isPaused }: { isPaused: boolean }) {
             {pos + 1}
           </span>
           <span className="font-medium">{items[idx]}</span>
-          {isDone && idx === pos && <span className="ml-auto text-green-500 text-[10px]">✓</span>}
+          {isDone && idx === pos && <span className="ml-auto text-green-500"><CheckSvg className="h-2.5 w-2.5" /></span>}
         </motion.div>
       ))}
     </div>
@@ -770,7 +770,7 @@ function TimerDemo({ isPaused, hue }: { isPaused: boolean; hue: string }) {
             "text-muted-foreground",
           )}
         >
-          {answered ? "✓" : `${timeLeft.toFixed(1)}s`}
+          {answered ? <CheckSvg className="h-3.5 w-3.5" /> : `${timeLeft.toFixed(1)}s`}
         </motion.span>
       </div>
       {/* Timer bar */}
@@ -821,6 +821,33 @@ function GripIcon() {
       <circle cx="11" cy="4" r="1" />
       <circle cx="11" cy="8" r="1" />
       <circle cx="11" cy="12" r="1" />
+    </svg>
+  );
+}
+
+/** Inline SVG checkmark — replaces ✓ */
+function CheckSvg({ className = "h-2.5 w-2.5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M2.5 6.5L5 9l4.5-6" />
+    </svg>
+  );
+}
+
+/** Inline SVG cross — replaces ✗ */
+function CrossSvg({ className = "h-2.5 w-2.5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className}>
+      <path d="M3 3l6 6M9 3l-6 6" />
+    </svg>
+  );
+}
+
+/** Inline SVG sparkle — replaces ✨ */
+function SparkleSvg({ className = "h-3 w-3" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 12 12" fill="currentColor" className={className}>
+      <path d="M6 0L7.4 4.6L12 6L7.4 7.4L6 12L4.6 7.4L0 6L4.6 4.6Z" />
     </svg>
   );
 }
