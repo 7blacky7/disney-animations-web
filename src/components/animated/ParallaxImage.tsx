@@ -20,14 +20,14 @@ import { cn } from "@/lib/utils";
  * Performance: GPU transform only, will-change hint
  */
 
-interface ParallaxImageProps extends Omit<ImageProps, "className"> {
+interface ParallaxImageProps extends Omit<ImageProps, "className" | "height"> {
   /** Parallax speed multiplier. Negative = opposite direction. Default: -20 */
   speed?: number;
   /** Container className */
   containerClassName?: string;
   /** Image className */
   imageClassName?: string;
-  /** Container height */
+  /** Container height (CSS value) */
   height?: string;
   /** ScrollTrigger start */
   start?: string;
@@ -81,7 +81,7 @@ export function ParallaxImage({
             },
           },
         );
-      }, container);
+      }, container ?? undefined);
     }
 
     animate();
