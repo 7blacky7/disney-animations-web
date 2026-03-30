@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { AnimatedLink } from "@/components/animated/AnimatedLink";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { SPRING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
 
@@ -77,11 +78,13 @@ export function Header() {
           ))}
         </ul>
 
-        {/* CTA */}
+        {/* Actions */}
         <div className="flex items-center gap-3">
+          <ThemeSwitcher />
           <a
             href="#cta"
             className={cn(
+              "hidden sm:inline-flex",
               "rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground",
               "transition-colors duration-200 hover:bg-primary/90",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
