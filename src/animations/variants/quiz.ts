@@ -183,7 +183,7 @@ export const quizOption: Variants = {
     transition: { duration: TIMING.instant },
   },
   selected: {
-    scale: [1, 1.08, 1],
+    scale: 1.08,
     transition: { ...QUIZ_SPRING.celebration },
   },
 };
@@ -265,7 +265,7 @@ export const dragElement: Variants = {
   dropped: {
     scale: [1.1, 0.95, 1],
     rotate: 0,
-    transition: { ...QUIZ_SPRING.celebration },
+    transition: { duration: 0.5, ease: [...EASING.overshoot], times: [0, 0.5, 1] },
   },
 };
 
@@ -349,7 +349,7 @@ export const imageChoice: Variants = {
   selected: {
     scale: [1, 1.1, 1.02],
     rotate: [0, -2, 0],
-    transition: { ...QUIZ_SPRING.celebration },
+    transition: { duration: 0.5, ease: [...EASING.overshoot], times: [0, 0.5, 1] },
   },
 };
 
@@ -420,7 +420,7 @@ export const scoreCounter: Variants = {
   increment: {
     scale: [1, 1.3, 1],
     y: [0, -8, 0],
-    transition: { ...QUIZ_SPRING.celebration },
+    transition: { duration: 0.5, ease: [...EASING.overshoot], times: [0, 0.4, 1] },
   },
 };
 
