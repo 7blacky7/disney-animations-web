@@ -1,23 +1,41 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AccessibilityProvider } from "@/providers/AccessibilityProvider";
 import { GSAPProvider } from "@/providers/GSAPProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/**
+ * Typography System:
+ * - Syne: Bold geometric display font for headings — distinctive, cinematic
+ * - Plus Jakarta Sans: Warm, readable body font — elegant alternative to Geist
+ * - JetBrains Mono: Code blocks and technical text
+ */
+const syne = Syne({
+  variable: "--font-heading",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "Disney Animations",
+  title: "Disney Animations — Zeitlose Prinzipien, moderne Technik",
   description:
-    "Interactive showcase of Disney-inspired web animations with GSAP, Framer Motion, and Lottie.",
+    "Interaktive Showcase-Website: Disney's 12 Animationsprinzipien, umgesetzt mit GSAP, Framer Motion und Lottie. Enterprise-Level Design.",
 };
 
 export default function RootLayout({
@@ -28,12 +46,23 @@ export default function RootLayout({
   return (
     <html
       lang="de"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${syne.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Prevent FOUC: apply theme class before paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("disney-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
-        <AccessibilityProvider>
-          <GSAPProvider>{children}</GSAPProvider>
-        </AccessibilityProvider>
+        <ThemeProvider>
+          <AccessibilityProvider>
+            <GSAPProvider>{children}</GSAPProvider>
+          </AccessibilityProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
