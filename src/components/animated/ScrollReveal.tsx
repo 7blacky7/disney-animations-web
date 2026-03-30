@@ -87,8 +87,9 @@ export function ScrollReveal({
 
       const offset = directionOffsets[direction];
 
+      if (!el) return;
       ctx = gsap.context(() => {
-        const targets = stagger > 0 ? el.children : el;
+        const targets = stagger > 0 ? el!.children : el!;
 
         gsap.fromTo(
           targets,
