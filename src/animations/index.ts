@@ -109,6 +109,38 @@ export {
   getBentoEntrance,
 } from "./variants/bento";
 
+// Gameplay Animation Variants (Quiz-Spielmodus)
+export {
+  // Countdown
+  countdownNumber,
+  countdownRing,
+  countdownPulse,
+  // Score / Points
+  scorePop,
+  pointsFloat,
+  comboMultiplier,
+  // Streak
+  streakFire,
+  streakBadge,
+  // Konfetti / Celebration
+  confettiParticle,
+  celebrationBurst,
+  celebrationStar,
+  // Leaderboard
+  leaderboardContainer,
+  leaderboardRow,
+  leaderboardShift,
+  podiumReveal,
+  // Question Transitions
+  questionEnter,
+  answerOptionsContainer,
+  answerOptionItem,
+  // Results
+  resultsReveal,
+  resultsPercentage,
+  resultsStat,
+} from "./variants/gameplay";
+
 // SVG Animation Variants (motion.path, pathLength, draw effects)
 export {
   // Path draw effects
