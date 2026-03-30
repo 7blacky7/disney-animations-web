@@ -117,6 +117,29 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* ---------------------------------------------------------------------------
+   Animation Tokens
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Timing */
+  --duration-instant: 100ms;
+  --duration-fast: 200ms;
+  --duration-normal: 350ms;
+  --duration-slow: 500ms;
+  --duration-dramatic: 800ms;
+
+  /* Easing (CSS cubic-bezier) */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-anticipation: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+
+  /* Spacing rhythm */
+  --section-gap: clamp(3rem, 8vw, 6rem);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -125,6 +148,34 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced Motion — system-level override
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   GPU Acceleration Hints — applied to animated containers
+   --------------------------------------------------------------------------- */
+
+.will-animate {
+  will-change: transform, opacity;
+}
+
+.gpu-layer {
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
