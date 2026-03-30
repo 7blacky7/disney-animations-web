@@ -209,7 +209,7 @@ export function HeroSection() {
             transition={{
               duration: 1.8,
               repeat: Infinity,
-              ease: [0.34, 1.56, 0.64, 1],
+              ease: [0.34, 1.56, 0.64, 1] as const,
               times: [0, 0.5, 1],
             }}
             className="flex flex-col items-center gap-2"
@@ -241,7 +241,7 @@ export function HeroSection() {
                 transition={{
                   duration: 1.8,
                   repeat: Infinity,
-                  ease: [0.34, 1.56, 0.64, 1],
+                  ease: [0.34, 1.56, 0.64, 1] as const,
                   times: [0, 0.5, 1],
                 }}
               />
