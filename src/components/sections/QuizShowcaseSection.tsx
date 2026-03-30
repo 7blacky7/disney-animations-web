@@ -6,6 +6,18 @@ import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { ScrollReveal } from "@/components/animated/ScrollReveal";
 import { SPRING } from "@/lib/animation-utils";
 import { QUIZ_SPRING } from "@/animations/variants/quiz";
+import {
+  MCIcon,
+  DragDropIcon,
+  MatchingIcon,
+  SliderIcon,
+  FillInIcon,
+  FreetextIcon,
+  TrueFalseIcon,
+  ImageChoiceIcon,
+  SortingIcon,
+  TimerIcon,
+} from "@/components/icons/QuizIcons";
 import { cn } from "@/lib/utils";
 
 /**
@@ -31,7 +43,7 @@ interface QuizType {
   id: string;
   title: string;
   description: string;
-  emoji: string;
+  icon: React.ComponentType<{ className?: string }>;
   /** Tailwind gradient stops via theme tokens */
   gradient: string;
   /** Accent hue for inline styles */
@@ -43,7 +55,7 @@ const quizTypes: QuizType[] = [
     id: "mc",
     title: "Multiple Choice",
     description: "Klassische Auswahlfragen mit animiertem Feedback",
-    emoji: "✨",
+    icon: MCIcon,
     gradient: "from-primary/12 to-primary/4",
     hue: "var(--primary)",
   },
@@ -51,7 +63,7 @@ const quizTypes: QuizType[] = [
     id: "dragdrop",
     title: "Drag & Drop",
     description: "Elemente per Drag in die richtige Kategorie",
-    emoji: "🎯",
+    icon: DragDropIcon,
     gradient: "from-chart-3/15 to-chart-3/5",
     hue: "var(--chart-3)",
   },
@@ -59,7 +71,7 @@ const quizTypes: QuizType[] = [
     id: "matching",
     title: "Matching",
     description: "Zusammengehoerige Paare verbinden",
-    emoji: "🔗",
+    icon: MatchingIcon,
     gradient: "from-chart-2/12 to-chart-2/4",
     hue: "var(--chart-2)",
   },
@@ -67,7 +79,7 @@ const quizTypes: QuizType[] = [
     id: "slider",
     title: "Slider",
     description: "Werte auf einem Regler einschaetzen",
-    emoji: "🎚️",
+    icon: SliderIcon,
     gradient: "from-chart-4/12 to-chart-4/4",
     hue: "var(--chart-4)",
   },
@@ -75,7 +87,7 @@ const quizTypes: QuizType[] = [
     id: "fillin",
     title: "Lueckentext",
     description: "Fehlende Woerter im Kontext ergaenzen",
-    emoji: "✏️",
+    icon: FillInIcon,
     gradient: "from-accent/20 to-accent/8",
     hue: "var(--accent)",
   },
@@ -83,7 +95,7 @@ const quizTypes: QuizType[] = [
     id: "freetext",
     title: "Freitext",
     description: "Offene Antworten in eigenen Worten",
-    emoji: "💬",
+    icon: FreetextIcon,
     gradient: "from-chart-5/12 to-chart-5/4",
     hue: "var(--chart-5)",
   },
@@ -91,7 +103,7 @@ const quizTypes: QuizType[] = [
     id: "truefalse",
     title: "Wahr / Falsch",
     description: "Binaere Entscheidung mit Flip-Animation",
-    emoji: "⚖️",
+    icon: TrueFalseIcon,
     gradient: "from-chart-1/12 to-chart-1/4",
     hue: "var(--chart-1)",
   },
@@ -99,7 +111,7 @@ const quizTypes: QuizType[] = [
     id: "image",
     title: "Bildauswahl",
     description: "Antworten anhand von Bildern erkennen",
-    emoji: "🖼️",
+    icon: ImageChoiceIcon,
     gradient: "from-primary/10 to-chart-4/8",
     hue: "var(--primary)",
   },
@@ -107,7 +119,7 @@ const quizTypes: QuizType[] = [
     id: "sorting",
     title: "Reihenfolge",
     description: "Elemente in die richtige Reihenfolge bringen",
-    emoji: "📊",
+    icon: SortingIcon,
     gradient: "from-chart-2/12 to-chart-5/6",
     hue: "var(--chart-2)",
   },
@@ -115,7 +127,7 @@ const quizTypes: QuizType[] = [
     id: "timer",
     title: "Zeitdruck",
     description: "Schnell antworten bevor die Zeit ablaeuft",
-    emoji: "⏱️",
+    icon: TimerIcon,
     gradient: "from-destructive/10 to-chart-3/6",
     hue: "var(--destructive)",
   },
@@ -250,14 +262,13 @@ function QuizCard({ quiz, index }: { quiz: QuizType; index: number }) {
       {/* Card header */}
       <div className="p-5 pb-3">
         <div className="flex items-center gap-2.5">
-          <motion.span
-            animate={isPaused ? {} : { rotate: [-3, 3, -3] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="text-xl"
+          <span
+            className="flex h-7 w-7 items-center justify-center"
+            style={{ color: quiz.hue }}
             aria-hidden="true"
           >
-            {quiz.emoji}
-          </motion.span>
+            <quiz.icon className="h-5 w-5" />
+          </span>
           <span
             className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
             style={{
@@ -567,7 +578,8 @@ function FreetextDemo({ isPaused }: { isPaused: boolean }) {
           transition={{ ...QUIZ_SPRING.pop }}
           className="flex items-center gap-1.5 text-[10px] text-primary font-medium"
         >
-          <span>✨</span> Gespeichert
+          <svg viewBox="0 0 12 12" fill="currentColor" className="h-3 w-3 inline-block"><path d="M6 0L7.4 4.6L12 6L7.4 7.4L6 12L4.6 7.4L0 6L4.6 4.6Z" /></svg>
+          {" "}Gespeichert
         </motion.div>
       )}
     </div>
