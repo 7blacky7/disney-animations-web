@@ -263,8 +263,11 @@ function QuizCard({ quiz, index }: { quiz: QuizType; index: number }) {
       <div className="p-5 pb-3">
         <div className="flex items-center gap-2.5">
           <span
-            className="flex h-7 w-7 items-center justify-center"
-            style={{ color: quiz.hue }}
+            className="flex h-8 w-8 items-center justify-center rounded-lg"
+            style={{
+              color: quiz.hue,
+              backgroundColor: `color-mix(in oklch, ${quiz.hue} 8%, transparent)`,
+            }}
             aria-hidden="true"
           >
             <quiz.icon className="h-5 w-5" />
