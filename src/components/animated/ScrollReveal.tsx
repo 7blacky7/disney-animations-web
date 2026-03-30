@@ -116,7 +116,7 @@ export function ScrollReveal({
             },
           },
         );
-      }, el);
+      }, el!);
     }
 
     animate();

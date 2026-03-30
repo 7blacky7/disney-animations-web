@@ -84,7 +84,7 @@ export function useAnimationCleanup(): UseAnimationCleanupReturn {
  * ```
  */
 export function useGSAPScope(
-  animationFn: (context: gsap.Context) => void,
+  animationFn: (scope: Element) => void,
   deps: React.DependencyList = [],
 ): React.RefObject<HTMLElement | null> {
   const scopeRef = useRef<HTMLElement | null>(null);
@@ -94,14 +94,13 @@ export function useGSAPScope(
 
     if (!scopeRef.current) return;
 
+    const scope = scopeRef.current;
     const ctx = gsap.context(() => {
-      animationFn(ctx!);
-    }, scopeRef.current);
-
-    const ctx2 = ctx;
+      animationFn(scope);
+    }, scope);
 
     return () => {
-      ctx2.revert();
+      ctx.revert();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);

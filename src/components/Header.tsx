@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { AnimatedLink } from "@/components/animated/AnimatedLink";
 import { SPRING } from "@/lib/animation-utils";
