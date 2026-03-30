@@ -353,7 +353,7 @@ function MCDemo({ isPaused }: { isPaused: boolean }) {
           <motion.div
             key={opt}
             animate={{
-              scale: isSelected && !confirmed ? [1, 1.03, 1] : 1,
+              scale: isSelected && !confirmed ? 1.03 : 1,
               x: isWrong ? [0, -4, 4, -2, 0] : 0,
             }}
             transition={isWrong ? { duration: 0.3 } : { ...QUIZ_SPRING.pop }}
