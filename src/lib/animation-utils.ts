@@ -192,12 +192,15 @@ export function createDisneyTransition(
  * Keeps opacity changes (important for visibility) but removes all
  * transform-based motion that could cause vestibular discomfort.
  */
-export function getReducedMotionVariant(variant: Variant): Variant {
+export function getReducedMotionVariant(
+  variant: Variant | Record<string, unknown>,
+): Variant {
+  const source = variant as Record<string, unknown>;
   const reduced: Record<string, unknown> = {};
 
   // Preserve opacity (accessibility: content must still appear)
-  if (typeof variant === "object" && variant !== null && "opacity" in variant) {
-    reduced.opacity = (variant as Record<string, unknown>).opacity;
+  if (source && typeof source === "object" && "opacity" in source) {
+    reduced.opacity = source.opacity;
   } else {
     reduced.opacity = 1;
   }
