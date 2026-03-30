@@ -88,67 +88,79 @@ export function HeroSection() {
         variants={prefersReducedMotion ? undefined : containerVariants}
         initial={prefersReducedMotion ? undefined : "hidden"}
         animate={prefersReducedMotion ? undefined : "visible"}
-        className="relative z-10 flex max-w-3xl flex-col items-center text-center"
+        className="relative z-10 flex max-w-4xl flex-col items-center text-center"
       >
         {/* Badge */}
         <motion.div
           variants={prefersReducedMotion ? undefined : itemVariants}
           className={cn(
-            "mb-6 inline-flex items-center gap-2",
-            "rounded-full border border-border/60 bg-muted/50 px-4 py-1.5",
-            "text-xs font-medium text-muted-foreground",
+            "mb-8 inline-flex items-center gap-2",
+            "rounded-full border border-primary/20 bg-primary/5 px-5 py-2",
+            "text-xs font-semibold uppercase tracking-widest text-primary",
             "backdrop-blur-sm",
           )}
         >
           <span
-            className="inline-block h-1.5 w-1.5 rounded-full bg-primary"
+            className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary"
             aria-hidden="true"
           />
-          Disney 12 Principles of Animation
+          12 Principles of Animation
         </motion.div>
 
-        {/* Headline */}
+        {/* Headline — larger, bolder, more impact */}
         <motion.h1
           variants={prefersReducedMotion ? undefined : itemVariants}
           className={cn(
-            "font-heading text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl",
-            "bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent",
-            "leading-[1.1]",
+            "font-heading text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl",
+            "bg-gradient-to-b from-foreground via-foreground/90 to-foreground/50 bg-clip-text text-transparent",
+            "leading-[1.05]",
           )}
         >
-          Animationen, die sich{" "}
-          <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          Animationen,
+          <br />
+          die sich{" "}
+          <span
+            className={cn(
+              "relative inline-block",
+              "bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent",
+            )}
+          >
             lebendig
+            {/* Decorative underline */}
+            <span
+              className="absolute -bottom-1 left-0 h-1 w-full rounded-full bg-gradient-to-r from-primary to-accent opacity-60"
+              aria-hidden="true"
+            />
           </span>{" "}
           anfuehlen
         </motion.h1>
 
-        {/* Subtitle */}
+        {/* Subtitle — more breathing room */}
         <motion.p
           variants={prefersReducedMotion ? undefined : itemVariants}
-          className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl"
+          className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl lg:text-2xl lg:leading-relaxed"
         >
           Eine Showcase-Website, die zeigt wie Disney&apos;s zeitlose
           Animationsprinzipien moderne Web-Interfaces verwandeln.
         </motion.p>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons — bigger, bolder */}
         <motion.div
           variants={prefersReducedMotion ? undefined : ctaVariants}
-          className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
+          className="mt-12 flex flex-col items-center gap-4 sm:flex-row"
         >
           <AnimatedButton
             shine
             intensity="bold"
             size="lg"
-            className="min-w-[180px] text-base"
+            className="min-w-[200px] text-base px-8 py-3"
           >
             Entdecken
           </AnimatedButton>
           <AnimatedButton
             variant="outline"
             size="lg"
-            className="min-w-[180px] text-base"
+            className="min-w-[200px] text-base px-8 py-3"
           >
             Mehr erfahren
           </AnimatedButton>
@@ -217,30 +229,46 @@ export function HeroSection() {
 function GeometricBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Large gradient orb — top right */}
+      {/* Primary gradient orb — top right, strong presence */}
       <div
         className={cn(
-          "absolute -top-[20%] -right-[10%] h-[600px] w-[600px]",
-          "rounded-full bg-primary/[0.03]",
+          "absolute -top-[15%] -right-[5%] h-[700px] w-[700px]",
+          "rounded-full bg-glow-primary",
           "blur-3xl",
         )}
       />
-      {/* Smaller orb — bottom left */}
+      {/* Accent orb — bottom left, warm contrast */}
       <div
         className={cn(
-          "absolute -bottom-[10%] -left-[5%] h-[400px] w-[400px]",
-          "rounded-full bg-primary/[0.02]",
-          "blur-2xl",
+          "absolute -bottom-[5%] -left-[5%] h-[500px] w-[500px]",
+          "rounded-full bg-glow-accent",
+          "blur-3xl",
         )}
       />
-      {/* Grid lines for structure */}
+      {/* Center ambient — subtle depth */}
+      <div
+        className={cn(
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+          "h-[400px] w-[800px]",
+          "rounded-full bg-primary/[0.02]",
+          "blur-3xl",
+        )}
+      />
+      {/* Dot grid pattern — subtle texture */}
       <div
         className={cn(
           "absolute inset-0",
-          "bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)]",
-          "bg-[size:4rem_4rem]",
-          "opacity-[0.15]",
-          "[mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,black_20%,transparent_100%)]",
+          "bg-[radial-gradient(circle_at_1px_1px,var(--border)_1px,transparent_0)]",
+          "bg-[size:3rem_3rem]",
+          "opacity-[0.25]",
+          "[mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black_10%,transparent_100%)]",
+        )}
+      />
+      {/* Noise overlay for texture — via CSS */}
+      <div
+        className={cn(
+          "absolute inset-0 opacity-[0.015]",
+          "bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC43IiBudW1PY3RhdmVzPSI0IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI24pIi8+PC9zdmc+')]",
         )}
       />
     </div>
