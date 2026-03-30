@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env*
+.synapse
+.claude
+docker-compose*.yml
+Dockerfile
+.dockerignore
+drizzle

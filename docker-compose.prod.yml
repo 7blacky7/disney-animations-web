@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quiz-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-quiz_prod_secret}@postgres:5432/quizplatform
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-change-this-in-production}
+      - BETTER_AUTH_URL=${APP_URL:-http://localhost:3000}
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quiz-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: quiz-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: quizplatform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quiz_prod_secret}
+    volumes:
+      - quiz-pgdata-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - quiz-network
+    # Kein Port-Mapping nach aussen — nur intern erreichbar
+
+volumes:
+  quiz-pgdata-prod:
+    driver: local
+
+networks:
+  quiz-network:
+    driver: bridge
