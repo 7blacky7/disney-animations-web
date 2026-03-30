@@ -68,13 +68,13 @@ export function QuizShowcaseSection() {
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    const section = sectionRef.current;
-    const container = scrollContainerRef.current;
-    if (!section || !container) return;
-
     let ctx: gsap.Context | undefined;
 
     async function setup() {
+      const el = scrollContainerRef.current;
+      const trigger = sectionRef.current;
+      if (!el || !trigger) return;
+
       const [{ gsap }, { ScrollTrigger }] = await Promise.all([
         import("gsap"),
         import("gsap/ScrollTrigger"),
@@ -83,13 +83,13 @@ export function QuizShowcaseSection() {
       gsap.registerPlugin(ScrollTrigger);
 
       ctx = gsap.context(() => {
-        const scrollWidth = container.scrollWidth - container.clientWidth;
+        const scrollWidth = el.scrollWidth - el.clientWidth;
 
-        gsap.to(container, {
+        gsap.to(el, {
           x: -scrollWidth,
           ease: "none",
           scrollTrigger: {
-            trigger: section,
+            trigger: trigger,
             pin: true,
             start: "top top",
             end: () => `+=${scrollWidth}`,
@@ -97,7 +97,7 @@ export function QuizShowcaseSection() {
             invalidateOnRefresh: true,
           },
         });
-      }, section);
+      }, trigger);
     }
 
     setup();
