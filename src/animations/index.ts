@@ -85,6 +85,30 @@ export {
   QUIZ_SPRING,
 } from "./variants/quiz";
 
+// Bento Grid Animation Variants (scroll-triggered staggered reveals)
+export {
+  // Containers
+  bentoContainer,
+  bentoContainerSlow,
+  // Standard card entrances
+  bentoItem,
+  bentoItemLeft,
+  bentoItemRight,
+  // Hero card entrances (dramatic)
+  bentoHero,
+  bentoHero3D,
+  // 3D perspective effects
+  perspectiveTilt,
+  perspectiveTiltLeft,
+  perspectiveTiltRight,
+  // Hover effects
+  bentoHoverLift,
+  bentoHover3D,
+  // Utilities
+  BENTO_SCROLL_CONFIG,
+  getBentoEntrance,
+} from "./variants/bento";
+
 // SVG Animation Variants (motion.path, pathLength, draw effects)
 export {
   // Path draw effects
