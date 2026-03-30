@@ -1,0 +1,48 @@
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import type { UserRole } from "./rbac";
+import { hasRole } from "./rbac";
+
+/**
+ * Server-seitige Session-Helpers
+ *
+ * Fuer Server Components und Server Actions.
+ */
+
+/**
+ * Aktuelle Session abrufen (Server-Side).
+ * Gibt null zurueck wenn nicht eingeloggt.
+ */
+export async function getSession() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  return session;
+}
+
+/**
+ * Session abrufen oder Redirect zu Login.
+ * Wirft Error wenn nicht eingeloggt (fuer Server Actions).
+ */
+export async function requireSession() {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Nicht authentifiziert");
+  }
+  return session;
+}
+
+/**
+ * Session mit Rollen-Check.
+ * Wirft Error wenn Rolle nicht ausreicht.
+ */
+export async function requireRole(requiredRole: UserRole) {
+  const session = await requireSession();
+  const userRole = (session.user as Record<string, unknown>).role as UserRole | undefined;
+
+  if (!userRole || !hasRole(userRole, requiredRole)) {
+    throw new Error(`Zugriff verweigert. Erforderliche Rolle: ${requiredRole}`);
+  }
+
+  return session;
+}
