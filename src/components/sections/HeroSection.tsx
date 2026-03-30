@@ -205,11 +205,12 @@ export function HeroSection() {
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
           <motion.div
-            animate={{ y: [0, 8, 0] }}
+            animate={{ y: [0, 10, 0] }}
             transition={{
-              duration: 1.5,
+              duration: 1.8,
               repeat: Infinity,
-              ease: "easeInOut",
+              ease: [0.34, 1.56, 0.64, 1],
+              times: [0, 0.5, 1],
             }}
             className="flex flex-col items-center gap-2"
           >
@@ -236,11 +237,12 @@ export function HeroSection() {
                 cy="8"
                 r="2.5"
                 fill="currentColor"
-                animate={{ cy: [8, 18, 8] }}
+                animate={{ cy: [8, 19, 8] }}
                 transition={{
-                  duration: 1.5,
+                  duration: 1.8,
                   repeat: Infinity,
-                  ease: "easeInOut",
+                  ease: [0.34, 1.56, 0.64, 1],
+                  times: [0, 0.5, 1],
                 }}
               />
             </svg>
