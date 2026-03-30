@@ -178,17 +178,24 @@ export function QuizShowcaseSection() {
       gsap.registerPlugin(ScrollTrigger);
 
       ctx = gsap.context(() => {
-        const scrollWidth = el.scrollWidth - el.clientWidth;
+        // Use window.innerWidth as viewport reference — el has width:fit-content
+        // so el.clientWidth === el.scrollWidth (no overflow on the element itself)
+        const totalWidth = el.scrollWidth;
+        const viewportWidth = window.innerWidth;
+        const scrollDistance = totalWidth - viewportWidth;
+
+        if (scrollDistance <= 0) return; // Nothing to scroll
 
         gsap.to(el, {
-          x: -scrollWidth,
+          x: -scrollDistance,
           ease: "none",
           scrollTrigger: {
             trigger,
             pin: true,
             start: "top top",
-            end: () => `+=${scrollWidth}`,
+            end: () => `+=${scrollDistance}`,
             scrub: 1,
+            anticipatePin: 1,
             invalidateOnRefresh: true,
           },
         });
