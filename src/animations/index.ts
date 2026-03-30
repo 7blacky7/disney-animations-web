@@ -53,6 +53,38 @@ export {
   modalContent,
 } from "./variants";
 
+// Quiz Micro-Animation Variants (Duolingo/Kahoot-Level)
+export {
+  // Ambient "alive" effects
+  wobble,
+  pulse,
+  float,
+  shimmer,
+  bounceIdle,
+  // Quiz card interactions
+  quizCard,
+  quizOption,
+  correctAnswer,
+  wrongAnswer,
+  // Quiz-type specific
+  mcOptionStagger,
+  mcOptionItem,
+  dragElement,
+  matchingLine,
+  sliderThumb,
+  trueFalseToggle,
+  fillBlankReveal,
+  imageChoice,
+  sortingItem,
+  timerUrgent,
+  // Orchestration
+  quizDemoContainer,
+  scoreCounter,
+  progressFill,
+  // Quiz springs
+  QUIZ_SPRING,
+} from "./variants/quiz";
+
 // GSAP Presets
 export {
   heroEntrance as gsapHeroEntrance,
