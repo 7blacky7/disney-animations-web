@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { ScrollReveal } from "@/components/animated/ScrollReveal";
@@ -419,12 +419,10 @@ function MCDemo({ isPaused }: { isPaused: boolean }) {
 // ---------------------------------------------------------------------------
 
 function DragDropDemo({ isPaused }: { isPaused: boolean }) {
-  const [order, setOrder] = useState([0, 1, 2]);
   const step = useAutoLoop(4, 1500, isPaused);
-
-  useEffect(() => {
+  const order = useMemo(() => {
     const sequences = [[1, 0, 2], [1, 2, 0], [2, 1, 0], [0, 1, 2]];
-    setOrder(sequences[step] ?? [0, 1, 2]);
+    return sequences[step] ?? [0, 1, 2];
   }, [step]);
 
   const items = ["Timing", "Spacing", "Appeal"];
@@ -784,7 +782,7 @@ function SortingDemo({ isPaused }: { isPaused: boolean }) {
 // 10. Zeitdruck (Timer)
 // ---------------------------------------------------------------------------
 
-function TimerDemo({ isPaused, hue }: { isPaused: boolean; hue: string }) {
+function TimerDemo({ isPaused }: { isPaused: boolean; hue: string }) {
   const step = useAutoLoop(8, 750, isPaused);
   const timeLeft = Math.max(10 - step * 1.5, 0);
   const progress = timeLeft / 10;

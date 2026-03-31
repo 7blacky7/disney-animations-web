@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { users, departments, invitations, tenants } from "@/lib/db/schema";
 import { requireRole, requireSession } from "@/lib/auth/session";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 /**

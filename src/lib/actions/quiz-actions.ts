@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { quizzes, questions, quizResults, quizAnswers } from "@/lib/db/schema";
 import { requireSession, requireRole } from "@/lib/auth/session";
-import { eq, and, desc, count } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 /**
  * Quiz Server Actions — CRUD + Sichtbarkeits-Logik

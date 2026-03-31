@@ -76,26 +76,27 @@ const ThemeContext = createContext<ThemeContextValue>({
 // ---------------------------------------------------------------------------
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>("system");
-  const [accent, setAccentState] = useState<AccentTheme>("indigo");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-
-  // Initialize from localStorage
-  useEffect(() => {
+  const [mode, setModeState] = useState<ThemeMode>(() => {
+    if (typeof window === "undefined") return "system";
     try {
-      const storedMode = localStorage.getItem(STORAGE_KEY_THEME) as ThemeMode | null;
-      const storedAccent = localStorage.getItem(STORAGE_KEY_ACCENT) as AccentTheme | null;
-
-      if (storedMode && ["light", "dark", "system"].includes(storedMode)) {
-        setModeState(storedMode);
-      }
-      if (storedAccent && ACCENT_THEMES.some((t) => t.id === storedAccent)) {
-        setAccentState(storedAccent);
-      }
+      const stored = localStorage.getItem(STORAGE_KEY_THEME) as ThemeMode | null;
+      if (stored && ["light", "dark", "system"].includes(stored)) return stored;
     } catch {
       // localStorage not available
     }
-  }, []);
+    return "system";
+  });
+  const [accent, setAccentState] = useState<AccentTheme>(() => {
+    if (typeof window === "undefined") return "indigo";
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_ACCENT) as AccentTheme | null;
+      if (stored && ACCENT_THEMES.some((t) => t.id === stored)) return stored;
+    } catch {
+      // localStorage not available
+    }
+    return "indigo";
+  });
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
 
   // Resolve theme and apply .dark class
   useEffect(() => {
