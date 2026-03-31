@@ -6,6 +6,8 @@ import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { QuestionRenderer } from "@/components/quiz/QuestionRenderer";
+import type { QuestionData } from "@/components/quiz/types";
 import {
   // Countdown
   countdownNumber,
@@ -53,7 +55,7 @@ import {
 // Mock Data (TODO: Replace with API via Server Actions)
 // ---------------------------------------------------------------------------
 
-const MOCK_QUIZ = {
+const MOCK_QUIZ: { title: string; mode: "async"; questions: QuestionData[] } = {
   title: "Disney Animations Grundlagen",
   mode: "async" as const,
   questions: [
@@ -74,24 +76,69 @@ const MOCK_QUIZ = {
     },
     {
       id: "q3",
-      type: "multiple_choice",
-      text: "Welches Prinzip sorgt dafuer, dass Bewegungen natuerlich wirken?",
-      options: ["Arcs", "Solid Drawing", "Timing", "Exaggeration"],
-      correctIndex: 0,
-      timeLimit: 30,
+      type: "drag_drop",
+      text: "Sortiere die Phasen einer Animation in der richtigen Reihenfolge:",
+      items: ["Anticipation", "Aktion", "Follow Through", "Settling"],
+      correctOrder: [0, 1, 2, 3],
+      timeLimit: 45,
     },
     {
       id: "q4",
-      type: "multiple_choice",
-      text: "Was beschreibt das Prinzip 'Follow Through'?",
-      options: [
-        "Objekte stoppen abrupt",
-        "Teile bewegen sich nach dem Stopp weiter",
-        "Alles bewegt sich gleichzeitig",
-        "Bewegung in geraden Linien",
-      ],
-      correctIndex: 1,
+      type: "matching",
+      text: "Ordne die Prinzipien ihren Beschreibungen zu:",
+      matchLeft: ["Squash & Stretch", "Arcs", "Timing"],
+      matchRight: ["Verformung bei Bewegung", "Natuerliche Kurvenbahnen", "Geschwindigkeit bestimmt Gefuehl"],
+      timeLimit: 45,
+    },
+    {
+      id: "q5",
+      type: "slider",
+      text: "Wie viele der 12 Disney-Prinzipien beziehen sich auf Bewegung?",
+      sliderMin: 1,
+      sliderMax: 12,
+      sliderCorrect: 9,
+      sliderTolerance: 1,
       timeLimit: 30,
+    },
+    {
+      id: "q6",
+      type: "fill_blank",
+      text: "Ergaenze den fehlenden Begriff:",
+      blankText: "Das Prinzip ___ sorgt dafuer, dass der Zuschauer weiss, wohin er schauen soll.",
+      blankAnswers: ["Staging", "staging"],
+      timeLimit: 30,
+    },
+    {
+      id: "q7",
+      type: "image_choice",
+      text: "Welches Bild zeigt das Prinzip 'Squash & Stretch'?",
+      options: ["Squash & Stretch", "Follow Through", "Anticipation", "Arcs"],
+      correctIndex: 0,
+      timeLimit: 20,
+    },
+    {
+      id: "q8",
+      type: "sorting",
+      text: "Sortiere die Prinzipien nach ihrer Wichtigkeit fuer Character Animation:",
+      items: ["Appeal", "Solid Drawing", "Exaggeration", "Secondary Action"],
+      correctOrder: [0, 1, 2, 3],
+      timeLimit: 40,
+    },
+    {
+      id: "q9",
+      type: "free_text",
+      text: "Erklaere in eigenen Worten, was das Prinzip 'Anticipation' bedeutet:",
+      keywords: ["Vorbereitung", "Aktion", "Bewegung", "vorher", "ankuendigen"],
+      timeLimit: 60,
+    },
+    {
+      id: "q10",
+      type: "timed",
+      text: "Schnellrunde: Welches Prinzip nutzt man fuer natuerlich wirkende Kurven?",
+      options: ["Arcs", "Timing", "Staging", "Appeal"],
+      correctIndex: 0,
+      timedLimit: 10,
+      timeLimit: 10,
     },
   ],
 };
@@ -104,7 +151,7 @@ type GameState = "intro" | "countdown" | "playing" | "feedback" | "results";
 
 interface Answer {
   questionId: string;
-  answer: number | boolean;
+  answer: unknown;
   isCorrect: boolean;
   timeTaken: number;
   points: number;
@@ -175,7 +222,7 @@ export default function QuizPlayerPage() {
   const [countdownValue, setCountdownValue] = useState(3);
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | boolean | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<unknown>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
   const [streak, setStreak] = useState(0);
@@ -251,6 +298,15 @@ export default function QuizPlayerPage() {
   // Answer Handler
   // ---------------------------------------------------------------------------
 
+  /** Generic answer handler for new question types (drag_drop, matching, etc.) */
+  const handleGenericAnswer = useCallback(
+    (answer: unknown, isCorrect: boolean) => {
+      handleAnswerInternal(answer, isCorrect);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentQ, showFeedback, timeLeft, totalQuestions, streak],
+  );
+
   const handleAnswer = useCallback(
     (answer: number | boolean) => {
       if (showFeedback) return;
@@ -258,12 +314,23 @@ export default function QuizPlayerPage() {
       const q = quiz.questions[currentQ];
       let isCorrect = false;
 
-      if (q.type === "multiple_choice") {
+      if (q.type === "multiple_choice" || q.type === "timed" || q.type === "image_choice") {
         isCorrect = answer === q.correctIndex;
       } else if (q.type === "true_false") {
         isCorrect = answer === q.correctAnswer;
       }
 
+      handleAnswerInternal(answer, isCorrect);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentQ, showFeedback, timeLeft, totalQuestions, streak],
+  );
+
+  const handleAnswerInternal = useCallback(
+    (answer: unknown, isCorrect: boolean) => {
+      if (showFeedback) return;
+
+      const q = quiz.questions[currentQ];
       // Calculate points
       let points = 0;
       const timeTaken = (q.timeLimit ?? 30) - timeLeft;
@@ -712,6 +779,17 @@ export default function QuizPlayerPage() {
                     })}
                   </motion.div>
                 )}
+
+                {/* Other Question Types — Rendered via QuestionRenderer */}
+                {question.type !== "multiple_choice" &&
+                  question.type !== "true_false" && (
+                    <QuestionRenderer
+                      question={question}
+                      onAnswer={handleGenericAnswer}
+                      showFeedback={showFeedback}
+                      disabled={showFeedback}
+                    />
+                  )}
               </motion.div>
             )}
 
