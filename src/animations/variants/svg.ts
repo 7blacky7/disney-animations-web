@@ -12,7 +12,7 @@
  * - Looping variants use Infinity repeat
  */
 
-import type { Variants, Transition } from "framer-motion";
+import type { Variants } from "framer-motion";
 import { SPRING, TIMING } from "@/lib/animation-utils";
 
 // ---------------------------------------------------------------------------

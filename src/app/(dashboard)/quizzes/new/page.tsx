@@ -76,7 +76,7 @@ export default function NewQuizPage() {
 
   function addQuestion(typeId: string) {
     const newQ: Question = {
-      id: `q-${Date.now()}`,
+      id: `q-${crypto.randomUUID()}`,
       type: typeId,
       title: "",
       options: typeId === "multiple_choice" ? ["", "", "", ""] : undefined,

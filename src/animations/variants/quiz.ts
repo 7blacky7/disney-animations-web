@@ -12,7 +12,7 @@
  */
 
 import type { Variants, Transition } from "framer-motion";
-import { SPRING, TIMING, EASING } from "@/lib/animation-utils";
+import { TIMING, EASING } from "@/lib/animation-utils";
 
 // ---------------------------------------------------------------------------
 // Spring Configs — Quiz-Specific (bouncier than standard)

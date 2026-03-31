@@ -14,14 +14,8 @@
  * Rules: Only transform + opacity. No filter. No layout properties.
  */
 
-import type { Variants, Transition } from "framer-motion";
-import { SPRING, TIMING, EASING } from "@/lib/animation-utils";
-
-// ---------------------------------------------------------------------------
-// Tween Overshoot Helper (safe for 3+ keyframes)
-// ---------------------------------------------------------------------------
-
-const OVERSHOOT_EASE = [0.34, 1.56, 0.64, 1] as const;
+import type { Variants } from "framer-motion";
+import { SPRING, TIMING } from "@/lib/animation-utils";
 
 // ---------------------------------------------------------------------------
 // Bento Grid Container

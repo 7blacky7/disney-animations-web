@@ -9,7 +9,7 @@
  */
 
 import type { Variants } from "framer-motion";
-import { TIMING, EASING } from "@/lib/animation-utils";
+import { EASING } from "@/lib/animation-utils";
 
 // ---------------------------------------------------------------------------
 // Overshoot Ease (safe tween for multi-keyframe)

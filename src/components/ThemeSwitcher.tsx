@@ -6,7 +6,6 @@ import {
   useTheme,
   ACCENT_THEMES,
   type ThemeMode,
-  type AccentTheme,
 } from "@/providers/ThemeProvider";
 import { SPRING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
