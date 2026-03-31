@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { quizzes, questions, quizResults, quizAnswers } from "@/lib/db/schema";
+import { quizzes, questions, quizResults, quizAnswers, users } from "@/lib/db/schema";
 import { requireSession, requireRole } from "@/lib/auth/session";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, count, sql } from "drizzle-orm";
 
 /**
  * Quiz Server Actions — CRUD + Sichtbarkeits-Logik
@@ -349,4 +349,76 @@ export async function getQuizResults(quizId: string) {
     .orderBy(desc(quizResults.score));
 
   return results;
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard Stats
+// ---------------------------------------------------------------------------
+
+/**
+ * Aggregierte Dashboard-Statistiken.
+ * Gibt KPIs fuer die Uebersichtsseite zurueck.
+ */
+export async function getDashboardStats() {
+  const session = await requireSession();
+  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+
+  const [quizCount] = await db
+    .select({ value: count() })
+    .from(quizzes)
+    .where(and(eq(quizzes.tenantId, tenantId), eq(quizzes.isPublished, true)));
+
+  const [userCount] = await db
+    .select({ value: count() })
+    .from(users)
+    .where(eq(users.tenantId, tenantId));
+
+  const [completedCount] = await db
+    .select({ value: count() })
+    .from(quizResults)
+    .where(sql`${quizResults.completedAt} IS NOT NULL`);
+
+  const [avgResult] = await db
+    .select({
+      avg: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.maxScore} > 0 THEN (${quizResults.score}::float / ${quizResults.maxScore}) * 100 ELSE 0 END), 0)`,
+    })
+    .from(quizResults)
+    .where(sql`${quizResults.completedAt} IS NOT NULL`);
+
+  return {
+    activeQuizzes: quizCount?.value ?? 0,
+    totalUsers: userCount?.value ?? 0,
+    completedAttempts: completedCount?.value ?? 0,
+    averageScore: Math.round(avgResult?.avg ?? 0),
+  };
+}
+
+/**
+ * Quiz-Statistiken mit Aggregation pro Quiz.
+ */
+export async function getQuizStats() {
+  const session = await requireSession();
+  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+
+  const stats = await db
+    .select({
+      quizId: quizzes.id,
+      title: quizzes.title,
+      plays: count(quizResults.id),
+      avgScore: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.maxScore} > 0 THEN (${quizResults.score}::float / ${quizResults.maxScore}) * 100 ELSE 0 END), 0)`,
+      completionRate: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.completedAt} IS NOT NULL THEN 100 ELSE 0 END), 0)`,
+      practiceRatio: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.isPractice} THEN 100 ELSE 0 END), 0)`,
+    })
+    .from(quizzes)
+    .leftJoin(quizResults, eq(quizResults.quizId, quizzes.id))
+    .where(and(eq(quizzes.tenantId, tenantId), eq(quizzes.isPublished, true)))
+    .groupBy(quizzes.id, quizzes.title)
+    .orderBy(desc(count(quizResults.id)));
+
+  return stats.map((s) => ({
+    ...s,
+    avgScore: Math.round(s.avgScore),
+    completionRate: Math.round(s.completionRate),
+    practiceRatio: Math.round(s.practiceRatio),
+  }));
 }
