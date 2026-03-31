@@ -1,5 +1,6 @@
 "use client";
 
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { DragDropQuestion } from "./DragDropQuestion";
 import { MatchingQuestion } from "./MatchingQuestion";
 import { SliderQuestion } from "./SliderQuestion";
@@ -13,29 +14,34 @@ import type { QuestionProps } from "./types";
 /**
  * QuestionRenderer — Renders the correct component for each question type.
  *
+ * Injects prefersReducedMotion from AccessibilityProvider into all
+ * child question components for WCAG compliance (Projekt-Regel #7).
+ *
  * MC and True/False are still handled inline in the Quiz Player
  * for backward compatibility. This component handles the 8 new types.
  */
 export function QuestionRenderer(props: QuestionProps) {
   const { question } = props;
+  const { prefersReducedMotion } = useAccessibility();
+  const enhancedProps = { ...props, prefersReducedMotion };
 
   switch (question.type) {
     case "drag_drop":
-      return <DragDropQuestion {...props} />;
+      return <DragDropQuestion {...enhancedProps} />;
     case "matching":
-      return <MatchingQuestion {...props} />;
+      return <MatchingQuestion {...enhancedProps} />;
     case "slider":
-      return <SliderQuestion {...props} />;
+      return <SliderQuestion {...enhancedProps} />;
     case "fill_blank":
-      return <FillBlankQuestion {...props} />;
+      return <FillBlankQuestion {...enhancedProps} />;
     case "free_text":
-      return <FreeTextQuestion {...props} />;
+      return <FreeTextQuestion {...enhancedProps} />;
     case "image_choice":
-      return <ImageChoiceQuestion {...props} />;
+      return <ImageChoiceQuestion {...enhancedProps} />;
     case "sorting":
-      return <SortingQuestion {...props} />;
+      return <SortingQuestion {...enhancedProps} />;
     case "timed":
-      return <TimedQuestion {...props} />;
+      return <TimedQuestion {...enhancedProps} />;
     default:
       return (
         <div className="rounded-xl border border-border/40 bg-muted/20 p-6 text-center text-sm text-muted-foreground">

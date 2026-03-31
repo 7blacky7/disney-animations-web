@@ -14,7 +14,7 @@ import type { QuestionProps } from "./types";
  * Disney Principles: Timing (urgency), Exaggeration (pulse),
  * Staging (red-hot urgency indicators), Appeal (dramatic countdown)
  */
-export function TimedQuestion({ question, onAnswer, showFeedback, disabled }: QuestionProps) {
+export function TimedQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
   const options = question.options ?? [];
   const correctIndex = question.correctIndex ?? 0;
 
@@ -22,7 +22,7 @@ export function TimedQuestion({ question, onAnswer, showFeedback, disabled }: Qu
     <div className="space-y-6">
       {/* Urgency Banner */}
       <motion.div
-        animate={{ opacity: [0.7, 1, 0.7] }}
+        animate={prefersReducedMotion ? {} : { opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
         className="mx-auto max-w-sm rounded-full border border-destructive/30 bg-destructive/5 px-4 py-1.5 text-center"
       >
@@ -33,8 +33,8 @@ export function TimedQuestion({ question, onAnswer, showFeedback, disabled }: Qu
 
       {/* Options — Same as MC but with urgency styling */}
       <motion.div
-        variants={answerOptionsContainer}
-        initial="hidden"
+        variants={prefersReducedMotion ? undefined : answerOptionsContainer}
+        initial={prefersReducedMotion ? false : "hidden"}
         animate="visible"
         className="grid gap-3 sm:grid-cols-2"
       >
@@ -45,13 +45,13 @@ export function TimedQuestion({ question, onAnswer, showFeedback, disabled }: Qu
           return (
             <motion.button
               key={i}
-              variants={answerOptionItem}
+              variants={prefersReducedMotion ? undefined : answerOptionItem}
               onClick={() => !disabled && onAnswer(i, i === correctIndex)}
               disabled={disabled}
               animate={
-                isCorrect
+                !prefersReducedMotion && isCorrect
                   ? { scale: [1, 1.03, 1], transition: { duration: 0.3 } }
-                  : isWrong
+                  : !prefersReducedMotion && isWrong
                     ? { x: [0, -4, 4, 0], transition: { duration: 0.3 } }
                     : {}
               }

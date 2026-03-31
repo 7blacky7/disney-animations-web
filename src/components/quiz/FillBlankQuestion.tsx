@@ -16,7 +16,7 @@ import type { QuestionProps } from "./types";
  * Disney Principles: Anticipation (focus on blank), Staging (highlight gap),
  * Follow Through (reveal animation)
  */
-export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled }: QuestionProps) {
+export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
   const blankText = question.blankText ?? question.text;
   const acceptedAnswers = question.blankAnswers ?? [];
   const [input, setInput] = useState("");
@@ -44,7 +44,7 @@ export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled }
               <span className="relative mx-1 inline-block">
                 {submitted ? (
                   <motion.span
-                    initial={{ opacity: 0, y: 5 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={cn(
                       "inline-block rounded-lg border-b-2 px-2 py-0.5 font-bold",
@@ -89,7 +89,7 @@ export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled }
       {/* Correct answer reveal */}
       {showFeedback && !isCorrect && (
         <motion.p
-          initial={{ opacity: 0, y: 5 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-green-600 dark:text-green-400"
         >

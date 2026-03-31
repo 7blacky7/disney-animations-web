@@ -14,7 +14,7 @@ import type { QuestionProps } from "./types";
  * Disney Principles: Appeal (visual grid), Staging (highlight selection),
  * Follow Through (border animation on feedback)
  */
-export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled }: QuestionProps) {
+export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
   const options = question.options ?? [];
   const imageUrls = question.imageUrls ?? [];
   const correctIndex = question.correctIndex ?? 0;
@@ -31,8 +31,8 @@ export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled
         Waehle das richtige Bild:
       </p>
       <motion.div
-        variants={answerOptionsContainer}
-        initial="hidden"
+        variants={prefersReducedMotion ? undefined : answerOptionsContainer}
+        initial={prefersReducedMotion ? false : "hidden"}
         animate="visible"
         className="grid gap-4 grid-cols-2 sm:grid-cols-3"
       >
@@ -44,11 +44,11 @@ export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled
           return (
             <motion.button
               key={i}
-              variants={answerOptionItem}
+              variants={prefersReducedMotion ? undefined : answerOptionItem}
               onClick={() => !disabled && onAnswer(i, i === correctIndex)}
               disabled={disabled}
               animate={
-                showFeedback && i === correctIndex
+                showFeedback && i === correctIndex && !prefersReducedMotion
                   ? { scale: [1, 1.03, 1], transition: { duration: 0.3 } }
                   : {}
               }

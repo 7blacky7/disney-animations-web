@@ -14,7 +14,7 @@ import type { QuestionProps } from "./types";
  * Disney Principles: Follow Through (thumb overshoot on release),
  * Timing (smooth value update), Appeal (gradient track)
  */
-export function SliderQuestion({ question, onAnswer, showFeedback, disabled }: QuestionProps) {
+export function SliderQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
   const min = question.sliderMin ?? 0;
   const max = question.sliderMax ?? 100;
   const correct = question.sliderCorrect ?? 50;
@@ -39,7 +39,7 @@ export function SliderQuestion({ question, onAnswer, showFeedback, disabled }: Q
 
       {/* Value Display */}
       <motion.div
-        animate={submitted ? (isCorrect ? { scale: [1, 1.1, 1] } : { x: [0, -4, 4, 0] }) : {}}
+        animate={submitted && !prefersReducedMotion ? (isCorrect ? { scale: [1, 1.1, 1] } : { x: [0, -4, 4, 0] }) : {}}
         transition={{ duration: 0.3 }}
         className="text-center"
       >

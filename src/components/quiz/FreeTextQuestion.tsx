@@ -16,7 +16,7 @@ import type { QuestionProps } from "./types";
  * Disney Principles: Appeal (clean writing area),
  * Staging (focus on textarea), Follow Through (result reveal)
  */
-export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled }: QuestionProps) {
+export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
   const keywords = question.keywords ?? [];
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -65,7 +65,7 @@ export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled }:
       {/* Feedback */}
       {showFeedback && (
         <motion.div
-          initial={{ opacity: 0, y: 5 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           className={cn(
             "mx-auto max-w-lg rounded-xl border p-4 text-sm",

@@ -15,7 +15,7 @@ import type { QuestionProps } from "./types";
  * Disney Principles: Staging (highlight active selection),
  * Follow Through (connection animation), Appeal (colored pair badges)
  */
-export function MatchingQuestion({ question, onAnswer, showFeedback, disabled }: QuestionProps) {
+export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
   const leftItems = useMemo(() => question.matchLeft ?? [], [question.matchLeft]);
   const rightItems = useMemo(() => question.matchRight ?? [], [question.matchRight]);
   const [pairs, setPairs] = useState<Map<number, number>>(new Map());
@@ -88,8 +88,8 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled }:
         Verbinde die zusammengehoerenden Paare:
       </p>
       <motion.div
-        variants={answerOptionsContainer}
-        initial="hidden"
+        variants={prefersReducedMotion ? undefined : answerOptionsContainer}
+        initial={prefersReducedMotion ? false : "hidden"}
         animate="visible"
         className="grid grid-cols-2 gap-4"
       >
@@ -105,7 +105,7 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled }:
             return (
               <motion.button
                 key={`l-${i}`}
-                variants={answerOptionItem}
+                variants={prefersReducedMotion ? undefined : answerOptionItem}
                 onClick={() => handleLeftClick(i)}
                 disabled={disabled}
                 className={cn(
@@ -139,7 +139,7 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled }:
             return (
               <motion.button
                 key={`r-${origIdx}`}
-                variants={answerOptionItem}
+                variants={prefersReducedMotion ? undefined : answerOptionItem}
                 onClick={() => handleRightClick(origIdx)}
                 disabled={disabled || activeLeft === null}
                 className={cn(

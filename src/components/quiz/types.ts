@@ -64,4 +64,6 @@ export interface QuestionProps {
   onAnswer: (answer: unknown, isCorrect: boolean) => void;
   showFeedback: boolean;
   disabled: boolean;
+  /** prefers-reduced-motion — skip entrance animations, reduce motion feedback */
+  prefersReducedMotion?: boolean;
 }

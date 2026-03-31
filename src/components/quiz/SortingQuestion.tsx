@@ -16,7 +16,7 @@ import type { QuestionProps } from "./types";
  * Disney Principles: Follow Through (item slide animation),
  * Staging (clear move buttons), Appeal (smooth reorder)
  */
-export function SortingQuestion({ question, onAnswer, showFeedback, disabled }: QuestionProps) {
+export function SortingQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
   const items = question.items ?? [];
   const correctOrder = question.correctOrder ?? items.map((_, i) => i);
 
@@ -59,8 +59,8 @@ export function SortingQuestion({ question, onAnswer, showFeedback, disabled }: 
         Bringe die Elemente in die richtige Reihenfolge:
       </p>
       <motion.div
-        variants={answerOptionsContainer}
-        initial="hidden"
+        variants={prefersReducedMotion ? undefined : answerOptionsContainer}
+        initial={prefersReducedMotion ? false : "hidden"}
         animate="visible"
         className="mx-auto max-w-md space-y-2"
       >
@@ -71,9 +71,9 @@ export function SortingQuestion({ question, onAnswer, showFeedback, disabled }: 
           return (
             <motion.div
               key={itemIdx}
-              variants={answerOptionItem}
-              layout
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              variants={prefersReducedMotion ? undefined : answerOptionItem}
+              layout={!prefersReducedMotion}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className={cn(
                 "flex items-center gap-2 rounded-xl border p-3 text-sm font-medium",
                 !showFeedback && "border-border/40",

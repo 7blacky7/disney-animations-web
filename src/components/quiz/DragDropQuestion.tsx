@@ -15,7 +15,7 @@ import type { QuestionProps } from "./types";
  * Disney Principles: Staging (clear selection), Follow Through (bounce on place),
  * Appeal (clean numbered badges)
  */
-export function DragDropQuestion({ question, onAnswer, showFeedback, disabled }: QuestionProps) {
+export function DragDropQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
   const items = question.items ?? [];
   const correctOrder = question.correctOrder ?? items.map((_, i) => i);
   const [selectedOrder, setSelectedOrder] = useState<number[]>([]);
@@ -50,8 +50,8 @@ export function DragDropQuestion({ question, onAnswer, showFeedback, disabled }:
         Klicke die Elemente in der richtigen Reihenfolge an:
       </p>
       <motion.div
-        variants={answerOptionsContainer}
-        initial="hidden"
+        variants={prefersReducedMotion ? undefined : answerOptionsContainer}
+        initial={prefersReducedMotion ? false : "hidden"}
         animate="visible"
         className="space-y-2"
       >
@@ -64,10 +64,10 @@ export function DragDropQuestion({ question, onAnswer, showFeedback, disabled }:
           return (
             <motion.button
               key={i}
-              variants={answerOptionItem}
+              variants={prefersReducedMotion ? undefined : answerOptionItem}
               onClick={() => handleSelect(i)}
               disabled={disabled}
-              animate={isWrongPos ? { x: [0, -4, 4, 0], transition: { duration: 0.3 } } : {}}
+              animate={isWrongPos && !prefersReducedMotion ? { x: [0, -4, 4, 0], transition: { duration: 0.3 } } : {}}
               className={cn(
                 "flex w-full items-center gap-3 rounded-xl border p-4 text-left text-sm font-medium transition-colors",
                 !isPlaced && !disabled && "border-border/40 hover:border-primary/30 hover:bg-primary/5",
