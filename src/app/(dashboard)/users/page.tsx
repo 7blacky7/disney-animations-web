@@ -12,16 +12,15 @@ async function fetchData() {
     const session = await getSession();
     if (!session) return null;
 
-    const [users, departments, invitations] = await Promise.allSettled([
-      listUsers(),
-      listDepartments(),
-      listInvitations(),
-    ]);
+    // Sequential calls to avoid parallel getSession() issues in Next.js 16
+    const userList = await listUsers().catch(() => []);
+    const departmentList = await listDepartments().catch(() => []);
+    const invitationList = await listInvitations().catch(() => []);
 
     return {
-      users: users.status === "fulfilled" ? users.value : [],
-      departments: departments.status === "fulfilled" ? departments.value : [],
-      invitations: invitations.status === "fulfilled" ? invitations.value : [],
+      users: userList,
+      departments: departmentList,
+      invitations: invitationList,
     };
   } catch {
     return null;
