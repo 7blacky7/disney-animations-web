@@ -20,6 +20,7 @@ interface MobileSidebarProps {
 }
 
 export function MobileSidebar({ isOpen, onClose, children }: MobileSidebarProps) {
+  const { prefersReducedMotion } = useAccessibility();
   // Close on Escape
   useEffect(() => {
     if (!isOpen) return;
@@ -46,20 +47,20 @@ export function MobileSidebar({ isOpen, onClose, children }: MobileSidebarProps)
         <>
           {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
             className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm lg:hidden"
             onClick={onClose}
             aria-hidden="true"
           />
           {/* Drawer */}
           <motion.div
-            initial={{ x: "-100%" }}
+            initial={prefersReducedMotion ? false : { x: "-100%" }}
             animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { x: "-100%" }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               "fixed inset-y-0 left-0 z-50 w-64 lg:hidden",
               "bg-sidebar shadow-xl",

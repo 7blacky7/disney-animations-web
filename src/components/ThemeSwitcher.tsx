@@ -28,6 +28,7 @@ const MODES: { id: ThemeMode; label: string; icon: string }[] = [
 ];
 
 export function ThemeSwitcher() {
+  const { prefersReducedMotion } = useAccessibility();
   const { mode, resolvedTheme, accent, setMode, setAccent } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,10 +81,10 @@ export function ThemeSwitcher() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: -4 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.92, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: -4 }}
-            transition={{ ...SPRING.snappy }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: -4 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { ...SPRING.snappy }}
             className={cn(
               "absolute right-0 top-full z-50 mt-2",
               "w-56 overflow-hidden rounded-xl",

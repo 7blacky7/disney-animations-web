@@ -22,6 +22,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ role, isCollapsed = false, onToggleCollapse }: SidebarProps) {
+  const { prefersReducedMotion } = useAccessibility();
   const pathname = usePathname();
   const navGroups = getNavForRole(role);
 
@@ -78,9 +79,9 @@ export function Sidebar({ role, isCollapsed = false, onToggleCollapse }: Sidebar
                       {/* Active indicator */}
                       {isActive && (
                         <motion.div
-                          layoutId="sidebar-active"
+                          layoutId={prefersReducedMotion ? undefined : "sidebar-active"}
                           className="absolute inset-0 rounded-lg bg-sidebar-accent"
-                          transition={{ duration: 0.2, ease: "easeOut" }}
+                          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }}
                           style={{ zIndex: -1 }}
                         />
                       )}

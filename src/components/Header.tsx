@@ -23,6 +23,7 @@ const NAV_LINKS = [
 ] as const;
 
 export function Header() {
+  const { prefersReducedMotion } = useAccessibility();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const { scrollY } = useScroll();
@@ -41,7 +42,7 @@ export function Header() {
   return (
     <motion.header
       animate={{ y: isHidden ? "-100%" : "0%" }}
-      transition={{ ...SPRING.stiff }}
+      transition={prefersReducedMotion ? { duration: 0 } : { ...SPRING.stiff }}
       className={cn(
         "fixed top-0 inset-x-0 z-50",
         "transition-[backdrop-filter,background-color,border-color] duration-300",

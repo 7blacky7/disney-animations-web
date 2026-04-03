@@ -98,6 +98,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   });
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
 
+  // Mark document as hydrated (for CSS hydration-fallback safety net)
+  useEffect(() => {
+    document.documentElement.setAttribute("data-hydrated", "");
+  }, []);
+
   // Resolve theme and apply .dark class
   useEffect(() => {
     const root = document.documentElement;

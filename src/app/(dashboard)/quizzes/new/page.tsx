@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -63,6 +64,7 @@ interface Question {
 }
 
 export default function NewQuizPage() {
+  const { prefersReducedMotion } = useAccessibility();
   const [currentStep, setCurrentStep] = useState<Step>("Grundlagen");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -136,10 +138,10 @@ export default function NewQuizPage() {
         {currentStep === "Grundlagen" && (
           <motion.div
             key="grundlagen"
-            initial={{ opacity: 0, x: -20 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-6"
           >
             <div className="rounded-2xl border border-border/40 bg-card p-6 space-y-5">
@@ -196,10 +198,10 @@ export default function NewQuizPage() {
         {currentStep === "Fragen" && (
           <motion.div
             key="fragen"
-            initial={{ opacity: 0, x: -20 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-6"
           >
             {/* Question list */}
@@ -211,10 +213,10 @@ export default function NewQuizPage() {
                 return (
                   <motion.div
                     key={q.id}
-                    layout
-                    initial={{ opacity: 0, y: 10 }}
+                    layout={!prefersReducedMotion}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
+                    transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const }}
                     className="rounded-2xl border border-border/40 bg-card p-5"
                   >
                     <div className="flex items-start gap-3">
@@ -288,17 +290,18 @@ export default function NewQuizPage() {
               {showTypePicker && (
                 <>
                   <motion.div
-                    initial={{ opacity: 0 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    transition={prefersReducedMotion ? { duration: 0 } : undefined}
                     className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm"
                     onClick={() => setShowTypePicker(false)}
                   />
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 10 }}
+                    transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                     className="fixed inset-x-4 top-[10%] z-50 mx-auto max-w-2xl rounded-2xl border border-border/50 bg-background p-6 shadow-xl sm:inset-x-auto"
                   >
                     <h2 className="font-heading text-lg font-bold">Frage-Typ waehlen</h2>
@@ -347,10 +350,10 @@ export default function NewQuizPage() {
         {currentStep === "Vorschau" && (
           <motion.div
             key="vorschau"
-            initial={{ opacity: 0, x: -20 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-6"
           >
             <div className="rounded-2xl border border-border/40 bg-card p-6 space-y-4">
