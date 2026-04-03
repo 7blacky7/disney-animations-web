@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { users, departments, invitations, tenants } from "@/lib/db/schema";
-import { requireRole, requireSession } from "@/lib/auth/session";
+import { requireRole, getSessionTenantId } from "@/lib/auth/session";
 import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
@@ -18,8 +18,8 @@ import { randomUUID } from "crypto";
  * Benutzer des eigenen Mandanten auflisten.
  */
 export async function listUsers() {
-  const session = await requireRole("admin");
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  await requireRole("admin");
+  const tenantId = await getSessionTenantId();
 
   const result = await db
     .select()
@@ -71,8 +71,7 @@ export async function removeUser(userId: string) {
  * Abteilungen des eigenen Mandanten auflisten.
  */
 export async function listDepartments() {
-  const session = await requireSession();
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  const tenantId = await getSessionTenantId();
 
   const result = await db
     .select()
@@ -87,8 +86,8 @@ export async function listDepartments() {
  * Abteilung erstellen.
  */
 export async function createDepartment(name: string) {
-  const session = await requireRole("admin");
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  await requireRole("admin");
+  const tenantId = await getSessionTenantId();
 
   const [dept] = await db.insert(departments).values({
     tenantId,
@@ -120,7 +119,7 @@ export async function inviteUser(
   departmentId?: string,
 ) {
   const session = await requireRole("admin");
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  const tenantId = await getSessionTenantId();
 
   const token = randomUUID();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 Tage
@@ -144,8 +143,8 @@ export async function inviteUser(
  * Ausstehende Einladungen auflisten.
  */
 export async function listInvitations() {
-  const session = await requireRole("admin");
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  await requireRole("admin");
+  const tenantId = await getSessionTenantId();
 
   const result = await db
     .select()
@@ -164,8 +163,7 @@ export async function listInvitations() {
  * Eigenen Mandant-Infos laden.
  */
 export async function getTenant() {
-  const session = await requireSession();
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  const tenantId = await getSessionTenantId();
 
   if (!tenantId) throw new Error("Kein Mandant zugeordnet");
 
@@ -187,8 +185,8 @@ export async function updateTenantBranding(data: {
   primaryColor?: string;
   accentColor?: string;
 }) {
-  const session = await requireRole("admin");
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  await requireRole("admin");
+  const tenantId = await getSessionTenantId();
 
   const [updated] = await db
     .update(tenants)

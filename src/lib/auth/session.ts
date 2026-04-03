@@ -1,5 +1,8 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema/users";
+import { eq } from "drizzle-orm";
 import type { UserRole } from "./rbac";
 import { hasRole } from "./rbac";
 
@@ -46,12 +49,29 @@ export async function requireSession() {
 }
 
 /**
+ * Tenant-ID des eingeloggten Users aus der DB laden.
+ * better-auth Session enthält keine custom User-Felder (tenantId, role, departmentId).
+ */
+export async function getSessionTenantId(): Promise<string> {
+  const session = await requireSession();
+  const [dbUser] = await db
+    .select({ tenantId: users.tenantId, role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id));
+  return dbUser?.tenantId ?? "";
+}
+
+/**
  * Session mit Rollen-Check.
  * Wirft Error wenn Rolle nicht ausreicht.
  */
 export async function requireRole(requiredRole: UserRole) {
   const session = await requireSession();
-  const userRole = (session.user as Record<string, unknown>).role as UserRole | undefined;
+  const [dbUser] = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id));
+  const userRole = dbUser?.role as UserRole | undefined;
 
   if (!userRole || !hasRole(userRole, requiredRole)) {
     throw new Error(`Zugriff verweigert. Erforderliche Rolle: ${requiredRole}`);

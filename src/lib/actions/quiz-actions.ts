@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { quizzes, questions, quizResults, quizAnswers, users } from "@/lib/db/schema";
-import { requireSession, requireRole } from "@/lib/auth/session";
+import { requireSession, requireRole, getSessionTenantId } from "@/lib/auth/session";
 import { eq, and, desc, count, sql } from "drizzle-orm";
 
 /**
@@ -60,7 +60,7 @@ interface SubmitAnswerInput {
 export async function createQuiz(input: CreateQuizInput) {
   const session = await requireRole("department_lead");
   const userId = session.user.id;
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  const tenantId = await getSessionTenantId();
 
   if (!tenantId) {
     throw new Error("Kein Mandant zugeordnet");
@@ -143,8 +143,7 @@ export async function deleteQuiz(quizId: string) {
  * Quizzes auflisten (mit Sichtbarkeits-Filterung).
  */
 export async function listQuizzes() {
-  const session = await requireSession();
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  const tenantId = await getSessionTenantId();
 
   // Alle publizierten Quizzes des Mandanten
   const result = await db
@@ -360,13 +359,7 @@ export async function getQuizResults(quizId: string) {
  * Gibt KPIs fuer die Uebersichtsseite zurueck.
  */
 export async function getDashboardStats() {
-  const session = await requireSession();
-  // better-auth session doesn't include custom fields — load from DB
-  const [dbUser] = await db
-    .select({ tenantId: users.tenantId })
-    .from(users)
-    .where(eq(users.id, session.user.id));
-  const tenantId = dbUser?.tenantId ?? "";
+  const tenantId = await getSessionTenantId();
 
   const [quizCount] = await db
     .select({ value: count() })
@@ -402,8 +395,7 @@ export async function getDashboardStats() {
  * Quiz-Statistiken mit Aggregation pro Quiz.
  */
 export async function getQuizStats() {
-  const session = await requireSession();
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  const tenantId = await getSessionTenantId();
 
   const stats = await db
     .select({
