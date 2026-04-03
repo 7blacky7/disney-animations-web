@@ -104,7 +104,7 @@ export function QuizzesClient({ initialQuizzes, hasData }: QuizzesClientProps) {
                   className={cn(
                     "text-[10px]",
                     quiz.isPublished
-                      ? "bg-green-500/10 text-green-600 border-green-500/20"
+                      ? "bg-success/10 text-success border-success/20"
                       : "bg-muted text-muted-foreground",
                   )}
                 >

@@ -107,11 +107,11 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
                   {/* Score circle */}
                   <div className={cn(
                     "relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full",
-                    scorePercent >= 80 ? "bg-green-500/10" : scorePercent >= 60 ? "bg-chart-3/10" : "bg-destructive/10",
+                    scorePercent >= 80 ? "bg-success/10" : scorePercent >= 60 ? "bg-chart-3/10" : "bg-destructive/10",
                   )}>
                     <span className={cn(
                       "font-heading text-lg font-bold",
-                      scorePercent >= 80 ? "text-green-600" : scorePercent >= 60 ? "text-chart-3" : "text-destructive",
+                      scorePercent >= 80 ? "text-success" : scorePercent >= 60 ? "text-chart-3" : "text-destructive",
                     )}>
                       {scorePercent}
                     </span>
@@ -121,7 +121,7 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
                       <motion.circle
                         cx="28" cy="28" r="24" fill="none" strokeWidth="3" strokeLinecap="round"
                         className={cn(
-                          scorePercent >= 80 ? "text-green-500" : scorePercent >= 60 ? "text-chart-3" : "text-destructive",
+                          scorePercent >= 80 ? "text-success" : scorePercent >= 60 ? "text-chart-3" : "text-destructive",
                         )}
                         stroke="currentColor"
                         strokeDasharray={`${2 * Math.PI * 24}`}
@@ -162,7 +162,7 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
                       transition={{ duration: 0.6, delay: 0.1 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                       className={cn(
                         "h-full origin-left rounded-full",
-                        scorePercent >= 80 ? "bg-green-500" :
+                        scorePercent >= 80 ? "bg-success" :
                         scorePercent >= 60 ? "bg-chart-3" :
                         "bg-destructive",
                       )}

@@ -192,7 +192,7 @@ export function UsersClient({ initialUsers, departments, hasData }: UsersClientP
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <Badge variant="outline" className="text-[10px] bg-green-500/10 text-green-600 border-green-500/20">
+                    <Badge variant="outline" className="text-[10px] bg-success/10 text-success border-success/20">
                       Aktiv
                     </Badge>
                   </TableCell>

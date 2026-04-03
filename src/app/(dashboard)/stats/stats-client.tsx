@@ -175,7 +175,7 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         "flex h-10 w-10 items-center justify-center rounded-xl font-heading text-sm font-bold",
-                        scorePercent >= 80 ? "bg-green-500/10 text-green-600" :
+                        scorePercent >= 80 ? "bg-success/10 text-success" :
                         scorePercent >= 60 ? "bg-chart-3/10 text-chart-3" :
                         "bg-destructive/10 text-destructive",
                       )}>
@@ -203,7 +203,7 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
                         style={{ transformOrigin: "left" }}
                         className={cn(
                           "h-full w-full rounded-full",
-                          scorePercent >= 80 ? "bg-green-500" :
+                          scorePercent >= 80 ? "bg-success" :
                           scorePercent >= 60 ? "bg-chart-3" :
                           "bg-destructive",
                         )}
