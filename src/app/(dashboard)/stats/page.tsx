@@ -12,15 +12,11 @@ async function fetchStats() {
     const session = await getSession();
     if (!session) return null;
 
-    const [quizStats, personalResults] = await Promise.allSettled([
-      getQuizStats(),
-      getMyResults(),
-    ]);
+    // Sequential calls to avoid parallel getSession() issues in Next.js 16
+    const quizStats = await getQuizStats().catch(() => []);
+    const personalResults = await getMyResults().catch(() => []);
 
-    return {
-      quizStats: quizStats.status === "fulfilled" ? quizStats.value : [],
-      personalResults: personalResults.status === "fulfilled" ? personalResults.value : [],
-    };
+    return { quizStats, personalResults };
   } catch {
     return null;
   }
