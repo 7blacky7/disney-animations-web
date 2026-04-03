@@ -140,7 +140,7 @@ export function HeroSection() {
         <motion.h1
           variants={prefersReducedMotion ? undefined : headlineVariants}
           className={cn(
-            "font-heading text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl",
+            "font-heading text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-7xl xl:text-8xl",
             "bg-gradient-to-b from-foreground via-foreground/90 to-foreground/50 bg-clip-text text-transparent",
             "leading-[1.05]",
           )}

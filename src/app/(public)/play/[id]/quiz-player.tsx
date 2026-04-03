@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { QuestionRenderer } from "@/components/quiz/QuestionRenderer";
 import type { QuestionData } from "@/components/quiz/types";
+import { startQuizAttempt, submitAnswer, completeQuizAttempt } from "@/lib/actions/quiz-actions";
 import {
   // Countdown
   countdownNumber,
@@ -148,6 +149,7 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
   const [totalScore, setTotalScore] = useState(0);
   const [showPointsFloat, setShowPointsFloat] = useState<{ points: number; x: number } | null>(null);
   const [showScorePop, setShowScorePop] = useState(false);
+  const [resultId, setResultId] = useState<string | null>(null);
   const { prefersReducedMotion } = useAccessibility();
 
   const question = quizQuestions[currentQ];
@@ -174,6 +176,18 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
   // ---------------------------------------------------------------------------
   // Countdown (3-2-1 before quiz start)
   // ---------------------------------------------------------------------------
+
+  // Start quiz attempt when countdown begins
+  useEffect(() => {
+    if (state !== "countdown") return;
+    if (resultId) return; // Already started
+
+    startQuizAttempt(quizId).then((result) => {
+      setResultId(result.id);
+    }).catch((err) => {
+      console.error("Failed to start quiz attempt:", err);
+    });
+  }, [state, quizId, resultId]);
 
   useEffect(() => {
     if (state !== "countdown") return;
@@ -291,6 +305,20 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
         },
       ]);
 
+      // Submit answer to server
+      if (resultId) {
+        submitAnswer({
+          resultId,
+          questionId: q.id,
+          answer,
+          isCorrect,
+          timeTaken,
+          pointsEarned: points,
+        }).catch((err) => {
+          console.error("Failed to submit answer:", err);
+        });
+      }
+
       // Auto-advance after feedback
       setTimeout(
         () => {
@@ -299,6 +327,12 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
             setSelectedAnswer(null);
             setShowFeedback(false);
           } else {
+            // Complete quiz attempt on server
+            if (resultId) {
+              completeQuizAttempt(resultId).catch((err) => {
+                console.error("Failed to complete quiz attempt:", err);
+              });
+            }
             setState("results");
           }
         },
@@ -327,6 +361,7 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
     setStreak(0);
     setTotalScore(0);
     setCountdownValue(3);
+    setResultId(null);
   }, []);
 
   // ---------------------------------------------------------------------------
