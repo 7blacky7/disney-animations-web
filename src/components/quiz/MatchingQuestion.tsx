@@ -113,7 +113,7 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, p
                   !isPaired && !isActive && "border-border/40 hover:border-primary/30",
                   isActive && "border-primary ring-2 ring-primary/20 bg-primary/5",
                   isPaired && !showFeedback && PAIR_COLORS[pairIdx % PAIR_COLORS.length],
-                  isCorrectPair && "border-green-500 bg-green-500/10 text-green-700",
+                  isCorrectPair && "border-success bg-success/10 text-success-foreground",
                   isWrongPair && "border-destructive bg-destructive/10 text-destructive",
                 )}
               >
@@ -147,7 +147,7 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, p
                   !isPaired && activeLeft !== null && "border-border/40 hover:border-primary/30 hover:bg-primary/5",
                   !isPaired && activeLeft === null && "border-border/40 opacity-60",
                   isPaired && !showFeedback && PAIR_COLORS[pairIdx % PAIR_COLORS.length],
-                  isCorrectPair && "border-green-500 bg-green-500/10 text-green-700",
+                  isCorrectPair && "border-success bg-success/10 text-success-foreground",
                   isWrongPair && "border-destructive bg-destructive/10 text-destructive",
                 )}
               >

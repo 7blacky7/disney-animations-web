@@ -205,7 +205,7 @@ function FloatingPoints({ points, x }: { points: number; x: number }) {
       variants={pointsFloat}
       initial="enter"
       animate="float"
-      className="pointer-events-none absolute font-heading text-lg font-bold text-primary"
+      className="pointer-events-none absolute font-heading text-lg font-bold text-success"
       style={{ left: `${x}%`, top: "40%" }}
     >
       +{points}
@@ -721,7 +721,7 @@ export default function QuizPlayerPage() {
                               !showFeedback &&
                               "border-primary bg-primary/10 text-primary",
                             isCorrect &&
-                              "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400",
+                              "border-success bg-success/10 text-success-foreground dark:text-success",
                             isWrong &&
                               "border-destructive bg-destructive/10 text-destructive",
                           )}
@@ -768,7 +768,7 @@ export default function QuizPlayerPage() {
                             !showFeedback &&
                               "border-border/40 hover:border-primary/30 hover:bg-primary/5",
                             isCorrect &&
-                              "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400",
+                              "border-success bg-success/10 text-success-foreground dark:text-success",
                             isWrong &&
                               "border-destructive bg-destructive/10 text-destructive",
                           )}
@@ -865,7 +865,7 @@ export default function QuizPlayerPage() {
                       stroke="currentColor"
                       className={cn(
                         scorePercent >= 80
-                          ? "text-green-500"
+                          ? "text-success"
                           : scorePercent >= 60
                             ? "text-chart-3"
                             : "text-destructive",
@@ -890,7 +890,7 @@ export default function QuizPlayerPage() {
                     className={cn(
                       "font-heading text-3xl font-bold",
                       scorePercent >= 80
-                        ? "text-green-600 dark:text-green-400"
+                        ? "text-success"
                         : scorePercent >= 60
                           ? "text-chart-3"
                           : "text-destructive",
@@ -931,14 +931,14 @@ export default function QuizPlayerPage() {
                       className={cn(
                         "flex items-center gap-3 rounded-xl border px-4 py-2.5 text-sm",
                         a.isCorrect
-                          ? "border-green-500/30 bg-green-500/5"
+                          ? "border-success/30 bg-success/5"
                           : "border-destructive/30 bg-destructive/5",
                       )}
                     >
                       <span
                         className={cn(
                           "flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white",
-                          a.isCorrect ? "bg-green-500" : "bg-destructive",
+                          a.isCorrect ? "bg-success" : "bg-destructive",
                         )}
                       >
                         {i + 1}
@@ -948,7 +948,7 @@ export default function QuizPlayerPage() {
                       </span>
                       <span className="text-xs font-medium text-muted-foreground">
                         {a.points > 0 && (
-                          <span className="mr-2 text-green-600 dark:text-green-400">
+                          <span className="mr-2 text-success">
                             +{a.points}
                           </span>
                         )}

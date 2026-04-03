@@ -45,7 +45,7 @@ export function SliderQuestion({ question, onAnswer, showFeedback, disabled, pre
       >
         <span className={cn(
           "font-heading text-4xl font-bold",
-          showFeedback && isCorrect && "text-green-600 dark:text-green-400",
+          showFeedback && isCorrect && "text-success-foreground",
           showFeedback && !isCorrect && "text-destructive",
           !showFeedback && "text-primary",
         )}>
@@ -77,7 +77,7 @@ export function SliderQuestion({ question, onAnswer, showFeedback, disabled, pre
           <motion.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-3 text-center text-xs text-green-600 dark:text-green-400"
+            className="mt-3 text-center text-xs text-success-foreground"
           >
             Richtige Antwort: {correct} (Toleranz: ±{tolerance})
           </motion.div>

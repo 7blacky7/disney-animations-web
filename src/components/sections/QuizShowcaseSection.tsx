@@ -333,7 +333,7 @@ function BentoCard({ quiz, index }: { quiz: QuizType; index: number }) {
         )}>
           <span className={cn(
             "h-1.5 w-1.5 rounded-full",
-            isHovered ? "bg-muted-foreground/30" : "bg-green-500/50",
+            isHovered ? "bg-muted-foreground/30" : "bg-success/50",
           )} />
           {isHovered ? "Pausiert" : "Live"}
         </span>
@@ -393,13 +393,13 @@ function MCDemo({ isPaused }: { isPaused: boolean }) {
               "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs",
               !isSelected && "border-border/40",
               isSelected && !confirmed && "border-primary/40 bg-primary/5",
-              isCorrect && "border-green-500/50 bg-green-500/10",
+              isCorrect && "border-success/50 bg-success/10",
               isWrong && "border-destructive/40 bg-destructive/5",
             )}
           >
             <span className={cn(
               "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold",
-              isCorrect ? "bg-green-500 text-white" :
+              isCorrect ? "bg-success text-white" :
               isWrong ? "bg-destructive text-white" :
               isSelected ? "bg-primary text-primary-foreground" :
               "border border-muted-foreground/30 text-muted-foreground",
@@ -567,7 +567,7 @@ function FillInDemo({ isPaused }: { isPaused: boolean }) {
         transition={OVERSHOOT}
         className={cn(
           "flex items-center rounded-xl border px-3 py-2",
-          showCheck ? "border-green-500/40 bg-green-500/5" : "border-primary/30 bg-primary/5",
+          showCheck ? "border-success/40 bg-success/5" : "border-primary/30 bg-primary/5",
         )}
       >
         <span className="font-mono text-sm font-medium">{typed}</span>
@@ -578,7 +578,7 @@ function FillInDemo({ isPaused }: { isPaused: boolean }) {
             className="ml-px inline-block h-4 w-px bg-primary"
           />
         )}
-        {showCheck && <span className="ml-auto text-green-500"><CheckSvg className="h-3.5 w-3.5" /></span>}
+        {showCheck && <span className="ml-auto text-success"><CheckSvg className="h-3.5 w-3.5" /></span>}
       </motion.div>
     </div>
   );
@@ -659,7 +659,7 @@ function TrueFalseDemo({ isPaused }: { isPaused: boolean }) {
                 "flex-1 rounded-xl border py-3 text-xs font-bold uppercase tracking-wider",
                 !isSelected && "border-border/40 text-muted-foreground",
                 isSelected && !revealed && "border-primary/40 bg-primary/10 text-primary",
-                isCorrectReveal && "border-green-500/50 bg-green-500/10 text-green-600",
+                isCorrectReveal && "border-success/50 bg-success/10 text-success-foreground",
                 isWrongReveal && "border-destructive/40 bg-destructive/5 text-destructive",
               )}
             >
@@ -706,7 +706,7 @@ function ImageChoiceDemo({ isPaused }: { isPaused: boolean }) {
                 "flex flex-col items-center gap-1 rounded-xl border p-2",
                 !isActive && "border-border/40",
                 isActive && !confirmed && "border-primary/40 ring-1 ring-primary/20",
-                isCorrect && "border-green-500/50 ring-1 ring-green-500/20 bg-green-500/5",
+                isCorrect && "border-success/50 ring-1 ring-success/20 bg-success/5",
               )}
             >
               <div className="h-10 w-full rounded-lg bg-muted/50 flex items-end justify-center pb-1">
@@ -760,18 +760,18 @@ function SortingDemo({ isPaused }: { isPaused: boolean }) {
           className={cn(
             "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs",
             isDone && idx === pos
-              ? "border-green-500/40 bg-green-500/5"
+              ? "border-success/40 bg-success/5"
               : "border-border/40 bg-background/60",
           )}
         >
           <span className={cn(
             "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold",
-            isDone && idx === pos ? "bg-green-500 text-white" : "bg-muted text-muted-foreground",
+            isDone && idx === pos ? "bg-success text-white" : "bg-muted text-muted-foreground",
           )}>
             {pos + 1}
           </span>
           <span className="font-medium">{items[idx]}</span>
-          {isDone && idx === pos && <span className="ml-auto text-green-500"><CheckSvg className="h-2.5 w-2.5" /></span>}
+          {isDone && idx === pos && <span className="ml-auto text-success"><CheckSvg className="h-2.5 w-2.5" /></span>}
         </motion.div>
       ))}
     </div>
@@ -833,7 +833,7 @@ function TimerDemo({ isPaused }: { isPaused: boolean; hue: string }) {
             className={cn(
               "rounded-lg border px-2 py-1.5 text-center text-[10px] font-medium",
               answered && i === 0
-                ? "border-green-500/40 bg-green-500/10 text-green-600"
+                ? "border-success/40 bg-success/10 text-success-foreground"
                 : "border-border/40",
             )}
           >

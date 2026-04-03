@@ -72,7 +72,7 @@ export function DragDropQuestion({ question, onAnswer, showFeedback, disabled, p
                 "flex w-full items-center gap-3 rounded-xl border p-4 text-left text-sm font-medium transition-colors",
                 !isPlaced && !disabled && "border-border/40 hover:border-primary/30 hover:bg-primary/5",
                 isPlaced && !showFeedback && "border-primary bg-primary/10 text-primary",
-                isCorrectPos && "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400",
+                isCorrectPos && "border-success bg-success/10 text-success-foreground",
                 isWrongPos && "border-destructive bg-destructive/10 text-destructive",
               )}
             >

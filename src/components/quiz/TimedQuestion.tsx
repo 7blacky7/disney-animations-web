@@ -58,7 +58,7 @@ export function TimedQuestion({ question, onAnswer, showFeedback, disabled, pref
               className={cn(
                 "rounded-2xl border-2 p-5 text-left text-sm font-medium transition-colors",
                 !disabled && !showFeedback && "border-destructive/20 hover:border-destructive/40 hover:bg-destructive/5",
-                isCorrect && "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400",
+                isCorrect && "border-success bg-success/10 text-success-foreground",
                 isWrong && "border-border/20 opacity-40",
               )}
             >

@@ -49,7 +49,7 @@ export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled, 
                     className={cn(
                       "inline-block rounded-lg border-b-2 px-2 py-0.5 font-bold",
                       isCorrect
-                        ? "border-green-500 text-green-700 dark:text-green-400"
+                        ? "border-success text-success-foreground"
                         : "border-destructive text-destructive",
                     )}
                   >
@@ -91,7 +91,7 @@ export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled, 
         <motion.p
           initial={prefersReducedMotion ? false : { opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center text-sm text-green-600 dark:text-green-400"
+          className="text-center text-sm text-success-foreground"
         >
           Richtige Antwort: {acceptedAnswers[0]}
         </motion.p>

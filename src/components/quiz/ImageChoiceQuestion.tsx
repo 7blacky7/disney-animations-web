@@ -57,7 +57,7 @@ export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled
                 "group flex flex-col items-center gap-2 rounded-2xl border p-3 transition-all",
                 !disabled && "hover:border-primary/30 hover:bg-primary/5",
                 !showFeedback && "border-border/40",
-                isCorrect && "border-green-500 bg-green-500/10 ring-2 ring-green-500/20",
+                isCorrect && "border-success bg-success/10 ring-2 ring-success/20",
                 isWrong && "border-border/20 opacity-50",
               )}
             >

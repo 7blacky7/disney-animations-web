@@ -77,14 +77,14 @@ export function SortingQuestion({ question, onAnswer, showFeedback, disabled, pr
               className={cn(
                 "flex items-center gap-2 rounded-xl border p-3 text-sm font-medium",
                 !showFeedback && "border-border/40",
-                isCorrectPos && "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400",
+                isCorrectPos && "border-success bg-success/10 text-success-foreground",
                 isWrongPos && "border-destructive bg-destructive/10 text-destructive",
               )}
             >
               {/* Position number */}
               <span className={cn(
                 "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                isCorrectPos && "bg-green-500 text-white",
+                isCorrectPos && "bg-success text-success-foreground",
                 isWrongPos && "bg-destructive text-white",
                 !showFeedback && "bg-muted text-muted-foreground",
               )}>

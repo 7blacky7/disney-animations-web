@@ -70,7 +70,7 @@ export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled, p
           className={cn(
             "mx-auto max-w-lg rounded-xl border p-4 text-sm",
             isCorrect
-              ? "border-green-500/30 bg-green-500/5 text-green-700 dark:text-green-400"
+              ? "border-success/30 bg-success/5 text-success-foreground"
               : "border-destructive/30 bg-destructive/5 text-destructive",
           )}
         >

@@ -135,7 +135,7 @@ export default function RegisterPage() {
 
           {error && (
             <motion.p
-              initial={{ opacity: 0, y: -4 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-sm text-destructive"
             >
@@ -146,8 +146,8 @@ export default function RegisterPage() {
           <motion.button
             type="submit"
             disabled={isLoading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
             transition={{ duration: TIMING.instant }}
             className={cn(
               "w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground",
