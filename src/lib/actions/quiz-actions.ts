@@ -305,7 +305,7 @@ export async function completeQuizAttempt(resultId: string) {
     .where(eq(quizAnswers.resultId, resultId));
 
   const totalScore = answers.reduce((sum, a) => sum + a.pointsEarned, 0);
-  const maxScore = answers.length * 10; // Vereinfacht
+  const maxScore = answers.length * 100; // POINTS_PER_CORRECT = 100 im Quiz-Player
 
   const [updated] = await db
     .update(quizResults)
