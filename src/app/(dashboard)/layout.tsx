@@ -1,63 +1,70 @@
-"use client";
-
-import { useState, useCallback } from "react";
-import { Sidebar } from "@/components/dashboard/Sidebar";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { MobileSidebar } from "@/components/dashboard/MobileSidebar";
+import { getSession } from "@/lib/auth/session";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema/users";
+import { tenants } from "@/lib/db/schema/tenants";
+import { eq } from "drizzle-orm";
+import { DashboardShell } from "./dashboard-shell";
 import type { UserRole } from "@/lib/navigation";
 
 /**
- * Dashboard Layout — Shell with sidebar, header, and content area
- *
- * TODO: Replace hardcoded role with actual auth context
- * TODO: Replace hardcoded user data with session data
+ * Dashboard Layout — Server Component wrapper that loads session data,
+ * then passes to the client-side DashboardShell.
  */
 
-// Temporary: hardcoded role for development. Will come from auth session.
-const DEV_ROLE: UserRole = "admin";
-const DEV_USER = { name: "Demo User", initials: "DU" };
-const DEV_TENANT = { name: "Demo Firma" };
+async function getLayoutData() {
+  try {
+    const session = await getSession();
+    if (!session) return null;
 
-export default function DashboardLayout({
+    const [dbUser] = await db
+      .select({ role: users.role, name: users.name, tenantId: users.tenantId })
+      .from(users)
+      .where(eq(users.id, session.user.id));
+
+    if (!dbUser) return null;
+
+    let tenantName = "Quiz Platform";
+    if (dbUser.tenantId) {
+      const [tenant] = await db
+        .select({ name: tenants.name })
+        .from(tenants)
+        .where(eq(tenants.id, dbUser.tenantId));
+      if (tenant) tenantName = tenant.name;
+    }
+
+    const initials = dbUser.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+
+    return {
+      role: dbUser.role as UserRole,
+      userName: dbUser.name,
+      userInitials: initials,
+      tenantName,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isMobileOpen, setMobileOpen] = useState(false);
-
-  const toggleCollapse = useCallback(() => setSidebarCollapsed((prev) => !prev), []);
-  const openMobile = useCallback(() => setMobileOpen(true), []);
-  const closeMobile = useCallback(() => setMobileOpen(false), []);
+  const data = await getLayoutData();
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden bg-background">
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:flex">
-        <Sidebar
-          role={DEV_ROLE}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={toggleCollapse}
-        />
-      </div>
-
-      {/* Mobile Sidebar */}
-      <MobileSidebar isOpen={isMobileOpen} onClose={closeMobile}>
-        <Sidebar role={DEV_ROLE} />
-      </MobileSidebar>
-
-      {/* Main content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <DashboardHeader
-          tenantName={DEV_TENANT.name}
-          userName={DEV_USER.name}
-          userInitials={DEV_USER.initials}
-          onMenuClick={openMobile}
-        />
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
-      </div>
-    </div>
+    <DashboardShell
+      role={data?.role ?? "user"}
+      userName={data?.userName ?? "User"}
+      userInitials={data?.userInitials ?? "U"}
+      tenantName={data?.tenantName ?? "Quiz Platform"}
+    >
+      {children}
+    </DashboardShell>
   );
 }
