@@ -21,7 +21,8 @@ async function fetchStats(): Promise<DashboardStats | null> {
     const session = await getSession();
     if (!session) return null;
     return await getDashboardStats();
-  } catch {
+  } catch (e) {
+    console.error("[Dashboard] getSession error:", e);
     return null;
   }
 }

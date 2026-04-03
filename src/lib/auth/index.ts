@@ -1,6 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema/users";
+import { sessions } from "@/lib/db/schema/sessions";
+import { accounts } from "@/lib/db/schema/accounts";
 
 /**
  * Better-Auth Server Configuration
@@ -11,9 +14,24 @@ import { db } from "@/lib/db";
  * - MS Entra SSO prepared (deactivated for now)
  */
 export const auth = betterAuth({
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.50.10:3000",
+  ],
+
   database: drizzleAdapter(db, {
     provider: "pg",
+    schema: {
+      user: users,
+      session: sessions,
+      account: accounts,
+    },
   }),
+
+  advanced: {
+    generateId: (_opts?: { model?: string }) => crypto.randomUUID(),
+  },
 
   emailAndPassword: {
     enabled: true,

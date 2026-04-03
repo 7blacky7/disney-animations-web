@@ -14,10 +14,23 @@ import { hasRole } from "./rbac";
  * Gibt null zurueck wenn nicht eingeloggt.
  */
 export async function getSession() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  return session;
+  try {
+    // Next.js 16 headers() returns ReadonlyHeaders (Promise-based).
+    // better-auth needs a plain Headers object for iteration.
+    const readonlyHeaders = await headers();
+    const plainHeaders = new Headers();
+    readonlyHeaders.forEach((value, key) => {
+      plainHeaders.set(key, value);
+    });
+
+    const session = await auth.api.getSession({
+      headers: plainHeaders,
+    });
+    return session;
+  } catch (e) {
+    console.error("[getSession] ERROR:", (e as Error).message);
+    return null;
+  }
 }
 
 /**

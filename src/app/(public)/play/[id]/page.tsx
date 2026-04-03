@@ -647,6 +647,7 @@ export default function QuizPlayerPage() {
                               : "text-primary",
                         )}
                         style={{ strokeDasharray: TIMER_CIRCUMFERENCE }}
+                        initial={{ strokeDashoffset: TIMER_CIRCUMFERENCE }}
                         animate={{
                           strokeDashoffset:
                             TIMER_CIRCUMFERENCE *

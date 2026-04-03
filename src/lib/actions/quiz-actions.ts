@@ -361,7 +361,12 @@ export async function getQuizResults(quizId: string) {
  */
 export async function getDashboardStats() {
   const session = await requireSession();
-  const tenantId = (session.user as Record<string, unknown>).tenantId as string;
+  // better-auth session doesn't include custom fields — load from DB
+  const [dbUser] = await db
+    .select({ tenantId: users.tenantId })
+    .from(users)
+    .where(eq(users.id, session.user.id));
+  const tenantId = dbUser?.tenantId ?? "";
 
   const [quizCount] = await db
     .select({ value: count() })
