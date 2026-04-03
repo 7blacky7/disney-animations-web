@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { cn } from "@/lib/utils";
 
 /**

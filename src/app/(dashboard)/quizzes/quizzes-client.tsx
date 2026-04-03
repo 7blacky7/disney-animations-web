@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
@@ -33,6 +34,7 @@ const MODE_LABELS: Record<string, string> = { realtime: "Echtzeit", async: "Asyn
 const VISIBILITY_LABELS: Record<string, string> = { global: "Oeffentlich", tenant: "Firmenintern", department: "Abteilung" };
 
 export function QuizzesClient({ initialQuizzes, hasData }: QuizzesClientProps) {
+  const { prefersReducedMotion } = useAccessibility();
   const [search, setSearch] = useState("");
 
   const filtered = initialQuizzes.filter(
@@ -88,9 +90,9 @@ export function QuizzesClient({ initialQuizzes, hasData }: QuizzesClientProps) {
         {filtered.map((quiz, i) => (
           <motion.div
             key={quiz.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
           >
             <Link
               href={`/quizzes/${quiz.id}/edit`}

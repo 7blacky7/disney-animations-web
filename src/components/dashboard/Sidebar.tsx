@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { getNavForRole, type UserRole } from "@/lib/navigation";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { cn } from "@/lib/utils";
 
 /**

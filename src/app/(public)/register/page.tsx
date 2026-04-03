@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { signUp } from "@/lib/auth/client";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { SPRING, TIMING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
  */
 
 export default function RegisterPage() {
+  const { prefersReducedMotion } = useAccessibility();
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -54,9 +56,9 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 px-4">
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ ...SPRING.snappy }}
+        transition={prefersReducedMotion ? { duration: 0 } : { ...SPRING.snappy }}
         className={cn(
           "w-full max-w-md rounded-2xl border border-border/50",
           "bg-card/80 p-8 shadow-xl backdrop-blur-sm",

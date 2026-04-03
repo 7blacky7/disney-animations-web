@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { createDepartment } from "@/lib/actions/user-actions";
 
 /**
@@ -25,6 +26,7 @@ interface DepartmentsClientProps {
 }
 
 export function DepartmentsClient({ initialDepartments, hasData }: DepartmentsClientProps) {
+  const { prefersReducedMotion } = useAccessibility();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [departments, setDepartments] = useState(initialDepartments);
@@ -81,9 +83,9 @@ export function DepartmentsClient({ initialDepartments, hasData }: DepartmentsCl
           {departments.map((dept, i) => (
             <motion.div
               key={dept.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
               className="group rounded-2xl border border-border/40 bg-card p-5 transition-shadow duration-200 hover:shadow-md hover:shadow-foreground/[0.03]"
             >
               <div className="flex items-start justify-between">
@@ -109,17 +111,18 @@ export function DepartmentsClient({ initialDepartments, hasData }: DepartmentsCl
         {showCreate && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={prefersReducedMotion ? { duration: 0 } : undefined}
               className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm"
               onClick={() => setShowCreate(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 10 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className="fixed inset-x-4 top-[20%] z-50 mx-auto max-w-md rounded-2xl border border-border/50 bg-background p-6 shadow-xl sm:inset-x-auto"
             >
               <h2 className="font-heading text-lg font-bold">Neue Abteilung</h2>

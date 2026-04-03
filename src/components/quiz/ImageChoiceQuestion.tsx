@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { answerOptionsContainer, answerOptionItem } from "@/animations";
 import { cn } from "@/lib/utils";
@@ -62,15 +63,16 @@ export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled
             >
               {/* Image or Placeholder */}
               <div className={cn(
-                "flex h-24 w-full items-center justify-center overflow-hidden rounded-xl",
+                "relative flex h-24 w-full items-center justify-center overflow-hidden rounded-xl",
                 !hasImage && PLACEHOLDER_HUES[i % PLACEHOLDER_HUES.length],
               )}>
                 {hasImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={imageUrls[i]}
                     alt={label}
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="(max-width: 640px) 50vw, 33vw"
+                    className="object-cover"
                   />
                 ) : (
                   <span className="font-heading text-2xl font-bold opacity-30">

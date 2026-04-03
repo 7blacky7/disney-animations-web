@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ const ACCENT_PRESETS = [
 ];
 
 export function SettingsClient({ tenant }: SettingsClientProps) {
+  const { prefersReducedMotion } = useAccessibility();
   const [tenantName, setTenantName] = useState(tenant?.name ?? "");
   const [selectedAccent, setSelectedAccent] = useState("indigo");
   const [customColor, setCustomColor] = useState(tenant?.accentColor ?? "#4F46E5");
@@ -134,7 +136,7 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
               ))}
             </div>
             {selectedAccent === "custom" && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} transition={{ duration: 0.2 }} className="space-y-2">
+              <motion.div layout={!prefersReducedMotion} initial={prefersReducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }} className="space-y-2 overflow-hidden">
                 <Label htmlFor="custom-color">Eigene Farbe (HEX)</Label>
                 <div className="flex items-center gap-2">
                   <input type="color" value={customColor} onChange={(e) => setCustomColor(e.target.value)} className="h-9 w-9 cursor-pointer rounded-lg border border-border/40" />

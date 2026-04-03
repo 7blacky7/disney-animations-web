@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { signIn } from "@/lib/auth/client";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { SPRING, TIMING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+  const { prefersReducedMotion } = useAccessibility();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/dashboard";
@@ -62,9 +64,9 @@ function LoginForm() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 px-4">
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ ...SPRING.snappy }}
+        transition={prefersReducedMotion ? { duration: 0 } : { ...SPRING.snappy }}
         className={cn(
           "w-full max-w-md rounded-2xl border border-border/50",
           "bg-card/80 p-8 shadow-xl backdrop-blur-sm",
@@ -120,7 +122,7 @@ function LoginForm() {
 
           {error && (
             <motion.p
-              initial={{ opacity: 0, y: -4 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-sm text-destructive"
             >
@@ -131,8 +133,8 @@ function LoginForm() {
           <motion.button
             type="submit"
             disabled={isLoading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
             transition={{ duration: TIMING.instant }}
             className={cn(
               "w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground",

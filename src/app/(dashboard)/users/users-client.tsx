@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,7 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 export function UsersClient({ initialUsers, departments, hasData }: UsersClientProps) {
+  const { prefersReducedMotion } = useAccessibility();
   const [search, setSearch] = useState("");
   const [showInvite, setShowInvite] = useState(false);
   const [inviteMode, setInviteMode] = useState<"single" | "bulk">("single");
@@ -220,14 +222,14 @@ export function UsersClient({ initialUsers, departments, hasData }: UsersClientP
         {showInvite && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm"
               onClick={() => setShowInvite(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}

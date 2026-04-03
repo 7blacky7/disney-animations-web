@@ -7,6 +7,7 @@ import {
   ACCENT_THEMES,
   type ThemeMode,
 } from "@/providers/ThemeProvider";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { SPRING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
 

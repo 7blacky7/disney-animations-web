@@ -1,7 +1,8 @@
 /**
  * Animation System — Central Barrel Export
  *
- * Import all animation utilities, variants, and GSAP presets from here.
+ * Import animation utilities and Framer Motion variants from here.
+ * GSAP presets are excluded to avoid bundle bloat (~60KB) — use deep imports instead.
  *
  * @example
  * ```tsx
@@ -172,25 +173,10 @@ export {
   imageFrame,
 } from "./variants/svg";
 
-// GSAP Presets
-export {
-  heroEntrance as gsapHeroEntrance,
-  scrollReveal,
-  parallaxLayer,
-  horizontalScroll,
-  pinnedSection,
-  scrollTriggerDefaults,
-} from "./gsap/presets";
-
-// GSAP Config
-export {
-  registerGSAPPlugins,
-  refreshScrollTrigger,
-  killAllScrollTriggers,
-  createBatchScrollTrigger,
-  SCROLL_TRIGGER_DEFAULTS,
-  PIN_DEFAULTS,
-} from "./gsap/scrolltrigger-config";
+// GSAP Presets — NOT re-exported from barrel to avoid ~60KB bundle bloat.
+// Import directly when needed:
+//   import { heroEntrance, scrollReveal, ... } from "@/animations/gsap/presets";
+//   import { registerGSAPPlugins, ... } from "@/animations/gsap/scrolltrigger-config";
 
 // Animation Utilities
 export {

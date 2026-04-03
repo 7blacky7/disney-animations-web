@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { cn } from "@/lib/utils";
 
 /**
@@ -27,6 +28,7 @@ interface DashboardClientProps {
 const CARD_TRANSITION = { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const };
 
 export function DashboardClient({ stats }: DashboardClientProps) {
+  const { prefersReducedMotion } = useAccessibility();
   const kpis = stats
     ? [
         { label: "Aktive Quizzes", value: String(stats.activeQuizzes), href: "/quizzes" },
@@ -55,9 +57,9 @@ export function DashboardClient({ stats }: DashboardClientProps) {
         {kpis.map((kpi, i) => (
           <motion.div
             key={kpi.label}
-            initial={{ opacity: 0, y: 20 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...CARD_TRANSITION, delay: i * 0.05 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { ...CARD_TRANSITION, delay: i * 0.05 }}
           >
             <Link
               href={kpi.href}

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 
 /**
  * Custom Animated SVG Icons for Quiz Types

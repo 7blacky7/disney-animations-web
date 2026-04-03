@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { cn } from "@/lib/utils";
 
 /**
@@ -37,6 +38,7 @@ interface StatsClientProps {
 }
 
 export function StatsClient({ quizStats, personalResults, hasData }: StatsClientProps) {
+  const { prefersReducedMotion } = useAccessibility();
   const [_timeRange, setTimeRange] = useState("30d");
 
   // Calculate overview KPIs from real data
@@ -88,7 +90,7 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
             {overviewStats.map((stat, i) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
                 className="rounded-2xl border border-border/40 bg-card p-5"
@@ -115,7 +117,7 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
               {quizStats.map((quiz, i) => (
                 <motion.div
                   key={quiz.quizId}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
                   className="rounded-xl border border-border/40 bg-card p-5"
@@ -131,13 +133,14 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
                       <StatMini label="Uebung" value={`${quiz.practiceRatio}%`} />
                     </div>
                   </div>
-                  {/* Score bar */}
+                  {/* Score bar — GPU-only via scaleX */}
                   <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
                     <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${quiz.avgScore}%` }}
+                      initial={prefersReducedMotion ? false : { scaleX: 0 }}
+                      animate={{ scaleX: quiz.avgScore / 100 }}
                       transition={{ duration: 0.8, delay: 0.2 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                      className="h-full rounded-full bg-primary"
+                      style={{ transformOrigin: "left" }}
+                      className="h-full w-full rounded-full bg-primary"
                     />
                   </div>
                   <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
@@ -164,7 +167,7 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
                 return (
                   <motion.div
                     key={result.id}
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.2, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
                     className="flex items-center justify-between rounded-xl border border-border/40 bg-card px-5 py-4"
@@ -194,11 +197,12 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
                     </div>
                     <div className="h-8 w-24 overflow-hidden rounded-full bg-muted">
                       <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${scorePercent}%` }}
+                        initial={prefersReducedMotion ? false : { scaleX: 0 }}
+                        animate={{ scaleX: scorePercent / 100 }}
                         transition={{ duration: 0.6, delay: 0.1 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                        style={{ transformOrigin: "left" }}
                         className={cn(
-                          "h-full rounded-full",
+                          "h-full w-full rounded-full",
                           scorePercent >= 80 ? "bg-green-500" :
                           scorePercent >= 60 ? "bg-chart-3" :
                           "bg-destructive",

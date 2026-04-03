@@ -205,7 +205,7 @@ function FloatingPoints({ points, x }: { points: number; x: number }) {
       variants={pointsFloat}
       initial="enter"
       animate="float"
-      className="pointer-events-none absolute font-heading text-lg font-bold text-green-500"
+      className="pointer-events-none absolute font-heading text-lg font-bold text-primary"
       style={{ left: `${x}%`, top: "40%" }}
     >
       +{points}
@@ -314,7 +314,7 @@ export default function QuizPlayerPage() {
       const q = quiz.questions[currentQ];
       let isCorrect = false;
 
-      if (q.type === "multiple_choice" || q.type === "timed" || q.type === "image_choice") {
+      if (q.type === "multiple_choice") {
         isCorrect = answer === q.correctIndex;
       } else if (q.type === "true_false") {
         isCorrect = answer === q.correctAnswer;
@@ -482,9 +482,9 @@ export default function QuizPlayerPage() {
       {state === "playing" && (
         <div className="h-1 w-full bg-muted">
           <motion.div
-            animate={{ width: `${progress}%` }}
+            animate={{ scaleX: progress / 100 }}
             transition={{ duration: TIMING.quick, ease: "easeOut" }}
-            className="h-full bg-primary"
+            className="h-full origin-left bg-primary"
           />
         </div>
       )}

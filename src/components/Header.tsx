@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { AnimatedLink } from "@/components/animated/AnimatedLink";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { SPRING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
 

@@ -520,14 +520,14 @@ function SliderDemo({ isPaused, hue }: { isPaused: boolean; hue: string }) {
       </motion.p>
       <div className="relative h-2 rounded-full bg-muted">
         <motion.div
-          animate={{ width: `${val}%` }}
+          animate={{ scaleX: val / 100 }}
           transition={OVERSHOOT}
-          className="h-full rounded-full"
+          className="h-full origin-left rounded-full"
           style={{ backgroundColor: hue }}
         />
         <motion.div
           animate={{
-            left: `${val}%`,
+            x: `${val}%`,
             scaleX: [1, 0.8, 1],
             scaleY: [1, 1.2, 1],
           }}
@@ -814,10 +814,10 @@ function TimerDemo({ isPaused }: { isPaused: boolean; hue: string }) {
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
         <motion.div
-          animate={{ width: `${progress * 100}%` }}
+          animate={{ scaleX: progress }}
           transition={{ duration: 0.7, ease: "easeOut" }}
           className={cn(
-            "h-full rounded-full transition-colors",
+            "h-full origin-left rounded-full transition-colors",
             isCritical ? "bg-destructive" : isUrgent ? "bg-chart-3" : "bg-primary",
           )}
         />

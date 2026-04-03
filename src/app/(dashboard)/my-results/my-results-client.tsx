@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { cn } from "@/lib/utils";
 
 /**
@@ -29,6 +30,7 @@ interface MyResultsClientProps {
 }
 
 export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
+  const { prefersReducedMotion } = useAccessibility();
   const completedResults = results.filter((r) => r.completedAt !== null);
   const totalAttempts = completedResults.length;
   const avgScore = totalAttempts > 0
@@ -70,9 +72,9 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
             {personalStats.map((stat, i) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] as const }}
                 className="rounded-2xl border border-border/40 bg-card p-5 text-center"
               >
                 <p className="font-heading text-2xl font-bold">{stat.value}</p>
@@ -97,9 +99,9 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
               return (
                 <motion.div
                   key={result.id}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={prefersReducedMotion ? false : { opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] as const }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] as const }}
                   className="flex items-center gap-4 rounded-xl border border-border/40 bg-card px-5 py-4"
                 >
                   {/* Score circle */}
@@ -123,9 +125,9 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
                         )}
                         stroke="currentColor"
                         strokeDasharray={`${2 * Math.PI * 24}`}
-                        initial={{ strokeDashoffset: 2 * Math.PI * 24 }}
+                        initial={prefersReducedMotion ? false : { strokeDashoffset: 2 * Math.PI * 24 }}
                         animate={{ strokeDashoffset: 2 * Math.PI * 24 * (1 - scorePercent / 100) }}
-                        transition={{ duration: 0.8, delay: 0.2 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                        transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.8, delay: 0.2 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
                       />
                     </svg>
                   </div>
@@ -155,11 +157,11 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
                   {/* Score bar */}
                   <div className="h-8 w-24 hidden sm:block overflow-hidden rounded-full bg-muted">
                     <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${scorePercent}%` }}
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: scorePercent / 100 }}
                       transition={{ duration: 0.6, delay: 0.1 + i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                       className={cn(
-                        "h-full rounded-full",
+                        "h-full origin-left rounded-full",
                         scorePercent >= 80 ? "bg-green-500" :
                         scorePercent >= 60 ? "bg-chart-3" :
                         "bg-destructive",
