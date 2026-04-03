@@ -29,10 +29,6 @@ export const auth = betterAuth({
     },
   }),
 
-  advanced: {
-    generateId: (_opts?: { model?: string }) => crypto.randomUUID(),
-  },
-
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Dev: disabled for ease
