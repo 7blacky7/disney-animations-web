@@ -35,11 +35,11 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
   const totalAttempts = completedResults.length;
   const avgScore = totalAttempts > 0
     ? Math.round(
-        completedResults.reduce((sum, r) => sum + (r.maxScore > 0 ? (r.score / r.maxScore) * 100 : 0), 0) / totalAttempts,
+        completedResults.reduce((sum, r) => sum + (r.maxScore > 0 ? Math.min((r.score / r.maxScore) * 100, 100) : 0), 0) / totalAttempts,
       )
     : 0;
   const bestScore = totalAttempts > 0
-    ? Math.max(...completedResults.map((r) => r.maxScore > 0 ? Math.round((r.score / r.maxScore) * 100) : 0))
+    ? Math.min(Math.max(...completedResults.map((r) => r.maxScore > 0 ? Math.round((r.score / r.maxScore) * 100) : 0)), 100)
     : 0;
 
   const personalStats = [
@@ -93,7 +93,7 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
             )}
             {completedResults.map((result, i) => {
               const scorePercent = result.maxScore > 0
-                ? Math.round((result.score / result.maxScore) * 100)
+                ? Math.min(Math.round((result.score / result.maxScore) * 100), 100)
                 : 0;
 
               return (
