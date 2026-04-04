@@ -55,6 +55,13 @@ export function proxy(request: NextRequest) {
   // x-pathname Header setzen — Layout liest diesen fuer RBAC-Pruefung
   const response = NextResponse.next();
   response.headers.set("x-pathname", pathname);
+
+  // Landing Page + Public Pages: bfcache verhindern damit ThemeProvider
+  // beim Browser-Zurueck korrekt initialisiert wird (JS muss laufen)
+  if (pathname === "/" || pathname === "/login" || pathname === "/register") {
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  }
+
   return response;
 }
 
