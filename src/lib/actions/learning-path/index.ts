@@ -12,3 +12,4 @@ export { addLevel } from "./add-level";
 export { updateLevel } from "./update-level";
 export { deleteLevel } from "./delete-level";
 export { getLearningPathProgress } from "./get-learning-path-progress";
+export { getTeamLearningProgress } from "./get-team-progress";
