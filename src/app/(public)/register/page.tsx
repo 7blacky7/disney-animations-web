@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { signUp } from "@/lib/auth/client";
+import { dbg } from "@/lib/debug";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { SPRING, TIMING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
@@ -27,8 +28,10 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+    dbg.auth("Registrierung-Versuch", { email, name });
 
     if (password.length < 8) {
+      dbg.auth.warn("Passwort zu kurz", { email, length: password.length });
       setError("Passwort muss mindestens 8 Zeichen lang sein");
       setIsLoading(false);
       return;
@@ -42,13 +45,16 @@ export default function RegisterPage() {
       });
 
       if (result.error) {
+        dbg.auth.warn("Registrierung fehlgeschlagen", { email, error: result.error.message });
         setError(result.error.message ?? "Registrierung fehlgeschlagen");
         setIsLoading(false);
         return;
       }
 
+      dbg.auth("Registrierung erfolgreich", { email, name });
       router.push("/dashboard");
-    } catch {
+    } catch (err) {
+      dbg.auth.error("Registrierung-Fehler", { email, error: err });
       setError("Ein unerwarteter Fehler ist aufgetreten");
       setIsLoading(false);
     }

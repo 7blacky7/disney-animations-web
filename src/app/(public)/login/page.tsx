@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { signIn } from "@/lib/auth/client";
+import { dbg } from "@/lib/debug";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { SPRING, TIMING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,7 @@ function LoginForm() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+    dbg.auth("Login-Versuch", { email, redirect });
 
     try {
       const result = await signIn.email({
@@ -50,13 +52,16 @@ function LoginForm() {
       });
 
       if (result.error) {
+        dbg.auth.warn("Login fehlgeschlagen", { email, error: result.error.message });
         setError(result.error.message ?? "Anmeldung fehlgeschlagen");
         setIsLoading(false);
         return;
       }
 
+      dbg.auth("Login erfolgreich", { email, redirect });
       router.push(redirect);
-    } catch {
+    } catch (err) {
+      dbg.auth.error("Login-Fehler", { email, error: err });
       setError("Ein unerwarteter Fehler ist aufgetreten");
       setIsLoading(false);
     }

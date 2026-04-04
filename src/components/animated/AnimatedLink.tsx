@@ -2,6 +2,7 @@
 
 import { type ComponentProps } from "react";
 import Link from "next/link";
+import { dbg } from "@/lib/debug";
 import { cn } from "@/lib/utils";
 
 /**
@@ -64,7 +65,11 @@ export function AnimatedLink({
 
   if (isInternalRoute) {
     return (
-      <Link href={href} className={linkClassName}>
+      <Link
+        href={href}
+        className={linkClassName}
+        onClick={() => dbg.nav("Link-Navigation", { to: href })}
+      >
         {children}
       </Link>
     );
