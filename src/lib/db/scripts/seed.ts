@@ -155,6 +155,7 @@ async function seed() {
   const quiz1Id = randomUUID();
   const quiz2Id = randomUUID();
   const quiz3Id = randomUUID();
+  const quiz4Id = randomUUID();
 
   const quizDefs = [
     {
@@ -187,6 +188,17 @@ async function seed() {
       quizMode: "realtime" as const,
       visibility: "global" as const,
       isPracticeAllowed: false,
+      isPublished: true,
+    },
+    {
+      id: quiz4Id,
+      tenantId: finalTenantId,
+      departmentId: finalDevDeptId,
+      createdBy: resolvedDevLeadId,
+      title: "Linux & Programmier-Basics",
+      description: "Terminal-Befehle und Code-Aufgaben fuer Einsteiger",
+      quizMode: "async" as const,
+      visibility: "global" as const,
       isPublished: true,
     },
   ];
@@ -266,6 +278,32 @@ async function seed() {
       order: 2,
       points: 10,
       timeLimit: 10,
+    },
+    // Quiz 4: Linux & Programmier-Basics
+    {
+      quizId: quiz4Id,
+      type: "terminal" as const,
+      content: "Liste alle Dateien im aktuellen Verzeichnis auf (inklusive versteckter Dateien).",
+      correctAnswer: JSON.stringify({ commands: ["ls -la", "ls -al", "ls -a -l"], output: "total 42\ndrwxr-xr-x 2 user user 4096 Apr 4 12:00 .\ndrwxr-xr-x 3 user user 4096 Apr 4 11:00 ..\n-rw-r--r-- 1 user user  100 Apr 4 12:00 .bashrc\n-rw-r--r-- 1 user user  200 Apr 4 12:00 readme.md" }),
+      order: 1,
+      points: 10,
+    },
+    {
+      quizId: quiz4Id,
+      type: "terminal" as const,
+      content: "Erstelle ein neues Verzeichnis namens 'projekt'.",
+      correctAnswer: JSON.stringify({ commands: ["mkdir projekt", "mkdir ./projekt"], output: "" }),
+      order: 2,
+      points: 10,
+    },
+    {
+      quizId: quiz4Id,
+      type: "code_input" as const,
+      content: "Schreibe eine Funktion die zwei Zahlen addiert und das Ergebnis zurueckgibt.",
+      options: null,
+      correctAnswer: null,
+      order: 3,
+      points: 15,
     },
   ];
 
