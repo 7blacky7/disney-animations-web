@@ -6,6 +6,7 @@ import { requireSession } from "@/lib/auth/session";
 import { eq } from "drizzle-orm";
 import type { EvaluateAnswerInput, AnswerEvaluationResult } from "./_types";
 import { parseJsonField } from "./_helpers";
+import { dbg } from "@/lib/debug";
 
 /**
  * SECURITY: Server-seitige Antwort-Auswertung.
@@ -97,6 +98,15 @@ export async function evaluateAndSubmitAnswer(input: EvaluateAnswerInput): Promi
       isCorrect = Array.isArray(userOrder)
         && userOrder.length === sortOrder.length
         && userOrder.every((v, i) => v === sortOrder[i]);
+      dbg.quiz("sorting/drag_drop Auswertung", {
+        questionId: input.questionId,
+        userOrder,
+        sortOrder,
+        correctRaw,
+        correctObj: correct,
+        isCorrect,
+        lengthMatch: Array.isArray(userOrder) && userOrder.length === sortOrder.length,
+      });
       feedback.correctOrder = sortOrder;
       break;
     }
@@ -135,6 +145,14 @@ export async function evaluateAndSubmitAnswer(input: EvaluateAnswerInput): Promi
       isCorrect = allAnswers.some(
         (a) => a.toLowerCase().trim() === userText,
       );
+      dbg.quiz("fill_blank Auswertung", {
+        questionId: input.questionId,
+        userText,
+        allAnswers,
+        correctRaw,
+        correctObj: correct,
+        isCorrect,
+      });
       feedback.blankAnswers = allAnswers;
       break;
     }
