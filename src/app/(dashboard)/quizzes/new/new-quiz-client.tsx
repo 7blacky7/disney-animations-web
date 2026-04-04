@@ -29,7 +29,7 @@ import {
   ImageChoiceIcon,
   SortingIcon,
   TimerIcon,
-} from "@/components/icons/QuizIcons";
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 /**

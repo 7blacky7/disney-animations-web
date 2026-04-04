@@ -1,0 +1,11 @@
+export { MCIcon } from "./MCIcon";
+export { DragDropIcon } from "./DragDropIcon";
+export { MatchingIcon } from "./MatchingIcon";
+export { SliderIcon } from "./SliderIcon";
+export { FillInIcon } from "./FillInIcon";
+export { FreetextIcon } from "./FreetextIcon";
+export { TrueFalseIcon } from "./TrueFalseIcon";
+export { ImageChoiceIcon } from "./ImageChoiceIcon";
+export { SortingIcon } from "./SortingIcon";
+export { TimerIcon } from "./TimerIcon";
+export type { IconProps } from "./quiz-icon-utils";
