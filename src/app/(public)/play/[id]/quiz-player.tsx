@@ -11,19 +11,23 @@ import { QuestionRenderer } from "@/components/quiz/QuestionRenderer";
 import type { ClientQuestionData, AnswerFeedback } from "@/components/quiz/types";
 import { startQuizAttempt, evaluateAndSubmitAnswer, completeQuizAttempt } from "@/lib/actions/quiz";
 import {
-  // Countdown
-  countdownNumber,
-  countdownRing,
-  countdownPulse,
+  ConfettiPiece,
+  FloatingPoints,
+  IntroScreen,
+  CountdownScreen,
+  CONFETTI_COUNT,
+  TIMER_CIRCUMFERENCE,
+  SCORE_CIRCLE_R,
+  SCORE_CIRCLE_CIRCUMFERENCE,
+} from "./components";
+import {
   // Score / Points
   scorePop,
-  pointsFloat,
   comboMultiplier,
   // Streak
   streakFire,
   streakBadge,
   // Konfetti / Celebration
-  confettiParticle,
   celebrationBurst,
   celebrationStar,
   // Question Transitions
@@ -82,59 +86,6 @@ interface Answer {
   isCorrect: boolean;
   timeTaken: number;
   points: number;
-}
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const CONFETTI_COUNT = 24;
-const COUNTDOWN_SECONDS = [3, 2, 1];
-const TIMER_CIRCUMFERENCE = 2 * Math.PI * 45;
-const SCORE_CIRCLE_R = 56;
-const SCORE_CIRCLE_CIRCUMFERENCE = 2 * Math.PI * SCORE_CIRCLE_R;
-
-// ---------------------------------------------------------------------------
-// Sub-Components
-// ---------------------------------------------------------------------------
-
-/** Confetti particle with randomized trajectory via index-based offsets */
-function ConfettiPiece({ index }: { index: number }) {
-  const xOffset = ((index % 6) - 2.5) * 60;
-  const rotation = (index * 47) % 360;
-  const hue = (index * 137) % 360;
-
-  return (
-    <motion.div
-      variants={confettiParticle}
-      initial="launch"
-      animate="fly"
-      style={{
-        position: "absolute",
-        width: 10,
-        height: 10,
-        borderRadius: index % 3 === 0 ? "50%" : "2px",
-        backgroundColor: `hsl(${hue}, 80%, 60%)`,
-        x: xOffset,
-        rotate: rotation,
-      }}
-    />
-  );
-}
-
-/** Floating "+N" points indicator */
-function FloatingPoints({ points, x }: { points: number; x: number }) {
-  return (
-    <motion.div
-      variants={pointsFloat}
-      initial="enter"
-      animate="float"
-      className="pointer-events-none absolute font-heading text-lg font-bold text-success"
-      style={{ left: `${x}%`, top: "40%" }}
-    >
-      +{points}
-    </motion.div>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -482,107 +433,21 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
 
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
-            {/* =========================================================== */}
             {/* INTRO Screen */}
-            {/* =========================================================== */}
             {state === "intro" && (
-              <motion.div
-                key="intro"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: TIMING.normal, ease: [0.22, 1, 0.36, 1] }}
-                className="space-y-8 text-center"
-              >
-                <div className="space-y-3">
-                  <h1 className="font-heading text-3xl font-bold">{title}</h1>
-                  <p className="text-muted-foreground">{totalQuestions} Fragen</p>
-                </div>
-                <AnimatedButton
-                  shine
-                  intensity="bold"
-                  size="lg"
-                  onClick={() => {
-                    setCountdownValue(3);
-                    setState("countdown");
-                  }}
-                >
-                  Quiz starten
-                </AnimatedButton>
-                <Link href="/" className="mt-4 block text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
-                  ← Zur Startseite
-                </Link>
-              </motion.div>
+              <IntroScreen
+                title={title}
+                totalQuestions={totalQuestions}
+                onStart={() => {
+                  setCountdownValue(3);
+                  setState("countdown");
+                }}
+              />
             )}
 
-            {/* =========================================================== */}
             {/* COUNTDOWN Screen (3-2-1) */}
-            {/* =========================================================== */}
             {state === "countdown" && (
-              <motion.div
-                key="countdown"
-                className="flex flex-col items-center justify-center space-y-8"
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {/* Background Pulse */}
-                <motion.div
-                  variants={countdownPulse}
-                  initial="rest"
-                  animate={countdownValue <= 1 ? "urgent" : "pulse"}
-                  className="absolute inset-0 rounded-3xl bg-primary/5"
-                  aria-hidden="true"
-                />
-
-                {/* Timer Ring */}
-                <div className="relative flex h-40 w-40 items-center justify-center">
-                  <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      className="text-muted"
-                    />
-                    <motion.circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      className="text-primary"
-                      variants={countdownRing}
-                      initial="full"
-                      animate="empty"
-                      style={{ strokeDasharray: TIMER_CIRCUMFERENCE }}
-                    />
-                  </svg>
-
-                  {/* Countdown Number */}
-                  <AnimatePresence mode="wait">
-                    {COUNTDOWN_SECONDS.includes(countdownValue) && (
-                      <motion.span
-                        key={`cd-${countdownValue}`}
-                        variants={countdownNumber}
-                        initial="enter"
-                        animate="visible"
-                        exit="exit"
-                        className="relative font-heading text-6xl font-bold text-primary"
-                      >
-                        {countdownValue}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <p className="relative text-sm text-muted-foreground">
-                  Mach dich bereit...
-                </p>
-              </motion.div>
+              <CountdownScreen countdownValue={countdownValue} />
             )}
 
             {/* =========================================================== */}
