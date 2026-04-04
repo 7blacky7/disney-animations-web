@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AccessibilityProvider } from "@/providers/AccessibilityProvider";
+import { DebugProvider } from "@/providers/DebugProvider";
 import { GSAPProvider } from "@/providers/GSAPProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 
@@ -60,7 +61,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <AccessibilityProvider>
-            <GSAPProvider>{children}</GSAPProvider>
+            <DebugProvider>
+              <GSAPProvider>{children}</GSAPProvider>
+            </DebugProvider>
           </AccessibilityProvider>
         </ThemeProvider>
       </body>
