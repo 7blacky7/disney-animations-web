@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
+import { createQuiz } from "@/lib/actions/quiz-actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -65,6 +67,8 @@ interface Question {
 
 export default function NewQuizPage() {
   const { prefersReducedMotion } = useAccessibility();
+  const router = useRouter();
+  const [isPublishing, setIsPublishing] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>("Grundlagen");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -86,6 +90,29 @@ export default function NewQuizPage() {
     };
     setQuestions((prev) => [...prev, newQ]);
     setShowTypePicker(false);
+  }
+
+  async function handlePublish() {
+    if (!title.trim() || isPublishing) return;
+    setIsPublishing(true);
+    try {
+      const visibilityMap: Record<string, "global" | "tenant" | "department"> = {
+        public: "global",
+        company: "tenant",
+        department: "department",
+      };
+      await createQuiz({
+        title: title.trim(),
+        description: description.trim() || undefined,
+        quizMode: mode as "realtime" | "async",
+        visibility: visibilityMap[visibility] ?? "tenant",
+        isPracticeAllowed: practiceAllowed,
+      });
+      router.push("/quizzes");
+    } catch (err) {
+      console.error("Failed to publish quiz:", err);
+      setIsPublishing(false);
+    }
   }
 
   function removeQuestion(id: string) {
@@ -384,8 +411,8 @@ export default function NewQuizPage() {
 
             <div className="flex justify-between">
               <Button variant="outline" onClick={() => setCurrentStep("Fragen")}>Zurueck bearbeiten</Button>
-              <AnimatedButton shine intensity="bold">
-                Quiz veroeffentlichen
+              <AnimatedButton shine intensity="bold" onClick={handlePublish} disabled={isPublishing || !title.trim()}>
+                {isPublishing ? "Wird veroeffentlicht..." : "Quiz veroeffentlichen"}
               </AnimatedButton>
             </div>
           </motion.div>
