@@ -191,13 +191,14 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
   }, [currentQ, state, showFeedback]);
 
   // Handle timeout in a separate effect (avoids setState-inside-setState)
+  // FIX: Prueft auch evaluating um Race Condition mit User-Submit zu vermeiden
   useEffect(() => {
-    if (timedOut && !showFeedback) {
+    if (timedOut && !showFeedback && !evaluating) {
       handleSubmitAnswer(-1);
       setTimedOut(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timedOut]);
+  }, [timedOut, evaluating]);
 
   // ---------------------------------------------------------------------------
   // SECURITY: Server-side Answer Evaluation
