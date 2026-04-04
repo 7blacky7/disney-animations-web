@@ -26,9 +26,7 @@ import { cn } from "@/lib/utils";
  */
 
 const containerVariants = {
-  hidden: { opacity: 0 },
   visible: {
-    opacity: 1,
     transition: {
       staggerChildren: 0.18,
       delayChildren: 0.15,
@@ -36,22 +34,20 @@ const containerVariants = {
   },
 };
 
-/** Badge — subtle fade + slight scale for anticipation */
+/** Badge — subtle scale for anticipation (NO opacity:0 — bfcache safe) */
 const badgeVariants = {
-  hidden: { opacity: 0, y: 12, scale: 0.95 },
+  hidden: { y: 12, scale: 0.95 },
   visible: {
-    opacity: 1,
     y: 0,
     scale: 1,
     transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
-/** Headline — dramatic spring entrance (Syne font benefits from bold motion) */
+/** Headline — dramatic spring entrance */
 const headlineVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.97 },
+  hidden: { y: 50, scale: 0.97 },
   visible: {
-    opacity: 1,
     y: 0,
     scale: 1,
     transition: {
@@ -65,19 +61,17 @@ const headlineVariants = {
 
 /** Subtitle — gentle follow-through after headline */
 const subtitleVariants = {
-  hidden: { opacity: 0, y: 25 },
+  hidden: { y: 25 },
   visible: {
-    opacity: 1,
     y: 0,
     transition: { ...SPRING.gentle, delay: 0.05 },
   },
 };
 
-/** CTA — bouncy entrance with overshoot (Disney follow-through) */
+/** CTA — bouncy entrance with overshoot */
 const ctaVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.92 },
+  hidden: { y: 20, scale: 0.92 },
   visible: {
-    opacity: 1,
     y: 0,
     scale: 1,
     transition: { ...SPRING.bouncy, delay: 0.1 },
@@ -211,7 +205,7 @@ export function HeroSection() {
       {/* Scroll indicator */}
       {!prefersReducedMotion && (
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={false}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6 }}
           className="absolute bottom-4 left-1/2 -translate-x-1/2"

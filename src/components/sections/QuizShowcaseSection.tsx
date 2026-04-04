@@ -172,9 +172,7 @@ function useAutoLoop(steps: number, intervalMs: number, isPaused: boolean) {
 // ---------------------------------------------------------------------------
 
 const gridContainerVariants = {
-  hidden: { opacity: 0 },
   visible: {
-    opacity: 1,
     transition: {
       staggerChildren: 0.06,
       delayChildren: 0.15,
@@ -183,7 +181,7 @@ const gridContainerVariants = {
 };
 
 const gridItemVariants = {
-  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  hidden: { y: 30, scale: 0.95 },
   visible: {
     opacity: 1,
     y: 0,
