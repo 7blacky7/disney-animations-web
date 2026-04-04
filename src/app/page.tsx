@@ -7,8 +7,12 @@ import {
   StatsSection,
   CTASection,
 } from "@/components/sections";
+import { listPublicQuizzes } from "@/lib/actions/quiz-actions";
+import { PublicQuizSection } from "@/components/sections/PublicQuizSection";
 
-export default function Home() {
+export default async function Home() {
+  const publicQuizzes = await listPublicQuizzes().catch(() => []);
+
   return (
     <>
       <Header />
@@ -16,6 +20,9 @@ export default function Home() {
         <HeroSection />
         <FeaturesSection />
         <QuizShowcaseSection />
+        {publicQuizzes.length > 0 && (
+          <PublicQuizSection quizzes={publicQuizzes} />
+        )}
         <StatsSection />
         <CTASection />
       </main>
