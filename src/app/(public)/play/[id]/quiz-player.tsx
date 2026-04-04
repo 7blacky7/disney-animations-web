@@ -8,6 +8,7 @@ import { AnimatedButton } from "@/components/animated/AnimatedButton";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { QuestionRenderer } from "@/components/quiz/QuestionRenderer";
+import { AiTutorChat } from "@/components/quiz/AiTutorChat";
 import type { ClientQuestionData, AnswerFeedback } from "@/components/quiz/types";
 import { startQuizAttempt, evaluateAndSubmitAnswer, completeQuizAttempt } from "@/lib/actions/quiz";
 import {
@@ -827,6 +828,16 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
           </AnimatePresence>
         </div>
       </div>
+
+      {/* AI-Tutor Chat — nur sichtbar wenn Tenant ai_enabled=true */}
+      {state === "playing" && (
+        <AiTutorChat
+          enabled={true}
+          questionContext={questions[currentQ]?.text}
+          quizTitle={title}
+          programmingLanguage={questions[currentQ]?.programmingLanguage}
+        />
+      )}
     </div>
   );
 }
