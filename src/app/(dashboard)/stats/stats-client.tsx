@@ -161,7 +161,7 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
               )}
               {completedResults.map((result, i) => {
                 const scorePercent = result.maxScore > 0
-                  ? Math.round((result.score / result.maxScore) * 100)
+                  ? Math.min(Math.round((result.score / result.maxScore) * 100), 100)
                   : 0;
 
                 return (

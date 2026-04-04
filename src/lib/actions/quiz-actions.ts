@@ -182,7 +182,7 @@ export async function listQuizzes() {
  * Einzelnes Quiz mit Fragen laden.
  */
 export async function getQuizWithQuestions(quizId: string) {
-  await requireSession();
+  const { tenantId, departmentId, role } = await getSessionUserData();
 
   const [quiz] = await db
     .select()
@@ -191,6 +191,16 @@ export async function getQuizWithQuestions(quizId: string) {
     .limit(1);
 
   if (!quiz) throw new Error("Quiz nicht gefunden");
+
+  // Visibility-Check (admin/super_admin sehen alles)
+  if (role !== "admin" && role !== "super_admin") {
+    if (quiz.tenantId !== tenantId) {
+      throw new Error("Kein Zugriff auf dieses Quiz");
+    }
+    if (quiz.visibility === "department" && quiz.departmentId !== departmentId) {
+      throw new Error("Kein Zugriff auf dieses Quiz");
+    }
+  }
 
   const quizQuestions = await db
     .select()

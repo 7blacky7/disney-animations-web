@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/users";
 import { eq } from "drizzle-orm";
 import type { UserRole } from "./rbac";
-import { hasRole, canAccessRoute, ROUTE_PERMISSIONS } from "./rbac";
+import { hasRole, canAccessRoute } from "./rbac";
 
 /**
  * Server-seitige Session-Helpers
