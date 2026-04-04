@@ -124,6 +124,19 @@ export function QuizzesClient({ initialQuizzes, hasData }: QuizzesClientProps) {
                 <span className="ml-auto" suppressHydrationWarning>{new Date(quiz.createdAt).toLocaleDateString("de-DE")}</span>
               </div>
             </Link>
+            <Link
+              href={`/play/${quiz.id}`}
+              className={cn(
+                "mt-2 flex items-center justify-center gap-2 rounded-lg",
+                "bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary",
+                "transition-colors duration-200 hover:bg-primary/20",
+              )}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Spielen
+            </Link>
           </motion.div>
         ))}
       </div>

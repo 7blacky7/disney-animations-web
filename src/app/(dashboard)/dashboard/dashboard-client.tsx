@@ -21,13 +21,22 @@ interface DashboardStats {
   averageScore: number;
 }
 
+interface Quiz {
+  id: string;
+  title: string;
+  description: string | null;
+  quizMode: string;
+  visibility: string;
+}
+
 interface DashboardClientProps {
   stats: DashboardStats | null;
+  quizzes?: Quiz[];
 }
 
 const CARD_TRANSITION = { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const };
 
-export function DashboardClient({ stats }: DashboardClientProps) {
+export function DashboardClient({ stats, quizzes = [] }: DashboardClientProps) {
   const { prefersReducedMotion } = useAccessibility();
   const kpis = stats
     ? [
@@ -77,18 +86,57 @@ export function DashboardClient({ stats }: DashboardClientProps) {
         ))}
       </div>
 
-      {/* Activity Feed Placeholder */}
-      {!stats && (
-        <div className="rounded-2xl border border-border/40 bg-card p-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            Melde dich an, um deine Dashboard-Daten zu sehen.
-          </p>
+      {/* Verfuegbare Quizzes */}
+      {quizzes.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-lg font-semibold">Verfuegbare Quizzes</h2>
+            <span className="text-xs text-muted-foreground">{quizzes.length} Quiz{quizzes.length !== 1 ? "zes" : ""}</span>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {quizzes.map((quiz, i) => (
+              <motion.div
+                key={quiz.id}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { ...CARD_TRANSITION, delay: 0.2 + i * 0.05 }}
+              >
+                <div className="flex flex-col rounded-2xl border border-border/40 bg-card p-5 transition-all duration-200 hover:shadow-md hover:shadow-foreground/[0.03] hover:border-border">
+                  <h3 className="font-heading text-sm font-semibold leading-tight">{quiz.title}</h3>
+                  {quiz.description && (
+                    <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">{quiz.description}</p>
+                  )}
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                      {quiz.quizMode === "realtime" ? "Echtzeit" : "Asynchron"}
+                    </span>
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      {quiz.visibility === "global" ? "Oeffentlich" : quiz.visibility === "tenant" ? "Firmenintern" : "Abteilung"}
+                    </span>
+                  </div>
+                  <Link
+                    href={`/play/${quiz.id}`}
+                    className={cn(
+                      "mt-4 inline-flex items-center justify-center gap-2 rounded-lg",
+                      "bg-primary px-4 py-2 text-sm font-medium text-primary-foreground",
+                      "transition-colors duration-200 hover:bg-primary/90",
+                    )}
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                    Spielen
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
 
-      {stats && (
-        <div className="flex h-[300px] items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/20">
-          <p className="text-sm text-muted-foreground/60">Aktivitaets-Feed folgt</p>
+      {quizzes.length === 0 && stats && (
+        <div className="rounded-2xl border border-dashed border-border/60 bg-muted/20 p-8 text-center">
+          <p className="text-sm text-muted-foreground/60">Noch keine Quizzes verfuegbar</p>
         </div>
       )}
     </div>
