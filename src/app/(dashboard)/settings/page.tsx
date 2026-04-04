@@ -1,4 +1,4 @@
-import { getTenant } from "@/lib/actions/user-actions";
+import { getTenant } from "@/lib/actions/user";
 import { requireRouteAccess } from "@/lib/auth/session";
 import { SettingsClient } from "./settings-client";
 

@@ -1,4 +1,4 @@
-import { listUsers, listDepartments, listInvitations } from "@/lib/actions/user-actions";
+import { listUsers, listDepartments, listInvitations } from "@/lib/actions/user";
 import { requireRouteAccess } from "@/lib/auth/session";
 import { UsersClient } from "./users-client";
 

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
-import { createDepartment } from "@/lib/actions/user-actions";
+import { createDepartment } from "@/lib/actions/user";
 
 /**
  * Departments Client — Phase 3: Abteilungs-CRUD

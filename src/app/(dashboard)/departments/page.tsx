@@ -1,4 +1,4 @@
-import { listDepartments } from "@/lib/actions/user-actions";
+import { listDepartments } from "@/lib/actions/user";
 import { requireRouteAccess } from "@/lib/auth/session";
 import { DepartmentsClient } from "./departments-client";
 

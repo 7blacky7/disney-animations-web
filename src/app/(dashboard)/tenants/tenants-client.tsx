@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
-import { createTenant, deleteTenant } from "@/lib/actions/tenant-actions";
+import { createTenant, deleteTenant } from "@/lib/actions/tenant";
 import { cn } from "@/lib/utils";
 
 /**

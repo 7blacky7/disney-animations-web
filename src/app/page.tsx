@@ -8,7 +8,7 @@ import {
   StatsSection,
   CTASection,
 } from "@/components/sections";
-import { listPublicQuizzes } from "@/lib/actions/quiz-actions";
+import { listPublicQuizzes } from "@/lib/actions/quiz";
 import { PublicQuizSection } from "@/components/sections/PublicQuizSection";
 
 // Force dynamic rendering + no-store cache to prevent bfcache

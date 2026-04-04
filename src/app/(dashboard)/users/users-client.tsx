@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
-import { inviteUser } from "@/lib/actions/user-actions";
+import { inviteUser } from "@/lib/actions/user";
 import { cn } from "@/lib/utils";
 
 /**

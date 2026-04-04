@@ -10,8 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
-import { updateTenantBranding } from "@/lib/actions/user-actions";
-import { updateTenantLandingSettings, updateTenantAiSettings } from "@/lib/actions/tenant-actions";
+import { updateTenantBranding } from "@/lib/actions/user";
+import { updateTenantLandingSettings, updateTenantAiSettings } from "@/lib/actions/tenant";
 import {
   Select,
   SelectContent,

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
-import { createQuiz } from "@/lib/actions/quiz-actions";
+import { createQuiz } from "@/lib/actions/quiz";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";

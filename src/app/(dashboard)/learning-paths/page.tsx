@@ -1,4 +1,4 @@
-import { listLearningPaths } from "@/lib/actions/learning-path-actions";
+import { listLearningPaths } from "@/lib/actions/learning-path";
 import { requireRouteAccess } from "@/lib/auth/session";
 import { LearningPathsClient } from "./learning-paths-client";
 

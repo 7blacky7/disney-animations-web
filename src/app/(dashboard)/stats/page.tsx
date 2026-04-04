@@ -1,4 +1,4 @@
-import { getQuizStats, getMyResults } from "@/lib/actions/quiz-actions";
+import { getQuizStats, getMyResults } from "@/lib/actions/quiz";
 import { requireRouteAccess } from "@/lib/auth/session";
 import { StatsClient } from "./stats-client";
 

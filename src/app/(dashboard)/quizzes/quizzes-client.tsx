@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
-import { assignQuiz } from "@/lib/actions/quiz-actions";
+import { assignQuiz } from "@/lib/actions/quiz";
 import { cn } from "@/lib/utils";
 
 /**

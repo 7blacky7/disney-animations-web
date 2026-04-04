@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
-import { createLearningPath, updateLearningPath, deleteLearningPath } from "@/lib/actions/learning-path-actions";
+import { createLearningPath, updateLearningPath, deleteLearningPath } from "@/lib/actions/learning-path";
 import { cn } from "@/lib/utils";
 
 /**

@@ -1,4 +1,4 @@
-import { getMyResults } from "@/lib/actions/quiz-actions";
+import { getMyResults } from "@/lib/actions/quiz";
 import { requireRouteAccess } from "@/lib/auth/session";
 import { MyResultsClient } from "./my-results-client";
 

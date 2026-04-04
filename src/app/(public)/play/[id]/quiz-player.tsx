@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { QuestionRenderer } from "@/components/quiz/QuestionRenderer";
 import type { ClientQuestionData, AnswerFeedback } from "@/components/quiz/types";
-import { startQuizAttempt, evaluateAndSubmitAnswer, completeQuizAttempt } from "@/lib/actions/quiz-actions";
+import { startQuizAttempt, evaluateAndSubmitAnswer, completeQuizAttempt } from "@/lib/actions/quiz";
 import {
   // Countdown
   countdownNumber,

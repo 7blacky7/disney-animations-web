@@ -1,5 +1,5 @@
 import { requireRouteAccess } from "@/lib/auth/session";
-import { listAllTenants } from "@/lib/actions/tenant-actions";
+import { listAllTenants } from "@/lib/actions/tenant";
 import { TenantsClient } from "./tenants-client";
 
 /**

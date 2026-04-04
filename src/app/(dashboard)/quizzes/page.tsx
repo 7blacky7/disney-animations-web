@@ -1,5 +1,5 @@
-import { listQuizzes } from "@/lib/actions/quiz-actions";
-import { listDepartments } from "@/lib/actions/user-actions";
+import { listQuizzes } from "@/lib/actions/quiz";
+import { listDepartments } from "@/lib/actions/user";
 import { requireRouteAccess } from "@/lib/auth/session";
 import { QuizzesClient } from "./quizzes-client";
 

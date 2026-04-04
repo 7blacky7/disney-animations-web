@@ -1,4 +1,4 @@
-import { getDashboardStats, listQuizzes, getMyAssignedQuizzes } from "@/lib/actions/quiz-actions";
+import { getDashboardStats, listQuizzes, getMyAssignedQuizzes } from "@/lib/actions/quiz";
 import { requireRouteAccess, getSessionUserData } from "@/lib/auth/session";
 import { DashboardClient } from "./dashboard-client";
 
