@@ -53,7 +53,7 @@ export default function RootLayout({
         {/* Prevent FOUC: apply theme class before paint */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("disney-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}var a=localStorage.getItem("quiz-accent-theme")||"amber";document.documentElement.setAttribute("data-accent",a)}catch(e){document.documentElement.setAttribute("data-accent","amber")}})()`,
+            __html: `(function(){try{var t=localStorage.getItem("disney-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}var a=localStorage.getItem("disney-accent")||"amber";document.documentElement.setAttribute("data-accent",a)}catch(e){document.documentElement.setAttribute("data-accent","amber")}})()`,
           }}
         />
       </head>
