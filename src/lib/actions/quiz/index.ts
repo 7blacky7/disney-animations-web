@@ -20,33 +20,36 @@ export { parseJsonField } from "./_helpers";
 
 // Public (no auth)
 export { listPublicQuizzes } from "./list-public";
+export { listPublicQuizzesWithAttribution } from "./list-public-with-attribution";
 
 // Quiz CRUD
 export { createQuiz } from "./create-quiz";
+export { updateQuiz } from "./update-quiz";
+export { deleteQuiz } from "./delete-quiz";
+export { listQuizzes } from "./list-quizzes";
+export { getQuizWithQuestions } from "./get-quiz-with-questions";
+
+// Questions
+export { addQuestion } from "./add-question";
+export { updateQuestion } from "./update-question";
+export { deleteQuestion } from "./delete-question";
+
+// Quiz Play (Attempts + Answers)
+export { startQuizAttempt } from "./start-attempt";
+export { evaluateAndSubmitAnswer } from "./evaluate-and-submit-answer";
+export { submitAnswer } from "./submit-answer";
+export { completeQuizAttempt } from "./complete-quiz-attempt";
 
 // Results
 export { getMyResults } from "./get-my-results";
+export { getQuizResults } from "./get-quiz-results";
 
-// Re-export remaining functions from legacy file during migration
-// TODO: Extract each function into its own file
-export {
-  updateQuiz,
-  deleteQuiz,
-  listQuizzes,
-  getQuizWithQuestions,
-  addQuestion,
-  updateQuestion,
-  deleteQuestion,
-  startQuizAttempt,
-  evaluateAndSubmitAnswer,
-  submitAnswer,
-  completeQuizAttempt,
-  getQuizResults,
-  getDashboardStats,
-  getQuizStats,
-  assignQuiz,
-  getMyAssignedQuizzes,
-  getQuizAssignments,
-  removeQuizAssignment,
-  listPublicQuizzesWithAttribution,
-} from "../quiz-actions";
+// Dashboard Stats
+export { getDashboardStats } from "./get-dashboard-stats";
+export { getQuizStats } from "./get-quiz-stats";
+
+// Assignments
+export { assignQuiz } from "./assign-quiz";
+export { getMyAssignedQuizzes } from "./get-my-assigned-quizzes";
+export { getQuizAssignments } from "./get-quiz-assignments";
+export { removeQuizAssignment } from "./remove-quiz-assignment";
