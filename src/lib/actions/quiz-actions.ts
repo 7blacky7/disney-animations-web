@@ -75,6 +75,7 @@ export async function createQuiz(input: CreateQuizInput) {
     visibility: input.visibility,
     isPracticeAllowed: input.isPracticeAllowed ?? true,
     departmentId: input.departmentId,
+    isPublished: true,
   }).returning();
 
   return quiz;
