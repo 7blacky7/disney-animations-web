@@ -50,4 +50,6 @@ export interface AnswerEvaluationResult {
   blankAnswers?: string[];
   keywords?: string[];
   codeSolution?: string;
+  expectedCommands?: string[];
+  expectedOutput?: string;
 }

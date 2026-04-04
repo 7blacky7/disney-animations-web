@@ -41,6 +41,14 @@ export interface QuestionData {
   codeTemplate?: string;
   codeSolution?: string;
   programmingLanguage?: string;
+  /** Terminal: Erwartete Befehle (mehrere Varianten moeglich) */
+  expectedCommands?: string[];
+  /** Terminal: Simulierte Ausgabe nach korrektem Befehl */
+  expectedOutput?: string;
+  /** Terminal: Prompt-Text (z.B. "user@linux:~$") */
+  terminalPrompt?: string;
+  /** Terminal: Hint bei falscher Eingabe */
+  terminalHint?: string;
   timeLimit?: number;
   points?: number;
 }
@@ -71,6 +79,8 @@ export function AnswerEditor({ question, onUpdate }: AnswerEditorProps) {
       return <FreeTextEditor question={question} onUpdate={onUpdate} />;
     case "code_input":
       return <CodeInputEditor question={question} onUpdate={onUpdate} />;
+    case "terminal":
+      return <TerminalEditor question={question} onUpdate={onUpdate} />;
     default:
       return <p className="text-xs text-muted-foreground">Kein Antwort-Editor fuer diesen Typ.</p>;
   }
@@ -343,6 +353,64 @@ function CodeInputEditor({ question, onUpdate }: AnswerEditorProps) {
           placeholder="function add(a, b) {&#10;  return a + b;&#10;}"
           rows={4}
           className="font-mono text-xs"
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Terminal — Erwartete Befehle + Simulierte Ausgabe */
+function TerminalEditor({ question, onUpdate }: AnswerEditorProps) {
+  const commands = question.expectedCommands ?? [""];
+  return (
+    <div className="space-y-3">
+      <div className="space-y-1">
+        <Label className="text-[10px]">Terminal-Prompt (optional, z.B. "user@linux:~$")</Label>
+        <Input
+          value={question.terminalPrompt ?? ""}
+          onChange={(e) => onUpdate({ terminalPrompt: e.target.value })}
+          placeholder="user@linux:~$"
+          className="font-mono text-xs h-8"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-[10px] text-muted-foreground">Erwartete Befehle (mehrere Varianten moeglich, case-insensitive)</Label>
+        {commands.map((cmd, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <Input
+              value={cmd}
+              onChange={(e) => { const n = [...commands]; n[i] = e.target.value; onUpdate({ expectedCommands: n }); }}
+              placeholder={`z.B. ls -la oder ls -al`}
+              className="font-mono text-xs h-8"
+            />
+            {commands.length > 1 && (
+              <button type="button" onClick={() => onUpdate({ expectedCommands: commands.filter((_, idx) => idx !== i) })} className="text-muted-foreground/40 hover:text-destructive">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-3.5 w-3.5"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              </button>
+            )}
+          </div>
+        ))}
+        <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => onUpdate({ expectedCommands: [...commands, ""] })}>
+          + Variante hinzufuegen
+        </Button>
+      </div>
+      <div className="space-y-1">
+        <Label className="text-[10px]">Simulierte Ausgabe nach korrektem Befehl (optional)</Label>
+        <Textarea
+          value={question.expectedOutput ?? ""}
+          onChange={(e) => onUpdate({ expectedOutput: e.target.value })}
+          placeholder="total 42&#10;drwxr-xr-x 2 user user 4096 Apr 4 12:00 ."
+          rows={3}
+          className="font-mono text-xs"
+        />
+      </div>
+      <div className="space-y-1">
+        <Label className="text-[10px]">Hint bei falscher Eingabe (optional)</Label>
+        <Input
+          value={question.terminalHint ?? ""}
+          onChange={(e) => onUpdate({ terminalHint: e.target.value })}
+          placeholder="Tipp: Nutze ls mit der Option -la"
+          className="text-xs h-8"
         />
       </div>
     </div>

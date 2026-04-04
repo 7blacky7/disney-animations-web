@@ -164,6 +164,22 @@ export async function evaluateAndSubmitAnswer(input: EvaluateAnswerInput): Promi
       feedback.codeSolution = solution;
       break;
     }
+    case "terminal": {
+      // Terminal: String-Match gegen erwartete Befehle (exakt oder mehrere Varianten)
+      const termCorrect = correctRaw as Record<string, unknown> | null;
+      const expectedCmds = (termCorrect?.commands as string[])
+        ?? (Array.isArray(correctRaw) ? (correctRaw as string[]) : []);
+      const termOutput = (termCorrect?.output as string) ?? "";
+      const userCmd = typeof input.answer === "string" ? input.answer.trim() : "";
+
+      // Vergleich: Case-insensitive, trimmed
+      isCorrect = expectedCmds.some(
+        (cmd) => cmd.trim().toLowerCase() === userCmd.toLowerCase(),
+      );
+      feedback.expectedCommands = expectedCmds;
+      feedback.expectedOutput = termOutput;
+      break;
+    }
   }
 
   // Punkte berechnen (Base + Speed Bonus)

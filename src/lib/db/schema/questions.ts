@@ -2,8 +2,9 @@ import { integer, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-
 import { quizzes } from "./quizzes";
 
 /**
- * Frage-Typen — Alle 11 spielbaren Quiz-Typen.
+ * Frage-Typen — Alle 12 spielbaren Quiz-Typen.
  * code_input: Programmier-Aufgabe mit Code-Editor + Live-Validierung
+ * terminal: Simulations-Terminal — Befehl eingeben, String-Match Validierung
  */
 export const questionTypeEnum = pgEnum("question_type", [
   "multiple_choice",
@@ -17,6 +18,7 @@ export const questionTypeEnum = pgEnum("question_type", [
   "sorting",
   "timed",
   "code_input",
+  "terminal",
 ]);
 
 /**

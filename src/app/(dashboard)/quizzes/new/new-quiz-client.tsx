@@ -55,6 +55,8 @@ const QUESTION_TYPES = [
   { id: "image_choice", label: "Bildauswahl", icon: ImageChoiceIcon, color: "var(--primary)" },
   { id: "sorting", label: "Reihenfolge", icon: SortingIcon, color: "var(--chart-2)" },
   { id: "timed", label: "Zeitdruck", icon: TimerIcon, color: "var(--destructive)" },
+  { id: "code_input", label: "Code-Eingabe", icon: FreetextIcon, color: "var(--chart-5)" },
+  { id: "terminal", label: "Terminal", icon: FreetextIcon, color: "var(--chart-3)" },
 ] as const;
 
 // QuestionData wird aus AnswerEditor importiert — enthält alle Antwort-Felder
@@ -90,6 +92,7 @@ export function NewQuizClient() {
       ...(typeId === "fill_blank" ? { blankAnswer: "" } : {}),
       ...(typeId === "free_text" ? { keywords: [""] } : {}),
       ...(typeId === "code_input" ? { codeTemplate: "", codeSolution: "", programmingLanguage: "javascript" } : {}),
+      ...(typeId === "terminal" ? { expectedCommands: [""], expectedOutput: "", terminalPrompt: "user@linux:~$", terminalHint: "" } : {}),
       ...(typeId === "timed" ? { timeLimit: 30 } : {}),
       points: 10,
     };
@@ -154,6 +157,12 @@ export function NewQuizClient() {
             break;
           case "code_input":
             // code_template und code_solution werden ueber separate Felder gespeichert
+            break;
+          case "terminal":
+            correctAnswer = {
+              commands: q.expectedCommands?.filter(Boolean) ?? [],
+              output: q.expectedOutput ?? "",
+            };
             break;
         }
 

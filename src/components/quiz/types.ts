@@ -20,7 +20,8 @@ export type QuestionType =
   | "image_choice"
   | "sorting"
   | "timed"
-  | "code_input";
+  | "code_input"
+  | "terminal";
 
 /**
  * SECURITY: Client-safe question data — NO correct answers included.
@@ -60,8 +61,13 @@ export interface ClientQuestionData {
   programmingLanguage?: string;
   /** Lernmaterial-Links (JSON Array von { url, title }) */
   referenceUrls?: { url: string; title: string }[];
+  /** Terminal: Aufgaben-Prompt (was der User im Terminal sieht) */
+  terminalPrompt?: string;
+  /** Terminal: Hint-Text bei falscher Eingabe */
+  terminalHint?: string;
   // SECURITY: No correctIndex, correctAnswer, correctOrder,
-  //           sliderCorrect, sliderTolerance, blankAnswers, keywords, codeSolution
+  //           sliderCorrect, sliderTolerance, blankAnswers, keywords, codeSolution,
+  //           expectedCommands, expectedOutput
 }
 
 /**
@@ -87,6 +93,10 @@ export interface AnswerFeedback {
   keywords?: string[];
   /** Code-Input: Musterloesung (fuer Feedback-Anzeige nach Abgabe) */
   codeSolution?: string;
+  /** Terminal: Erwartete Befehle (nach Abgabe angezeigt) */
+  expectedCommands?: string[];
+  /** Terminal: Simulierte Ausgabe nach korrektem Befehl */
+  expectedOutput?: string;
 }
 
 /**
