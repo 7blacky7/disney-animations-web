@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { AnimatedLink } from "@/components/animated/AnimatedLink";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -84,7 +85,7 @@ export function Header() {
         {/* Actions */}
         <div className="flex items-center gap-3">
           <ThemeSwitcher />
-          <a
+          <Link
             href="/register"
             className={cn(
               "hidden sm:inline-flex",
@@ -94,7 +95,7 @@ export function Header() {
             )}
           >
             Registrieren
-          </a>
+          </Link>
         </div>
       </nav>
     </motion.header>

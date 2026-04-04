@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
@@ -181,7 +182,7 @@ export function HeroSection() {
           variants={prefersReducedMotion ? undefined : ctaVariants}
           className="mt-12 flex flex-col items-center gap-4 sm:flex-row"
         >
-          <a href="/register">
+          <Link href="/register">
             <AnimatedButton
               shine
               intensity="bold"
@@ -190,8 +191,8 @@ export function HeroSection() {
             >
               Jetzt starten
             </AnimatedButton>
-          </a>
-          <a href="/login">
+          </Link>
+          <Link href="/login">
             <AnimatedButton
               variant="outline"
               size="lg"
@@ -199,7 +200,7 @@ export function HeroSection() {
             >
               Anmelden
             </AnimatedButton>
-          </a>
+          </Link>
         </motion.div>
       </motion.div>
 

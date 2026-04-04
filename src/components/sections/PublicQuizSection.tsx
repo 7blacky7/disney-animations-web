@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { ScrollReveal } from "@/components/animated/ScrollReveal";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
@@ -86,14 +87,14 @@ export function PublicQuizSection({ quizzes }: PublicQuizSectionProps) {
                 )}
 
                 <div className="mt-auto pt-5">
-                  <a href={`/play/${quiz.id}`}>
+                  <Link href={`/play/${quiz.id}`}>
                     <AnimatedButton shine className="w-full">
                       <svg viewBox="0 0 24 24" fill="currentColor" className="mr-2 h-4 w-4">
                         <path d="M8 5v14l11-7z" />
                       </svg>
                       Quiz starten
                     </AnimatedButton>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </motion.div>

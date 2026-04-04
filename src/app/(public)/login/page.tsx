@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { signIn } from "@/lib/auth/client";
@@ -148,13 +149,13 @@ function LoginForm() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Noch kein Konto?{" "}
-          <a href="/register" className="font-medium text-primary hover:underline">
+          <Link href="/register" className="font-medium text-primary hover:underline">
             Registrieren
-          </a>
+          </Link>
         </p>
-        <a href="/" className="mt-4 block text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+        <Link href="/" className="mt-4 block text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
           ← Zur Startseite
-        </a>
+        </Link>
       </motion.div>
     </div>
   );

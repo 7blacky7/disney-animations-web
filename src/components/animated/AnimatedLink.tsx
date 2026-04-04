@@ -1,10 +1,14 @@
 "use client";
 
 import { type ComponentProps } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
  * AnimatedLink — Hover underline-draw animation
+ *
+ * Uses Next.js <Link> for internal routes (client-side navigation,
+ * prevents bfcache issues) and <a> for hash/external links.
  *
  * Disney Principles:
  * - Anticipation: line starts from center and expands
@@ -33,29 +37,41 @@ export function AnimatedLink({
   thickness = "normal",
   underlineClassName,
   className,
+  href,
   ...props
 }: AnimatedLinkProps) {
+  const linkClassName = cn(
+    "relative inline-flex items-center gap-1",
+    "font-medium text-foreground",
+    "transition-colors duration-200",
+    "hover:text-primary",
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+    // Underline draw animation
+    "before:absolute before:bottom-0 before:left-1/2 before:w-0",
+    "before:-translate-x-1/2",
+    "before:bg-current before:rounded-full",
+    "before:transition-[width] before:duration-300",
+    "before:ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+    "hover:before:w-full",
+    thicknessMap[thickness],
+    underlineClassName,
+    className,
+  );
+
+  // Use Next.js Link for internal routes (prevents full-page nav + bfcache)
+  // Use <a> for hash links (#section) and external URLs
+  const isInternalRoute = href && href.startsWith("/") && !href.startsWith("//");
+
+  if (isInternalRoute) {
+    return (
+      <Link href={href} className={linkClassName}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <a
-      className={cn(
-        "relative inline-flex items-center gap-1",
-        "font-medium text-foreground",
-        "transition-colors duration-200",
-        "hover:text-primary",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-        // Underline draw animation
-        "before:absolute before:bottom-0 before:left-1/2 before:w-0",
-        "before:-translate-x-1/2",
-        "before:bg-current before:rounded-full",
-        "before:transition-[width] before:duration-300",
-        "before:ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-        "hover:before:w-full",
-        thicknessMap[thickness],
-        underlineClassName,
-        className,
-      )}
-      {...props}
-    >
+    <a href={href} className={linkClassName} {...props}>
       {children}
     </a>
   );

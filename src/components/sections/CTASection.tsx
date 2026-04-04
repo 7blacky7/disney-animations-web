@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import Link from "next/link";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
 import { ScrollReveal } from "@/components/animated/ScrollReveal";
@@ -86,7 +87,7 @@ export function CTASection() {
           transition={{ ...SPRING.bouncy, delay: 0.3 }}
           className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
         >
-          <a href="/register">
+          <Link href="/register">
             <AnimatedButton
               shine
               intensity="bold"
@@ -95,8 +96,8 @@ export function CTASection() {
             >
               Jetzt starten
             </AnimatedButton>
-          </a>
-          <a href="/login">
+          </Link>
+          <Link href="/login">
             <AnimatedButton
               variant="outline"
               size="lg"
@@ -104,7 +105,7 @@ export function CTASection() {
             >
               Anmelden
             </AnimatedButton>
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>
