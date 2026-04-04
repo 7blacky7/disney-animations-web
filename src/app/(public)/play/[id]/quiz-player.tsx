@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
@@ -149,7 +149,8 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
   const [totalScore, setTotalScore] = useState(0);
   const [showPointsFloat, setShowPointsFloat] = useState<{ points: number; x: number } | null>(null);
   const [showScorePop, setShowScorePop] = useState(false);
-  const [resultId, setResultId] = useState<string | null>(null);
+  // FIX: useRef for resultId to avoid stale closure in useCallback handlers
+  const resultIdRef = useRef<string | null>(null);
   const { prefersReducedMotion } = useAccessibility();
 
   const question = quizQuestions[currentQ];
@@ -180,14 +181,14 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
   // Start quiz attempt when countdown begins
   useEffect(() => {
     if (state !== "countdown") return;
-    if (resultId) return; // Already started
+    if (resultIdRef.current) return; // Already started
 
     startQuizAttempt(quizId).then((result) => {
-      setResultId(result.id);
+      resultIdRef.current = result.id;
     }).catch((err) => {
       console.error("Failed to start quiz attempt:", err);
     });
-  }, [state, quizId, resultId]);
+  }, [state, quizId]);
 
   useEffect(() => {
     if (state !== "countdown") return;
@@ -208,14 +209,18 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
   // Question Timer
   // ---------------------------------------------------------------------------
 
+  const [timedOut, setTimedOut] = useState(false);
+
+  // Countdown timer — decrements every second, flags timeout at 0
   useEffect(() => {
     if (state !== "playing" || showFeedback) return;
     setTimeLeft(question?.timeLimit ?? 30);
+    setTimedOut(false);
 
     const interval = setInterval(() => {
       setTimeLeft((t) => {
         if (t <= 1) {
-          handleAnswer(-1); // Time's up
+          setTimedOut(true);
           return 0;
         }
         return t - 1;
@@ -225,6 +230,15 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQ, state, showFeedback]);
+
+  // Handle timeout in a separate effect (avoids setState-inside-setState)
+  useEffect(() => {
+    if (timedOut && !showFeedback) {
+      handleAnswer(-1);
+      setTimedOut(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timedOut]);
 
   // ---------------------------------------------------------------------------
   // Answer Handler
@@ -305,10 +319,11 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
         },
       ]);
 
-      // Submit answer to server
-      if (resultId) {
+      // Submit answer to server — use ref to avoid stale closure
+      const currentResultId = resultIdRef.current;
+      if (currentResultId) {
         submitAnswer({
-          resultId,
+          resultId: currentResultId,
           questionId: q.id,
           answer,
           isCorrect,
@@ -327,9 +342,10 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
             setSelectedAnswer(null);
             setShowFeedback(false);
           } else {
-            // Complete quiz attempt on server
-            if (resultId) {
-              completeQuizAttempt(resultId).catch((err) => {
+            // Complete quiz attempt on server — use ref to avoid stale closure
+            const finalResultId = resultIdRef.current;
+            if (finalResultId) {
+              completeQuizAttempt(finalResultId).catch((err) => {
                 console.error("Failed to complete quiz attempt:", err);
               });
             }
@@ -361,7 +377,7 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
     setStreak(0);
     setTotalScore(0);
     setCountdownValue(3);
-    setResultId(null);
+    resultIdRef.current = null;
   }, []);
 
   // ---------------------------------------------------------------------------
