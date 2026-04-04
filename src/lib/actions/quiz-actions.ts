@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { quizzes, questions, quizResults, quizAnswers, users } from "@/lib/db/schema";
+import { quizzes, questions, quizResults, quizAnswers, quizAssignments, users, departments, tenants } from "@/lib/db/schema";
 import { requireSession, requireRole, getSessionTenantId, getSessionUserData } from "@/lib/auth/session";
-import { eq, and, desc, count, sql } from "drizzle-orm";
+import { eq, and, or, desc, count, sql, isNull, isNotNull } from "drizzle-orm";
 
 /**
  * Quiz Server Actions — CRUD + Sichtbarkeits-Logik
@@ -795,5 +795,238 @@ export async function getQuizStats() {
     avgScore: Math.round(s.avgScore),
     completionRate: Math.round(s.completionRate),
     practiceRatio: Math.round(s.practiceRatio),
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// Quiz Assignments (Zuweisungen)
+// ---------------------------------------------------------------------------
+
+/**
+ * Quiz an User oder Abteilung zuweisen.
+ *
+ * RBAC:
+ * - department_lead: Eigene Quizzes an User/Abteilungen im eigenen Dept
+ * - admin: Beliebige Tenant-Quizzes an beliebige Tenant-User/Depts
+ */
+export async function assignQuiz(input: {
+  quizId: string;
+  userId?: string;
+  departmentId?: string;
+  dueDate?: string;
+}) {
+  const session = await requireSession();
+  const { tenantId, departmentId: ownDeptId, role } = await getSessionUserData();
+
+  if (role !== "admin" && role !== "super_admin" && role !== "department_lead") {
+    throw new Error("Keine Berechtigung fuer Quiz-Zuweisungen");
+  }
+
+  if (!input.userId && !input.departmentId) {
+    throw new Error("Entweder userId oder departmentId muss angegeben werden");
+  }
+
+  // Quiz muss zum Tenant gehoeren
+  const [quiz] = await db
+    .select({ tenantId: quizzes.tenantId, createdBy: quizzes.createdBy })
+    .from(quizzes)
+    .where(eq(quizzes.id, input.quizId))
+    .limit(1);
+
+  if (!quiz || quiz.tenantId !== tenantId) {
+    throw new Error("Quiz nicht gefunden");
+  }
+
+  // Department Lead: Nur eigene Quizzes oder eigene Abteilung
+  if (role === "department_lead") {
+    if (input.departmentId && input.departmentId !== ownDeptId) {
+      throw new Error("Abteilungsleiter koennen nur in der eigenen Abteilung zuweisen");
+    }
+    // Wenn User zugewiesen wird, muss er in der eigenen Abteilung sein
+    if (input.userId) {
+      const [targetUser] = await db
+        .select({ departmentId: users.departmentId })
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1);
+
+      if (!targetUser || targetUser.departmentId !== ownDeptId) {
+        throw new Error("Benutzer ist nicht in Ihrer Abteilung");
+      }
+    }
+  }
+
+  // User muss zum Tenant gehoeren (wenn angegeben)
+  if (input.userId) {
+    const [targetUser] = await db
+      .select({ tenantId: users.tenantId })
+      .from(users)
+      .where(eq(users.id, input.userId))
+      .limit(1);
+
+    if (!targetUser || targetUser.tenantId !== tenantId) {
+      throw new Error("Benutzer nicht gefunden");
+    }
+  }
+
+  // Abteilung muss zum Tenant gehoeren (wenn angegeben)
+  if (input.departmentId) {
+    const [dept] = await db
+      .select({ tenantId: departments.tenantId })
+      .from(departments)
+      .where(eq(departments.id, input.departmentId))
+      .limit(1);
+
+    if (!dept || dept.tenantId !== tenantId) {
+      throw new Error("Abteilung nicht gefunden");
+    }
+  }
+
+  const [assignment] = await db.insert(quizAssignments).values({
+    quizId: input.quizId,
+    userId: input.userId ?? null,
+    departmentId: input.departmentId ?? null,
+    assignedBy: session.user.id,
+    dueDate: input.dueDate ? new Date(input.dueDate) : null,
+  }).returning();
+
+  return assignment;
+}
+
+/**
+ * Meine zugewiesenen Quizzes abrufen (fuer Mitarbeiter).
+ * Gibt Quizzes zurueck die dem User direkt oder ueber seine Abteilung zugewiesen sind.
+ */
+export async function getMyAssignedQuizzes() {
+  const session = await requireSession();
+  const { departmentId } = await getSessionUserData();
+
+  // Direkte Zuweisungen + Abteilungs-Zuweisungen
+  const conditions = [eq(quizAssignments.userId, session.user.id)];
+  if (departmentId) {
+    conditions.push(eq(quizAssignments.departmentId, departmentId));
+  }
+
+  const result = await db
+    .select({
+      assignmentId: quizAssignments.id,
+      quizId: quizzes.id,
+      title: quizzes.title,
+      description: quizzes.description,
+      quizMode: quizzes.quizMode,
+      dueDate: quizAssignments.dueDate,
+      status: quizAssignments.status,
+      assignedAt: quizAssignments.createdAt,
+    })
+    .from(quizAssignments)
+    .innerJoin(quizzes, eq(quizAssignments.quizId, quizzes.id))
+    .where(or(...conditions))
+    .orderBy(desc(quizAssignments.createdAt));
+
+  return result;
+}
+
+/**
+ * Zuweisungen fuer ein Quiz auflisten (fuer Abteilungsleiter/Admin).
+ */
+export async function getQuizAssignments(quizId: string) {
+  await requireRole("department_lead");
+  const { tenantId } = await getSessionUserData();
+
+  // Quiz muss zum Tenant gehoeren
+  const [quiz] = await db
+    .select({ tenantId: quizzes.tenantId })
+    .from(quizzes)
+    .where(eq(quizzes.id, quizId))
+    .limit(1);
+
+  if (!quiz || quiz.tenantId !== tenantId) {
+    throw new Error("Quiz nicht gefunden");
+  }
+
+  const result = await db
+    .select({
+      id: quizAssignments.id,
+      userId: quizAssignments.userId,
+      departmentId: quizAssignments.departmentId,
+      dueDate: quizAssignments.dueDate,
+      status: quizAssignments.status,
+      createdAt: quizAssignments.createdAt,
+    })
+    .from(quizAssignments)
+    .where(eq(quizAssignments.quizId, quizId))
+    .orderBy(desc(quizAssignments.createdAt));
+
+  return result;
+}
+
+/**
+ * Quiz-Zuweisung loeschen.
+ */
+export async function removeQuizAssignment(assignmentId: string) {
+  await requireRole("department_lead");
+  const { tenantId } = await getSessionUserData();
+
+  // Assignment muss zu einem Quiz des eigenen Tenants gehoeren
+  const [assignment] = await db
+    .select({ quizId: quizAssignments.quizId })
+    .from(quizAssignments)
+    .where(eq(quizAssignments.id, assignmentId))
+    .limit(1);
+
+  if (!assignment) throw new Error("Zuweisung nicht gefunden");
+
+  const [quiz] = await db
+    .select({ tenantId: quizzes.tenantId })
+    .from(quizzes)
+    .where(eq(quizzes.id, assignment.quizId))
+    .limit(1);
+
+  if (!quiz || quiz.tenantId !== tenantId) {
+    throw new Error("Keine Berechtigung");
+  }
+
+  await db.delete(quizAssignments).where(eq(quizAssignments.id, assignmentId));
+  return { success: true };
+}
+
+// ---------------------------------------------------------------------------
+// Public Quizzes — Erweitert mit Tenant-Attribution
+// ---------------------------------------------------------------------------
+
+/**
+ * Oeffentliche Quizzes mit optionaler Firmen-Attribution.
+ * Respektiert die quizAttribution-Einstellung des Tenants.
+ */
+export async function listPublicQuizzesWithAttribution() {
+  const result = await db
+    .select({
+      id: quizzes.id,
+      title: quizzes.title,
+      description: quizzes.description,
+      quizMode: quizzes.quizMode,
+      tenantName: tenants.name,
+      tenantLogoUrl: tenants.logoUrl,
+      quizAttribution: tenants.quizAttribution,
+    })
+    .from(quizzes)
+    .innerJoin(tenants, eq(quizzes.tenantId, tenants.id))
+    .where(
+      and(
+        eq(quizzes.visibility, "global"),
+        eq(quizzes.isPublished, true),
+      ),
+    )
+    .orderBy(desc(quizzes.createdAt))
+    .limit(12);
+
+  // Attribution-Filter: Nur Firmennamen zeigen wenn quizAttribution="named"
+  return result.map((q) => ({
+    id: q.id,
+    title: q.title,
+    description: q.description,
+    quizMode: q.quizMode,
+    tenantName: q.quizAttribution === "named" ? q.tenantName : null,
+    tenantLogoUrl: q.quizAttribution === "named" ? q.tenantLogoUrl : null,
   }));
 }
