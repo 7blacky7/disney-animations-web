@@ -66,7 +66,7 @@ export const ACCENT_THEMES: { id: AccentTheme; label: string; preview: string }[
 const ThemeContext = createContext<ThemeContextValue>({
   mode: "system",
   resolvedTheme: "light",
-  accent: "indigo",
+  accent: "amber",
   setMode: () => {},
   setAccent: () => {},
 });
@@ -87,7 +87,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return "system";
   });
   const [accent, setAccentState] = useState<AccentTheme>(() => {
-    if (typeof window === "undefined") return "indigo";
+    if (typeof window === "undefined") return "amber";
     try {
       const stored = localStorage.getItem(STORAGE_KEY_ACCENT) as AccentTheme | null;
       if (stored && ACCENT_THEMES.some((t) => t.id === stored)) return stored;
