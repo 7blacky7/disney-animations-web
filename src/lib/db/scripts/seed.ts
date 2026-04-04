@@ -12,12 +12,13 @@
 
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { randomUUID } from "crypto";
+import { randomUUID, scrypt, randomBytes } from "crypto";
 import "dotenv/config";
 
 import { tenants } from "../schema/tenants";
 import { departments } from "../schema/departments";
 import { users } from "../schema/users";
+import { accounts } from "../schema/accounts";
 import { quizzes } from "../schema/quizzes";
 import { questions } from "../schema/questions";
 
@@ -29,6 +30,20 @@ if (!connectionString) {
 
 const client = postgres(connectionString, { max: 1 });
 const db = drizzle(client);
+
+/**
+ * Generiert einen better-auth kompatiblen Passwort-Hash (scrypt).
+ * Format: salt:hex_key (gleiche Params wie better-auth: N=16384, r=16, p=1, dkLen=64)
+ */
+function hashPassword(password: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const salt = randomBytes(16).toString("hex");
+    scrypt(password, salt, 64, { N: 16384, r: 16, p: 1, maxmem: 128 * 16384 * 16 * 2 }, (err, key) => {
+      if (err) return reject(err);
+      resolve(`${salt}:${key.toString("hex")}`);
+    });
+  });
+}
 
 async function seed() {
   console.log("🌱 Seeding Datenbank...\n");
@@ -54,8 +69,10 @@ async function seed() {
   console.log("✅ Abteilungen: Entwicklung, Vertrieb");
 
   // --- Users ---
-  // Passwort-Hash fuer "password123" (bcrypt) — nur fuer Dev!
-  const devPasswordHash = "$2b$10$dummyhashfordevonlynotforproduction000000000000000";
+  // Echte better-auth kompatible Passwort-Hashes (scrypt, gleiche Params wie better-auth)
+  // Alle Dev-User bekommen Passwort "password123"
+  const devPasswordHash = await hashPassword("password123");
+  console.log("🔑 Passwort-Hash generiert (password123)");
 
   const adminId = randomUUID();
   const devLeadId = randomUUID();
@@ -110,6 +127,20 @@ async function seed() {
     },
   ]);
   console.log("✅ User: Anna Admin, Daniel, Sarah, Max, Lisa");
+
+  // --- Accounts (better-auth Passwort-Eintraege) ---
+  // better-auth speichert Passwoerter in der "account" Tabelle, NICHT in users.
+  // providerId: "credential", accountId: userId, password: scrypt-hash
+  const userIds = [adminId, devLeadId, salesLeadId, user1Id, user2Id];
+  for (const userId of userIds) {
+    await db.insert(accounts).values({
+      userId,
+      accountId: userId,
+      providerId: "credential",
+      password: devPasswordHash,
+    });
+  }
+  console.log("✅ Accounts: 5 credential-Eintraege (Passwort: password123)");
 
   // --- Quizzes ---
   const quiz1Id = randomUUID();
