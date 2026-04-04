@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { quizzes, questions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { notFound } from "next/navigation";
 import { QuizPlayer } from "./quiz-player";
 import type { QuestionData } from "@/components/quiz/types";
 
@@ -182,11 +183,7 @@ export default async function QuizPlayPage({
     .limit(1);
 
   if (!quiz) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Quiz nicht gefunden.</p>
-      </div>
-    );
+    notFound();
   }
 
   const dbQuestions = await db
@@ -196,6 +193,22 @@ export default async function QuizPlayPage({
     .orderBy(questions.order);
 
   const mappedQuestions = dbQuestions.map(mapDbQuestion);
+
+  // Quiz mit 0 Fragen: Leerer-Quiz Hinweis statt Player
+  if (mappedQuestions.length === 0) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
+        <h1 className="font-heading text-2xl font-bold">{quiz.title}</h1>
+        <p className="text-muted-foreground">Dieses Quiz hat noch keine Fragen.</p>
+        <a
+          href="/dashboard"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          Zurueck zum Dashboard
+        </a>
+      </div>
+    );
+  }
 
   return (
     <QuizPlayer

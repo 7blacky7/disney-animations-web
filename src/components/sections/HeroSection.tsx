@@ -101,6 +101,12 @@ export function HeroSection() {
       ref={sectionRef}
       className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-6"
     >
+      {/* Bottom fade — smooth transition to next section */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-32 bg-gradient-to-t from-background to-transparent"
+        aria-hidden="true"
+      />
+
       {/* Animated geometric background */}
       {!prefersReducedMotion && (
         <motion.div
@@ -206,7 +212,7 @@ export function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2"
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}
@@ -270,10 +276,10 @@ function GeometricBackground() {
           "blur-3xl",
         )}
       />
-      {/* Accent orb — bottom left, warm contrast */}
+      {/* Accent orb — bottom left, warm contrast (contained within bounds) */}
       <div
         className={cn(
-          "absolute -bottom-[5%] -left-[5%] h-[500px] w-[500px]",
+          "absolute bottom-[5%] left-[2%] h-[400px] w-[400px]",
           "rounded-full bg-glow-accent",
           "blur-3xl",
         )}
