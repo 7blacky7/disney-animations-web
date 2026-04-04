@@ -124,7 +124,7 @@ async function seed() {
       title: "JavaScript Grundlagen",
       description: "Teste dein Wissen ueber JavaScript Basics",
       quizMode: "async",
-      visibility: "tenant",
+      visibility: "global",
       isPublished: true,
     },
     {
@@ -145,7 +145,7 @@ async function seed() {
       title: "Firmen-Onboarding",
       description: "Quiz fuer neue Mitarbeiter",
       quizMode: "realtime",
-      visibility: "tenant",
+      visibility: "global",
       isPracticeAllowed: false,
       isPublished: true,
     },
