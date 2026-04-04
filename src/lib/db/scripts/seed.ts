@@ -235,7 +235,7 @@ async function seed() {
       quizId: quiz1Id,
       type: "fill_blank" as const,
       content: "Die Methode zum Hinzufuegen eines Elements am Ende eines Arrays heisst ___.",
-      correctAnswer: JSON.stringify("push"),
+      correctAnswer: JSON.stringify({ answer: "push", alternatives: [".push"] }),
       order: 3,
       points: 10,
     },
