@@ -54,6 +54,7 @@ export const ROUTE_PERMISSIONS: Record<string, UserRole> = {
   "/settings": "admin",
   "/stats": "department_lead",
   "/quizzes": "department_lead",
+  "/learning-paths": "user",
   "/my-results": "user",
   "/dashboard": "user",
 };
