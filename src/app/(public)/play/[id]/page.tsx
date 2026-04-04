@@ -1,15 +1,23 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
 import { quizzes, questions } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { QuizPlayer } from "./quiz-player";
-import type { QuestionData } from "@/components/quiz/types";
+import type { ClientQuestionData } from "@/components/quiz/types";
 
 /**
  * Quiz Play Page — Server Component
  *
  * Loads quiz + questions from DB and passes to client-side QuizPlayer.
  * Public route — no auth required to play a quiz.
+ *
+ * SECURITY (F1): Correct answers are NEVER sent to the client.
+ *   → mapDbQuestionForClient() strips all correct-answer fields.
+ *   → Answer evaluation happens server-side via evaluateAndSubmitAnswer().
+ *
+ * SECURITY (F9): Only published quizzes can be played.
+ *   → isPublished check before rendering.
  */
 
 /**
@@ -33,20 +41,19 @@ function parseJsonField(value: unknown): unknown {
   }
 }
 
-function mapDbQuestion(q: typeof questions.$inferSelect): QuestionData {
+/**
+ * SECURITY: Maps DB question to CLIENT-SAFE format.
+ * NO correct answers are included — only display data.
+ *
+ * For matching questions, matchRight is shuffled server-side to prevent
+ * the client from inferring correct pairs from index positions.
+ */
+function mapDbQuestionForClient(q: typeof questions.$inferSelect): ClientQuestionData {
   const opts = parseJsonField(q.options) as Record<string, unknown> | unknown[] | null;
-  // correctRaw: the fully-parsed value — may be a number, string, or object
-  const correctRaw = parseJsonField(q.correctAnswer);
-  // correct: typed as object for named-key access (manual DB format)
-  const correct = correctRaw as Record<string, unknown> | null;
-
-  // Normalise opts: seed data stores options directly as a string[] array,
-  // while manually-created data wraps them in { items: [...] } or { options: [...] }.
-  // We build a unified optsObj for named-key lookups and optsArray for direct arrays.
   const optsArray = Array.isArray(opts) ? (opts as unknown[]) : null;
   const optsObj = optsArray === null ? (opts as Record<string, unknown> | null) : null;
 
-  const base: QuestionData = {
+  const base: ClientQuestionData = {
     id: q.id,
     type: q.type,
     text: q.content,
@@ -55,113 +62,82 @@ function mapDbQuestion(q: typeof questions.$inferSelect): QuestionData {
   };
 
   // Helper: resolve options list from either format
-  // Seed format:  opts is string[]  (direct array)
-  // Manual format: opts is { options: string[] } or { items: string[] } etc.
   const getOptions = (): string[] =>
-    optsArray as string[] ??
+    (optsArray as string[]) ??
     (optsObj?.options as string[]) ??
     [];
-
-  // Helper: resolve correct index
-  // Seed format:  correctParsed is a number or numeric string ("1")
-  // Manual format: correct is { correctIndex: number }
-  const getCorrectIndex = (): number => {
-    if (correct?.correctIndex !== undefined) return correct.correctIndex as number;
-    const raw = correctRaw;
-    if (typeof raw === "number") return raw;
-    if (typeof raw === "string") {
-      const n = parseInt(raw, 10);
-      if (!isNaN(n)) return n;
-    }
-    return 0;
-  };
 
   switch (q.type) {
     case "multiple_choice":
       return {
         ...base,
         options: getOptions(),
-        correctIndex: getCorrectIndex(),
+        // SECURITY: NO correctIndex
       };
-    case "true_false": {
-      // Seed format: correctRaw is a boolean (true/false)
-      // Manual format: correctRaw is { correct: true/false }
-      const tfAnswer = typeof correctRaw === "boolean"
-        ? correctRaw
-        : (correct?.correct as boolean) ?? false;
+    case "true_false":
       return {
         ...base,
-        correctAnswer: tfAnswer,
+        // SECURITY: NO correctAnswer
       };
-    }
     case "drag_drop":
-    case "sorting": {
-      // Seed format: correctRaw is a number[] (e.g. [2, 0, 3, 1])
-      // Manual format: correctRaw is { correct: [2, 0, 3, 1] }
-      const sortOrder = Array.isArray(correctRaw)
-        ? (correctRaw as number[])
-        : (correct?.correct as number[]) ?? [];
+    case "sorting":
       return {
         ...base,
         items: (optsArray as string[]) ?? (optsObj?.items as string[]) ?? [],
-        correctOrder: sortOrder,
+        // SECURITY: NO correctOrder
       };
-    }
-    case "matching":
+    case "matching": {
+      const matchLeft = (optsObj?.left as string[]) ?? [];
+      const matchRight = (optsObj?.right as string[]) ?? [];
+
+      // SECURITY: Shuffle matchRight server-side.
+      // Original order reveals correct pairs (left[i] ↔ right[i]).
+      // Deterministic shuffle based on question ID for consistency.
+      const shuffleIndices = matchRight.map((_, i) => i);
+      for (let i = shuffleIndices.length - 1; i > 0; i--) {
+        const j = (q.id.charCodeAt(0) * (i + 1)) % (i + 1);
+        [shuffleIndices[i], shuffleIndices[j]] = [shuffleIndices[j], shuffleIndices[i]];
+      }
+      const shuffledRight = shuffleIndices.map((idx) => matchRight[idx]);
+
+      // shuffleMap: shuffledIdx → originalIdx (for server to reverse when evaluating)
       return {
         ...base,
-        matchLeft: (optsObj?.left as string[]) ?? [],
-        matchRight: (optsObj?.right as string[]) ?? [],
+        matchLeft,
+        matchRight: shuffledRight,
+        matchShuffleMap: shuffleIndices,
       };
+    }
     case "slider":
       return {
         ...base,
         sliderMin: (optsObj?.min as number) ?? 0,
         sliderMax: (optsObj?.max as number) ?? 100,
-        sliderCorrect: (correct?.value as number) ?? 50,
-        sliderTolerance: (correct?.tolerance as number) ?? 1,
+        // SECURITY: NO sliderCorrect, NO sliderTolerance
       };
-    case "fill_blank": {
-      // Seed format: correctRaw is a plain string (e.g. "push")
-      // Manual format: correctRaw is { answer: "push", alternatives: [...] }
-      const blankAnswer = typeof correctRaw === "string"
-        ? correctRaw
-        : (correct?.answer as string) ?? "";
-      const blankAlts = typeof correctRaw === "string"
-        ? []
-        : ((correct?.alternatives as string[]) ?? []);
+    case "fill_blank":
       return {
         ...base,
         blankText: q.content,
-        blankAnswers: [blankAnswer, ...blankAlts].filter(Boolean),
+        // SECURITY: NO blankAnswers
       };
-    }
     case "free_text":
       return {
         ...base,
-        keywords:
-          (correct?.keywords as string[]) ??
-          (optsObj?.keywords as string[]) ??
-          [],
+        // SECURITY: NO keywords
       };
     case "image_choice":
       return {
         ...base,
         options: getOptions(),
-        correctIndex: getCorrectIndex(),
+        // SECURITY: NO correctIndex
       };
     case "timed": {
-      const timedOptions = getOptions();
       return {
         ...base,
-        options: timedOptions,
-        correctIndex:
-          correct?.correctIndex !== undefined
-            ? (correct.correctIndex as number)
-            : timedOptions.indexOf(correct?.correct as string) !== -1
-              ? timedOptions.indexOf(correct?.correct as string)
-              : getCorrectIndex(),
+        options: getOptions(),
         timedLimit: (optsObj?.timeLimit as number) ?? 10,
+        // SECURITY: NO correctIndex
       };
     }
     default:
@@ -193,13 +169,19 @@ export default async function QuizPlayPage({
     notFound();
   }
 
+  // SECURITY (F9): Unpublished Quizzes sind NICHT spielbar
+  if (!quiz.isPublished) {
+    notFound();
+  }
+
   const dbQuestions = await db
     .select()
     .from(questions)
     .where(eq(questions.quizId, id))
     .orderBy(questions.order);
 
-  const mappedQuestions = dbQuestions.map(mapDbQuestion);
+  // SECURITY (F1): Nur Client-sichere Daten (KEINE korrekten Antworten)
+  const mappedQuestions = dbQuestions.map(mapDbQuestionForClient);
 
   // Quiz mit 0 Fragen: Leerer-Quiz Hinweis statt Player
   if (mappedQuestions.length === 0) {
@@ -207,12 +189,12 @@ export default async function QuizPlayPage({
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
         <h1 className="font-heading text-2xl font-bold">{quiz.title}</h1>
         <p className="text-muted-foreground">Dieses Quiz hat noch keine Fragen.</p>
-        <a
+        <Link
           href="/dashboard"
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
           Zurueck zum Dashboard
-        </a>
+        </Link>
       </div>
     );
   }

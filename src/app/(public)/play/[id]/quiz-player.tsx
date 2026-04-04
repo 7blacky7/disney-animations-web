@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { QuestionRenderer } from "@/components/quiz/QuestionRenderer";
-import type { QuestionData } from "@/components/quiz/types";
-import { startQuizAttempt, submitAnswer, completeQuizAttempt } from "@/lib/actions/quiz-actions";
+import type { ClientQuestionData, AnswerFeedback } from "@/components/quiz/types";
+import { startQuizAttempt, evaluateAndSubmitAnswer, completeQuizAttempt } from "@/lib/actions/quiz-actions";
 import {
   // Countdown
   countdownNumber,
@@ -40,6 +41,11 @@ import {
 /**
  * Quiz Player — Phase 6 + Gameplay Animation Integration
  *
+ * SECURITY (F1): Antwort-Auswertung erfolgt VOLLSTAENDIG server-seitig.
+ * Client erhaelt KEINE korrekten Antworten in den Props.
+ * Nach Antwort-Abgabe wird evaluateAndSubmitAnswer() aufgerufen,
+ * Server gibt Feedback (isCorrect, correctIndex, etc.) zurueck.
+ *
  * Full Disney-grade quiz experience with:
  * - 3-2-1 countdown before start (countdownNumber/Ring/Pulse)
  * - Staggered answer options (answerOptionsContainer/Item)
@@ -54,13 +60,14 @@ import {
 
 // ---------------------------------------------------------------------------
 // Props — Quiz data comes from Server Component (page.tsx)
+// SECURITY: ClientQuestionData contains NO correct answers
 // ---------------------------------------------------------------------------
 
 interface QuizPlayerProps {
   quizId: string;
   title: string;
   mode: "realtime" | "async";
-  questions: QuestionData[];
+  questions: ClientQuestionData[];
 }
 
 // ---------------------------------------------------------------------------
@@ -81,9 +88,6 @@ interface Answer {
 // Constants
 // ---------------------------------------------------------------------------
 
-const POINTS_PER_CORRECT = 100;
-const STREAK_BONUS = 50;
-const SPEED_BONUS_THRESHOLD = 10; // seconds
 const CONFETTI_COUNT = 24;
 const COUNTDOWN_SECONDS = [3, 2, 1];
 const TIMER_CIRCUMFERENCE = 2 * Math.PI * 45;
@@ -149,6 +153,9 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
   const [totalScore, setTotalScore] = useState(0);
   const [showPointsFloat, setShowPointsFloat] = useState<{ points: number; x: number } | null>(null);
   const [showScorePop, setShowScorePop] = useState(false);
+  const [evaluating, setEvaluating] = useState(false);
+  // SECURITY: Server feedback for current question (contains correct answer AFTER submission)
+  const [currentFeedback, setCurrentFeedback] = useState<AnswerFeedback | null>(null);
   // FIX: useRef for resultId to avoid stale closure in useCallback handlers
   const resultIdRef = useRef<string | null>(null);
   const { prefersReducedMotion } = useAccessibility();
@@ -234,129 +241,127 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
   // Handle timeout in a separate effect (avoids setState-inside-setState)
   useEffect(() => {
     if (timedOut && !showFeedback) {
-      handleAnswer(-1);
+      handleSubmitAnswer(-1);
       setTimedOut(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timedOut]);
 
   // ---------------------------------------------------------------------------
-  // Answer Handler
+  // SECURITY: Server-side Answer Evaluation
   // ---------------------------------------------------------------------------
 
-  /** Generic answer handler for new question types (drag_drop, matching, etc.) */
-  const handleGenericAnswer = useCallback(
-    (answer: unknown, isCorrect: boolean) => {
-      handleAnswerInternal(answer, isCorrect);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentQ, showFeedback, timeLeft, totalQuestions, streak],
-  );
-
-  const handleAnswer = useCallback(
-    (answer: number | boolean) => {
-      if (showFeedback) return;
+  /**
+   * Central answer handler — calls server for evaluation.
+   * ALL question types use this single path.
+   * NO client-side correctness checks.
+   */
+  const handleSubmitAnswer = useCallback(
+    async (answer: unknown) => {
+      if (showFeedback || evaluating) return;
 
       const q = quizQuestions[currentQ];
-      let isCorrect = false;
-
-      if (q.type === "multiple_choice") {
-        isCorrect = answer === q.correctIndex;
-      } else if (q.type === "true_false") {
-        isCorrect = answer === q.correctAnswer;
-      }
-
-      handleAnswerInternal(answer, isCorrect);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentQ, showFeedback, timeLeft, totalQuestions, streak],
-  );
-
-  const handleAnswerInternal = useCallback(
-    (answer: unknown, isCorrect: boolean) => {
-      if (showFeedback) return;
-
-      const q = quizQuestions[currentQ];
-      // Calculate points
-      let points = 0;
       const timeTaken = (q.timeLimit ?? 30) - timeLeft;
-
-      if (isCorrect) {
-        points = POINTS_PER_CORRECT;
-        // Speed bonus
-        if (timeTaken <= SPEED_BONUS_THRESHOLD) {
-          points += Math.round((1 - timeTaken / SPEED_BONUS_THRESHOLD) * POINTS_PER_CORRECT * 0.5);
-        }
-        // Streak bonus
-        const newStreak = streak + 1;
-        if (newStreak >= 3) {
-          points += STREAK_BONUS * Math.min(newStreak, 10);
-        }
-        setStreak(newStreak);
-        setTotalScore((s) => s + points);
-
-        // Show floating points
-        setShowPointsFloat({ points, x: 50 + (Math.random() - 0.5) * 30 });
-        setShowScorePop(true);
-        setTimeout(() => {
-          setShowPointsFloat(null);
-          setShowScorePop(false);
-        }, 1200);
-      } else {
-        setStreak(0);
-      }
+      const currentResultId = resultIdRef.current;
 
       setSelectedAnswer(answer);
-      setShowFeedback(true);
-      setAnswers((prev) => [
-        ...prev,
-        {
-          questionId: q.id,
-          answer,
-          isCorrect,
-          timeTaken,
-          points,
-        },
-      ]);
+      setEvaluating(true);
 
-      // Submit answer to server — use ref to avoid stale closure
-      const currentResultId = resultIdRef.current;
-      if (currentResultId) {
-        submitAnswer({
-          resultId: currentResultId,
-          questionId: q.id,
-          answer,
-          isCorrect,
-          timeTaken,
-          pointsEarned: points,
-        }).catch((err) => {
-          console.error("Failed to submit answer:", err);
-        });
-      }
+      try {
+        // SECURITY: Server evaluates correctness — client does NOT know correct answer
+        let feedback: AnswerFeedback;
+        if (currentResultId) {
+          feedback = await evaluateAndSubmitAnswer({
+            resultId: currentResultId,
+            questionId: q.id,
+            answer,
+            timeTaken,
+          });
+        } else {
+          // Fallback: kein resultId (Session-Fehler) — als falsch werten
+          feedback = { isCorrect: false, points: 0 };
+        }
 
-      // Auto-advance after feedback
-      setTimeout(
-        () => {
+        const { isCorrect, points } = feedback;
+
+        // Update UI state based on server response
+        if (isCorrect) {
+          const newStreak = streak + 1;
+          setStreak(newStreak);
+          setTotalScore((s) => s + points);
+
+          // Show floating points
+          setShowPointsFloat({ points, x: 50 + (Math.random() - 0.5) * 30 });
+          setShowScorePop(true);
+          setTimeout(() => {
+            setShowPointsFloat(null);
+            setShowScorePop(false);
+          }, 1200);
+        } else {
+          setStreak(0);
+        }
+
+        // Set server feedback for visual display
+        setCurrentFeedback(feedback);
+        setShowFeedback(true);
+        setAnswers((prev) => [
+          ...prev,
+          {
+            questionId: q.id,
+            answer,
+            isCorrect,
+            timeTaken,
+            points,
+          },
+        ]);
+
+        // Auto-advance after feedback
+        setTimeout(
+          () => {
+            if (currentQ + 1 < totalQuestions) {
+              setCurrentQ((c) => c + 1);
+              setSelectedAnswer(null);
+              setShowFeedback(false);
+              setCurrentFeedback(null);
+            } else {
+              // Complete quiz attempt on server
+              const finalResultId = resultIdRef.current;
+              if (finalResultId) {
+                completeQuizAttempt(finalResultId).catch((err) => {
+                  console.error("Failed to complete quiz attempt:", err);
+                });
+              }
+              setState("results");
+            }
+          },
+          1500,
+        );
+      } catch (err) {
+        console.error("Failed to evaluate answer:", err);
+        // Bei Fehler: als falsch werten und weitermachen
+        setCurrentFeedback({ isCorrect: false, points: 0 });
+        setShowFeedback(true);
+        setAnswers((prev) => [
+          ...prev,
+          { questionId: q.id, answer, isCorrect: false, timeTaken, points: 0 },
+        ]);
+        setStreak(0);
+        setTimeout(() => {
           if (currentQ + 1 < totalQuestions) {
             setCurrentQ((c) => c + 1);
             setSelectedAnswer(null);
             setShowFeedback(false);
+            setCurrentFeedback(null);
           } else {
-            // Complete quiz attempt on server — use ref to avoid stale closure
-            const finalResultId = resultIdRef.current;
-            if (finalResultId) {
-              completeQuizAttempt(finalResultId).catch((err) => {
-                console.error("Failed to complete quiz attempt:", err);
-              });
-            }
             setState("results");
           }
-        },
-        1500,
-      );
+        }, 1500);
+      } finally {
+        setEvaluating(false);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentQ, showFeedback, timeLeft, totalQuestions, streak],
+    [currentQ, showFeedback, evaluating, timeLeft, totalQuestions, streak],
   );
 
   // ---------------------------------------------------------------------------
@@ -374,9 +379,11 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
     setAnswers([]);
     setSelectedAnswer(null);
     setShowFeedback(false);
+    setCurrentFeedback(null);
     setStreak(0);
     setTotalScore(0);
     setCountdownValue(3);
+    setEvaluating(false);
     resultIdRef.current = null;
   }, []);
 
@@ -502,9 +509,9 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                 >
                   Quiz starten
                 </AnimatedButton>
-                <a href="/" className="mt-4 block text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+                <Link href="/" className="mt-4 block text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
                   ← Zur Startseite
-                </a>
+                </Link>
               </motion.div>
             )}
 
@@ -658,6 +665,13 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                   {question.text}
                 </h2>
 
+                {/* Evaluating Indicator */}
+                {evaluating && (
+                  <div className="flex justify-center">
+                    <div className="h-1 w-16 animate-pulse rounded-full bg-primary/40" />
+                  </div>
+                )}
+
                 {/* MC Options — Staggered Entrance */}
                 {question.type === "multiple_choice" && question.options && (
                   <motion.div
@@ -668,15 +682,16 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                   >
                     {question.options.map((opt, i) => {
                       const isSelected = selectedAnswer === i;
-                      const isCorrect = showFeedback && i === question.correctIndex;
+                      // SECURITY: correctIndex kommt vom Server NACH Antwort-Abgabe
+                      const isCorrect = showFeedback && currentFeedback?.correctIndex === i;
                       const isWrong =
-                        showFeedback && isSelected && i !== question.correctIndex;
+                        showFeedback && isSelected && currentFeedback?.correctIndex !== i;
 
                       return (
                         <motion.button
                           key={i}
                           variants={answerOptionItem}
-                          onClick={() => !showFeedback && handleAnswer(i)}
+                          onClick={() => !showFeedback && !evaluating && handleSubmitAnswer(i)}
                           animate={
                             isWrong
                               ? { x: [0, -6, 6, -4, 4, 0], transition: { duration: 0.4 } }
@@ -684,7 +699,7 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                                 ? { scale: [1, 1.03, 1], transition: { duration: 0.3 } }
                                 : {}
                           }
-                          disabled={showFeedback}
+                          disabled={showFeedback || evaluating}
                           className={cn(
                             "rounded-2xl border p-5 text-left text-sm font-medium transition-colors",
                             !showFeedback &&
@@ -719,15 +734,16 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                   >
                     {[true, false].map((val) => {
                       const isSelected = selectedAnswer === val;
-                      const isCorrect = showFeedback && val === question.correctAnswer;
+                      // SECURITY: correctAnswer kommt vom Server NACH Antwort-Abgabe
+                      const isCorrect = showFeedback && val === currentFeedback?.correctAnswer;
                       const isWrong =
-                        showFeedback && isSelected && val !== question.correctAnswer;
+                        showFeedback && isSelected && val !== currentFeedback?.correctAnswer;
 
                       return (
                         <motion.button
                           key={String(val)}
                           variants={answerOptionItem}
-                          onClick={() => !showFeedback && handleAnswer(val)}
+                          onClick={() => !showFeedback && !evaluating && handleSubmitAnswer(val)}
                           animate={
                             isWrong
                               ? { scale: [1, 0.95, 1], transition: { duration: 0.3 } }
@@ -735,7 +751,7 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                                 ? { scale: [1, 1.05, 1], transition: { duration: 0.3 } }
                                 : {}
                           }
-                          disabled={showFeedback}
+                          disabled={showFeedback || evaluating}
                           className={cn(
                             "w-40 rounded-2xl border p-6 text-center font-heading text-lg font-bold transition-colors",
                             !showFeedback &&
@@ -758,9 +774,10 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                   question.type !== "true_false" && (
                     <QuestionRenderer
                       question={question}
-                      onAnswer={handleGenericAnswer}
+                      onAnswer={handleSubmitAnswer}
                       showFeedback={showFeedback}
-                      disabled={showFeedback}
+                      disabled={showFeedback || evaluating}
+                      feedback={currentFeedback ?? undefined}
                     />
                   )}
               </motion.div>
@@ -936,9 +953,9 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                   <Button variant="outline" onClick={resetQuiz}>
                     Nochmal spielen
                   </Button>
-                  <a href="/dashboard">
+                  <Link href="/dashboard">
                     <AnimatedButton shine>Zurueck zum Dashboard</AnimatedButton>
-                  </a>
+                  </Link>
                 </div>
               </motion.div>
             )}

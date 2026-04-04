@@ -10,27 +10,28 @@ import type { QuestionProps } from "./types";
 /**
  * Free Text Question — Open-ended text answer.
  *
- * Evaluated by keyword matching (case-insensitive).
+ * Evaluated by keyword matching (case-insensitive) SERVER-SIDE.
  * At least one keyword must be present for correct.
+ *
+ * SECURITY: keywords are NOT available in question props.
+ * Server evaluates via evaluateAndSubmitAnswer, feedback provides
+ * isCorrect and keywords for display AFTER submission.
  *
  * Disney Principles: Appeal (clean writing area),
  * Staging (focus on textarea), Follow Through (result reveal)
  */
-export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
-  const keywords = question.keywords ?? [];
+export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const trimmed = text.trim();
   const isValid = trimmed.length >= 3;
-  const lowerText = trimmed.toLowerCase();
-  const matchedKeywords = keywords.filter((kw) => lowerText.includes(kw.toLowerCase()));
-  const isCorrect = keywords.length === 0 ? trimmed.length > 0 : matchedKeywords.length > 0;
 
   function handleSubmit() {
     if (disabled || submitted || !isValid) return;
     setSubmitted(true);
-    onAnswer(trimmed, isCorrect);
+    // SECURITY: No isCorrect — server evaluates
+    onAnswer(trimmed);
   }
 
   return (
@@ -67,22 +68,22 @@ export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled, p
         )}
       </div>
 
-      {/* Feedback */}
-      {showFeedback && (
+      {/* Feedback — from server */}
+      {showFeedback && feedback && (
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           className={cn(
             "mx-auto max-w-lg rounded-xl border p-4 text-sm",
-            isCorrect
+            feedback.isCorrect
               ? "border-success/30 bg-success/5 text-success-foreground"
               : "border-destructive/30 bg-destructive/5 text-destructive",
           )}
         >
-          {isCorrect ? (
-            <p>Gut erkannt! Schluesselwoerter gefunden: {matchedKeywords.join(", ")}</p>
+          {feedback.isCorrect ? (
+            <p>Gut erkannt! Relevante Schluesselwoerter enthalten.</p>
           ) : (
-            <p>Erwartete Schluesselwoerter: {keywords.join(", ")}</p>
+            <p>Erwartete Schluesselwoerter: {(feedback.keywords ?? []).join(", ")}</p>
           )}
         </motion.div>
       )}

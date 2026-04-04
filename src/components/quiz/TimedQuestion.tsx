@@ -11,12 +11,15 @@ import type { QuestionProps } from "./types";
  * Same as Multiple Choice but with urgency styling.
  * Timer runs at 2x speed, UI has pulsing urgency border.
  *
+ * SECURITY: correctIndex is NOT available in question props.
+ * Server evaluates via evaluateAndSubmitAnswer, feedback.correctIndex
+ * is used for visual highlighting AFTER submission.
+ *
  * Disney Principles: Timing (urgency), Exaggeration (pulse),
  * Staging (red-hot urgency indicators), Appeal (dramatic countdown)
  */
-export function TimedQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
+export function TimedQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {
   const options = question.options ?? [];
-  const correctIndex = question.correctIndex ?? 0;
 
   return (
     <div className="space-y-6">
@@ -39,14 +42,15 @@ export function TimedQuestion({ question, onAnswer, showFeedback, disabled, pref
         className="grid gap-3 sm:grid-cols-2"
       >
         {options.map((opt, i) => {
-          const isCorrect = showFeedback && i === correctIndex;
-          const isWrong = showFeedback && i !== correctIndex;
+          // SECURITY: correctIndex from server feedback AFTER submission
+          const isCorrect = showFeedback && feedback?.correctIndex === i;
+          const isWrong = showFeedback && feedback?.correctIndex !== i;
 
           return (
             <motion.button
               key={i}
               variants={prefersReducedMotion ? undefined : answerOptionItem}
-              onClick={() => !disabled && onAnswer(i, i === correctIndex)}
+              onClick={() => !disabled && onAnswer(i)}
               disabled={disabled}
               animate={
                 !prefersReducedMotion && isCorrect

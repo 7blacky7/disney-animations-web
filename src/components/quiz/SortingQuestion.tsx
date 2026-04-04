@@ -13,12 +13,15 @@ import type { QuestionProps } from "./types";
  * Shows items in random initial order. User moves items up/down
  * to create the correct sequence, then submits.
  *
+ * SECURITY: correctOrder is NOT available in question props.
+ * Server evaluates, feedback.correctOrder is used for visual
+ * highlighting AFTER submission.
+ *
  * Disney Principles: Follow Through (item slide animation),
  * Staging (clear move buttons), Appeal (smooth reorder)
  */
-export function SortingQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
+export function SortingQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {
   const items = question.items ?? [];
-  const correctOrder = question.correctOrder ?? items.map((_, i) => i);
 
   // Shuffle initial order based on question id
   const [order, setOrder] = useState<number[]>(() => {
@@ -48,9 +51,9 @@ export function SortingQuestion({ question, onAnswer, showFeedback, disabled, pr
 
   function handleSubmit() {
     if (disabled || submitted) return;
-    const isCorrect = order.every((v, i) => v === correctOrder[i]);
     setSubmitted(true);
-    onAnswer(order, isCorrect);
+    // SECURITY: No isCorrect — server evaluates
+    onAnswer(order);
   }
 
   return (
@@ -65,8 +68,10 @@ export function SortingQuestion({ question, onAnswer, showFeedback, disabled, pr
         className="mx-auto max-w-md space-y-2"
       >
         {order.map((itemIdx, pos) => {
-          const isCorrectPos = showFeedback && itemIdx === correctOrder[pos];
-          const isWrongPos = showFeedback && itemIdx !== correctOrder[pos];
+          // SECURITY: correctOrder from server feedback AFTER submission
+          const correctOrder = feedback?.correctOrder;
+          const isCorrectPos = showFeedback && correctOrder ? itemIdx === correctOrder[pos] : false;
+          const isWrongPos = showFeedback && correctOrder ? itemIdx !== correctOrder[pos] : false;
 
           return (
             <motion.div

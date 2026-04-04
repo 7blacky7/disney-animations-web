@@ -12,13 +12,16 @@ import type { QuestionProps } from "./types";
  * Grid of images with labels. Click to select.
  * Falls back to colored placeholder squares if no image URLs.
  *
+ * SECURITY: correctIndex is NOT available in question props.
+ * Server evaluates via evaluateAndSubmitAnswer, feedback.correctIndex
+ * is used for visual highlighting AFTER submission.
+ *
  * Disney Principles: Appeal (visual grid), Staging (highlight selection),
  * Follow Through (border animation on feedback)
  */
-export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
+export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {
   const options = question.options ?? [];
   const imageUrls = question.imageUrls ?? [];
-  const correctIndex = question.correctIndex ?? 0;
 
   // Placeholder colors for when no real images exist
   const PLACEHOLDER_HUES = [
@@ -39,17 +42,18 @@ export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled
       >
         {options.map((label, i) => {
           const hasImage = imageUrls[i] && imageUrls[i].length > 0;
-          const isCorrect = showFeedback && i === correctIndex;
-          const isWrong = showFeedback && i !== correctIndex;
+          // SECURITY: correctIndex from server feedback AFTER submission
+          const isCorrect = showFeedback && feedback?.correctIndex === i;
+          const isWrong = showFeedback && feedback?.correctIndex !== i;
 
           return (
             <motion.button
               key={i}
               variants={prefersReducedMotion ? undefined : answerOptionItem}
-              onClick={() => !disabled && onAnswer(i, i === correctIndex)}
+              onClick={() => !disabled && onAnswer(i)}
               disabled={disabled}
               animate={
-                showFeedback && i === correctIndex && !prefersReducedMotion
+                showFeedback && isCorrect && !prefersReducedMotion
                   ? { scale: [1, 1.03, 1], transition: { duration: 0.3 } }
                   : {}
               }

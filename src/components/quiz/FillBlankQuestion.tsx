@@ -11,26 +11,27 @@ import type { QuestionProps } from "./types";
  * Fill-in-the-Blank Question — Type the missing word.
  *
  * Text with ___ placeholder. User types the answer.
- * Case-insensitive matching against accepted answers.
+ * Case-insensitive matching against accepted answers SERVER-SIDE.
+ *
+ * SECURITY: blankAnswers are NOT available in question props.
+ * Server evaluates, feedback provides isCorrect and blankAnswers
+ * for display AFTER submission.
  *
  * Disney Principles: Anticipation (focus on blank), Staging (highlight gap),
  * Follow Through (reveal animation)
  */
-export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
+export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {
   const blankText = question.blankText ?? question.text;
-  const acceptedAnswers = question.blankAnswers ?? [];
   const [input, setInput] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const parts = blankText.split("___");
-  const isCorrect = acceptedAnswers.some(
-    (a) => a.toLowerCase().trim() === input.toLowerCase().trim(),
-  );
 
   function handleSubmit() {
     if (disabled || submitted || !input.trim()) return;
     setSubmitted(true);
-    onAnswer(input.trim(), isCorrect);
+    // SECURITY: No isCorrect — server evaluates
+    onAnswer(input.trim());
   }
 
   return (
@@ -48,7 +49,7 @@ export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled, 
                     animate={{ opacity: 1, y: 0 }}
                     className={cn(
                       "inline-block rounded-lg border-b-2 px-2 py-0.5 font-bold",
-                      isCorrect
+                      feedback?.isCorrect
                         ? "border-success text-success-foreground"
                         : "border-destructive text-destructive",
                     )}
@@ -86,14 +87,14 @@ export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled, 
         </div>
       )}
 
-      {/* Correct answer reveal */}
-      {showFeedback && !isCorrect && (
+      {/* Correct answer reveal — from server feedback */}
+      {showFeedback && feedback && !feedback.isCorrect && (
         <motion.p
           initial={prefersReducedMotion ? false : { opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-success-foreground"
         >
-          Richtige Antwort: {acceptedAnswers[0]}
+          Richtige Antwort: {(feedback.blankAnswers ?? [])[0]}
         </motion.p>
       )}
     </div>

@@ -12,26 +12,21 @@ import type { QuestionProps } from "./types";
  * Click left item, then click right item to create a pair.
  * Visual lines connect matched pairs.
  *
+ * SECURITY: matchRight is SHUFFLED server-side (page.tsx) so index order
+ * does NOT reveal correct pairs. Server evaluates correctness.
+ * matchShuffleMap maps shuffledIdx → originalIdx for server evaluation.
+ *
  * Disney Principles: Staging (highlight active selection),
  * Follow Through (connection animation), Appeal (colored pair badges)
  */
-export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
+export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {
   const leftItems = useMemo(() => question.matchLeft ?? [], [question.matchLeft]);
+  // SECURITY: matchRight is already shuffled by the server
   const rightItems = useMemo(() => question.matchRight ?? [], [question.matchRight]);
+  const shuffleMap = useMemo(() => question.matchShuffleMap ?? rightItems.map((_, i) => i), [question.matchShuffleMap, rightItems]);
   const [pairs, setPairs] = useState<Map<number, number>>(new Map());
   const [activeLeft, setActiveLeft] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
-
-  // Shuffle right side for display (but track original indices)
-  const shuffledRight = useMemo(() => {
-    const indices = rightItems.map((_, i) => i);
-    // Simple deterministic shuffle based on question id
-    for (let i = indices.length - 1; i > 0; i--) {
-      const j = (question.id.charCodeAt(0) * (i + 1)) % (i + 1);
-      [indices[i], indices[j]] = [indices[j], indices[i]];
-    }
-    return indices;
-  }, [rightItems, question.id]);
 
   const PAIR_COLORS = [
     "bg-primary/10 border-primary/30 text-primary",
@@ -51,23 +46,25 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, p
   );
 
   const handleRightClick = useCallback(
-    (rightOrigIdx: number) => {
+    (displayIdx: number) => {
       if (disabled || submitted || activeLeft === null) return;
 
+      // Map display index to original index for server evaluation
+      const originalIdx = shuffleMap[displayIdx];
+
       const newPairs = new Map(pairs);
-      // Remove previous pair for this left item
-      newPairs.set(activeLeft, rightOrigIdx);
+      newPairs.set(activeLeft, originalIdx);
       setPairs(newPairs);
       setActiveLeft(null);
 
       // Auto-submit when all pairs are made
       if (newPairs.size === leftItems.length) {
-        const isCorrect = Array.from(newPairs.entries()).every(([l, r]) => l === r);
         setSubmitted(true);
-        setTimeout(() => onAnswer(Object.fromEntries(newPairs), isCorrect), 100);
+        // SECURITY: Send pairs as { leftIdx: originalRightIdx } — server evaluates
+        setTimeout(() => onAnswer(Object.fromEntries(newPairs)), 100);
       }
     },
-    [disabled, submitted, activeLeft, pairs, leftItems.length, onAnswer],
+    [disabled, submitted, activeLeft, pairs, leftItems.length, shuffleMap, onAnswer],
   );
 
   const getPairIndex = (leftIdx: number): number | undefined => {
@@ -76,9 +73,9 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, p
     return idx >= 0 ? idx : undefined;
   };
 
-  const getRightPairIndex = (rightOrigIdx: number): number | undefined => {
+  const getRightPairIndex = (originalIdx: number): number | undefined => {
     const entries = Array.from(pairs.entries());
-    const idx = entries.findIndex(([, r]) => r === rightOrigIdx);
+    const idx = entries.findIndex(([, r]) => r === originalIdx);
     return idx >= 0 ? idx : undefined;
   };
 
@@ -99,8 +96,9 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, p
             const pairIdx = getPairIndex(i);
             const isPaired = pairIdx !== undefined;
             const isActive = activeLeft === i;
-            const isCorrectPair = showFeedback && isPaired && pairs.get(i) === i;
-            const isWrongPair = showFeedback && isPaired && pairs.get(i) !== i;
+            // SECURITY: Correctness from server feedback AFTER submission
+            const isCorrectPair = showFeedback && feedback?.isCorrect !== undefined && isPaired && pairs.get(i) === i;
+            const isWrongPair = showFeedback && feedback?.isCorrect !== undefined && isPaired && pairs.get(i) !== i;
 
             return (
               <motion.button
@@ -128,19 +126,22 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, p
           })}
         </div>
 
-        {/* Right Column */}
+        {/* Right Column — already shuffled server-side */}
         <div className="space-y-2">
-          {shuffledRight.map((origIdx) => {
-            const pairIdx = getRightPairIndex(origIdx);
+          {rightItems.map((item, displayIdx) => {
+            const originalIdx = shuffleMap[displayIdx];
+            const pairIdx = getRightPairIndex(originalIdx);
             const isPaired = pairIdx !== undefined;
-            const isCorrectPair = showFeedback && isPaired && Array.from(pairs.entries()).some(([l, r]) => r === origIdx && l === origIdx);
-            const isWrongPair = showFeedback && isPaired && !isCorrectPair;
+            // SECURITY: Correctness from server feedback
+            const isCorrectPair = showFeedback && feedback?.isCorrect !== undefined && isPaired
+              && Array.from(pairs.entries()).some(([l, r]) => r === originalIdx && l === originalIdx);
+            const isWrongPair = showFeedback && feedback?.isCorrect !== undefined && isPaired && !isCorrectPair;
 
             return (
               <motion.button
-                key={`r-${origIdx}`}
+                key={`r-${displayIdx}`}
                 variants={prefersReducedMotion ? undefined : answerOptionItem}
-                onClick={() => handleRightClick(origIdx)}
+                onClick={() => handleRightClick(displayIdx)}
                 disabled={disabled || activeLeft === null}
                 className={cn(
                   "flex w-full items-center gap-2 rounded-xl border p-3 text-left text-sm font-medium transition-all",
@@ -156,7 +157,7 @@ export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, p
                     {pairIdx + 1}
                   </span>
                 )}
-                <span className="truncate">{rightItems[origIdx]}</span>
+                <span className="truncate">{item}</span>
               </motion.button>
             );
           })}

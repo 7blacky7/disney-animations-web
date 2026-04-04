@@ -12,12 +12,15 @@ import type { QuestionProps } from "./types";
  * Uses click-to-select ordering (touch-friendly, no drag API needed).
  * Items get numbered as user selects them.
  *
+ * SECURITY: correctOrder is NOT available in question props.
+ * Server evaluates, feedback.correctOrder is used for visual
+ * highlighting AFTER submission.
+ *
  * Disney Principles: Staging (clear selection), Follow Through (bounce on place),
  * Appeal (clean numbered badges)
  */
-export function DragDropQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion }: QuestionProps) {
+export function DragDropQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {
   const items = question.items ?? [];
-  const correctOrder = question.correctOrder ?? items.map((_, i) => i);
   const [selectedOrder, setSelectedOrder] = useState<number[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
@@ -32,14 +35,14 @@ export function DragDropQuestion({ question, onAnswer, showFeedback, disabled, p
         const next = [...prev, index];
         if (next.length === items.length) {
           // Auto-submit when all items selected
-          const isCorrect = next.every((v, i) => v === correctOrder[i]);
+          // SECURITY: No isCorrect — server evaluates
           setSubmitted(true);
-          setTimeout(() => onAnswer(next, isCorrect), 100);
+          setTimeout(() => onAnswer(next), 100);
         }
         return next;
       });
     },
-    [disabled, submitted, items.length, correctOrder, onAnswer],
+    [disabled, submitted, items.length, onAnswer],
   );
 
   const position = (index: number) => selectedOrder.indexOf(index);
@@ -58,8 +61,14 @@ export function DragDropQuestion({ question, onAnswer, showFeedback, disabled, p
         {items.map((item, i) => {
           const pos = position(i);
           const isPlaced = pos !== -1;
-          const isCorrectPos = showFeedback && isPlaced && selectedOrder[pos] === correctOrder[pos];
-          const isWrongPos = showFeedback && isPlaced && selectedOrder[pos] !== correctOrder[pos];
+          // SECURITY: correctOrder from server feedback AFTER submission
+          const correctOrder = feedback?.correctOrder;
+          const isCorrectPos = showFeedback && isPlaced && correctOrder
+            ? selectedOrder[pos] === correctOrder[pos]
+            : false;
+          const isWrongPos = showFeedback && isPlaced && correctOrder
+            ? selectedOrder[pos] !== correctOrder[pos]
+            : false;
 
           return (
             <motion.button
