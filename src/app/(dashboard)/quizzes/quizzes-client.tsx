@@ -121,7 +121,7 @@ export function QuizzesClient({ initialQuizzes, hasData }: QuizzesClientProps) {
               )}
               <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                 <span>{quiz.isPracticeAllowed ? "Uebung erlaubt" : "Nur Echt"}</span>
-                <span className="ml-auto">{new Date(quiz.createdAt).toLocaleDateString("de-DE")}</span>
+                <span className="ml-auto" suppressHydrationWarning>{new Date(quiz.createdAt).toLocaleDateString("de-DE")}</span>
               </div>
             </Link>
           </motion.div>

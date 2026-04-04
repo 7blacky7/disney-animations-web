@@ -197,7 +197,7 @@ export function UsersClient({ initialUsers, departments, hasData }: UsersClientP
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground" suppressHydrationWarning>
                       {new Date(user.createdAt).toLocaleDateString("de-DE")}
                     </span>
                   </TableCell>

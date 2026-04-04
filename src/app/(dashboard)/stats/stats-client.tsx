@@ -184,7 +184,7 @@ export function StatsClient({ quizStats, personalResults, hasData }: StatsClient
                       <div>
                         <p className="text-sm font-medium">{result.score}/{result.maxScore} Punkte</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground" suppressHydrationWarning>
                             {result.completedAt
                               ? new Date(result.completedAt).toLocaleDateString("de-DE")
                               : "—"}

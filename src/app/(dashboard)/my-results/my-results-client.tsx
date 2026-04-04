@@ -138,7 +138,7 @@ export function MyResultsClient({ results, hasData }: MyResultsClientProps) {
                       {result.score}/{result.maxScore} Punkte
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground" suppressHydrationWarning>
                         {result.completedAt
                           ? new Date(result.completedAt).toLocaleDateString("de-DE", {
                               day: "2-digit",
