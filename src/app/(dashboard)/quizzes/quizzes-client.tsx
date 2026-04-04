@@ -1,17 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
+import { assignQuiz } from "@/lib/actions/quiz-actions";
 import { cn } from "@/lib/utils";
 
 /**
- * Quiz Manager Client — Phase 5
+ * Quiz Manager Client — Phase 5 + Quiz-Zuweisungen
  * Connected to real quiz data from Server Actions.
+ * DeptLead/Admin kann Quizzes an User/Abteilungen zuweisen.
  */
 
 interface Quiz {
@@ -25,17 +29,54 @@ interface Quiz {
   createdAt: Date;
 }
 
+interface Department {
+  id: string;
+  name: string;
+}
+
 interface QuizzesClientProps {
   initialQuizzes: Quiz[];
+  departments?: Department[];
   hasData: boolean;
 }
 
 const MODE_LABELS: Record<string, string> = { realtime: "Echtzeit", async: "Asynchron" };
 const VISIBILITY_LABELS: Record<string, string> = { global: "Oeffentlich", tenant: "Firmenintern", department: "Abteilung" };
 
-export function QuizzesClient({ initialQuizzes, hasData }: QuizzesClientProps) {
+export function QuizzesClient({ initialQuizzes, departments = [], hasData }: QuizzesClientProps) {
   const { prefersReducedMotion } = useAccessibility();
   const [search, setSearch] = useState("");
+  const [assigningQuizId, setAssigningQuizId] = useState<string | null>(null);
+  const [assignDeptId, setAssignDeptId] = useState("");
+  const [assignDueDate, setAssignDueDate] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const [assignError, setAssignError] = useState<string | null>(null);
+  const [assignSuccess, setAssignSuccess] = useState<string | null>(null);
+
+  function handleAssign(quizId: string) {
+    if (!assignDeptId) return;
+    setAssignError(null);
+    setAssignSuccess(null);
+
+    startTransition(async () => {
+      try {
+        await assignQuiz({
+          quizId,
+          departmentId: assignDeptId,
+          dueDate: assignDueDate || undefined,
+        });
+        setAssignSuccess("Quiz erfolgreich zugewiesen!");
+        setTimeout(() => {
+          setAssigningQuizId(null);
+          setAssignDeptId("");
+          setAssignDueDate("");
+          setAssignSuccess(null);
+        }, 1500);
+      } catch (err) {
+        setAssignError((err as Error).message);
+      }
+    });
+  }
 
   const filtered = initialQuizzes.filter(
     (q) =>
@@ -124,19 +165,79 @@ export function QuizzesClient({ initialQuizzes, hasData }: QuizzesClientProps) {
                 <span className="ml-auto" suppressHydrationWarning>{new Date(quiz.createdAt).toLocaleDateString("de-DE")}</span>
               </div>
             </Link>
-            <Link
-              href={`/play/${quiz.id}`}
-              className={cn(
-                "mt-2 flex items-center justify-center gap-2 rounded-lg",
-                "bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary",
-                "transition-colors duration-200 hover:bg-primary/20",
-              )}
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-              Spielen
-            </Link>
+            <div className="mt-2 flex gap-2">
+              <Link
+                href={`/play/${quiz.id}`}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-2 rounded-lg",
+                  "bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary",
+                  "transition-colors duration-200 hover:bg-primary/20",
+                )}
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Spielen
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setAssigningQuizId(assigningQuizId === quiz.id ? null : quiz.id);
+                  setAssignError(null);
+                  setAssignSuccess(null);
+                }}
+              >
+                Zuweisen
+              </Button>
+            </div>
+
+            {/* Zuweisungs-Dialog */}
+            {assigningQuizId === quiz.id && (
+              <div className="mt-2 rounded-xl border border-primary/20 bg-primary/[0.02] p-4 space-y-3">
+                <p className="text-xs font-semibold">Quiz an Abteilung zuweisen</p>
+                {assignError && (
+                  <p className="text-[10px] text-destructive">{assignError}</p>
+                )}
+                {assignSuccess && (
+                  <p className="text-[10px] text-success">{assignSuccess}</p>
+                )}
+                <div className="space-y-2">
+                  <Label className="text-[10px]">Abteilung</Label>
+                  <select
+                    value={assignDeptId}
+                    onChange={(e) => setAssignDeptId(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background px-3 py-1.5 text-xs"
+                    disabled={isPending}
+                  >
+                    <option value="">Abteilung waehlen...</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>{dept.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px]">Faellig bis (optional)</Label>
+                  <Input
+                    type="date"
+                    value={assignDueDate}
+                    onChange={(e) => setAssignDueDate(e.target.value)}
+                    className="text-xs"
+                    disabled={isPending}
+                  />
+                </div>
+                <AnimatedButton
+                  size="sm"
+                  shine
+                  onClick={() => handleAssign(quiz.id)}
+                  disabled={isPending || !assignDeptId}
+                >
+                  {isPending ? "Wird zugewiesen..." : "Zuweisen"}
+                </AnimatedButton>
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
