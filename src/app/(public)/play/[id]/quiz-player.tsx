@@ -933,7 +933,9 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
                   <Button variant="outline" onClick={resetQuiz}>
                     Nochmal spielen
                   </Button>
-                  <AnimatedButton shine>Zurueck zum Dashboard</AnimatedButton>
+                  <a href="/dashboard">
+                    <AnimatedButton shine>Zurueck zum Dashboard</AnimatedButton>
+                  </a>
                 </div>
               </motion.div>
             )}

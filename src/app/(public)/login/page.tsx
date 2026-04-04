@@ -138,7 +138,7 @@ function LoginForm() {
             transition={{ duration: TIMING.instant }}
             className={cn(
               "w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground",
-              "transition-opacity",
+              "transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
               isLoading && "cursor-not-allowed opacity-60",
             )}
           >
