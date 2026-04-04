@@ -137,7 +137,8 @@ export function NewQuizClient() {
             correctAnswer = q.correctAnswer ?? true;
             break;
           case "fill_blank":
-            correctAnswer = q.blankAnswer ?? "";
+            // Kanonisches Format: Objekt mit answer + alternatives
+            correctAnswer = { answer: q.blankAnswer ?? "", alternatives: [] };
             break;
           case "sorting":
           case "drag_drop":
