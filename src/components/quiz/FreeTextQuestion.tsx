@@ -21,14 +21,16 @@ export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled, p
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const lowerText = text.toLowerCase();
+  const trimmed = text.trim();
+  const isValid = trimmed.length >= 3;
+  const lowerText = trimmed.toLowerCase();
   const matchedKeywords = keywords.filter((kw) => lowerText.includes(kw.toLowerCase()));
-  const isCorrect = matchedKeywords.length > 0;
+  const isCorrect = keywords.length === 0 ? trimmed.length > 0 : matchedKeywords.length > 0;
 
   function handleSubmit() {
-    if (disabled || submitted || !text.trim()) return;
+    if (disabled || submitted || !isValid) return;
     setSubmitted(true);
-    onAnswer(text.trim(), isCorrect);
+    onAnswer(trimmed, isCorrect);
   }
 
   return (
@@ -54,8 +56,11 @@ export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled, p
         </div>
 
         {!submitted && (
-          <div className="text-center">
-            <AnimatedButton shine onClick={handleSubmit} disabled={disabled || !text.trim()}>
+          <div className="space-y-2 text-center">
+            {text.length > 0 && !isValid && (
+              <p className="text-xs text-muted-foreground">Mindestens 3 Zeichen erforderlich</p>
+            )}
+            <AnimatedButton shine onClick={handleSubmit} disabled={disabled || !isValid}>
               Antwort absenden
             </AnimatedButton>
           </div>
