@@ -117,6 +117,7 @@ export function HeroSection() {
            once: true stellt sicher dass Animation nur 1x spielt. */}
       <motion.div
         variants={prefersReducedMotion ? undefined : containerVariants}
+        initial={prefersReducedMotion ? undefined : "hidden"}
         whileInView={prefersReducedMotion ? undefined : "visible"}
         viewport={{ once: true, amount: 0.1 }}
         className="relative z-10 flex max-w-4xl flex-col items-center text-center"
