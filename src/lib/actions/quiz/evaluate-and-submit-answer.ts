@@ -91,23 +91,43 @@ export async function evaluateAndSubmitAnswer(input: EvaluateAnswerInput): Promi
     }
     case "drag_drop":
     case "sorting": {
-      const sortOrder = Array.isArray(correctRaw)
-        ? (correctRaw as number[])
-        : (correct?.correct as number[]) ?? [];
-      const userOrder = input.answer as number[];
-      isCorrect = Array.isArray(userOrder)
-        && userOrder.length === sortOrder.length
-        && userOrder.every((v, i) => v === sortOrder[i]);
+      // Normalize: DB hat 3 Formate (number[], string[], {correct: string[]})
+      let sortOrder: unknown[];
+      if (Array.isArray(correctRaw)) {
+        sortOrder = correctRaw;
+      } else if (correct?.correct && Array.isArray(correct.correct)) {
+        sortOrder = correct.correct as unknown[];
+      } else {
+        sortOrder = [];
+      }
+      const userOrder = input.answer as unknown[];
+
+      // Toleranter Vergleich: String/Number Mismatch ignorieren (== statt ===)
+      // und Index-basiert (user sendet Indices) vs Value-basiert (DB hat Values)
+      if (Array.isArray(userOrder) && userOrder.length === sortOrder.length) {
+        // Fall 1: Beide sind Index-Arrays (Zahlen) → direkter Vergleich
+        // Fall 2: sortOrder hat Values, userOrder hat Indices → Index-Vergleich
+        const allNumeric = sortOrder.every((v) => typeof v === "number" || !isNaN(Number(v)));
+        if (allNumeric) {
+          // Numerischer Vergleich (tolerant für String/Number Mix)
+          isCorrect = userOrder.every((v, i) => Number(v) === Number(sortOrder[i]));
+        } else {
+          // Value-basierter Vergleich (sortOrder hat echte Werte wie "Qualität")
+          // User sendet Indices → korrekt wenn Indices = [0,1,2,...] (Original-Reihenfolge)
+          isCorrect = userOrder.every((v, i) => Number(v) === i);
+        }
+      } else {
+        isCorrect = false;
+      }
+
       dbg.quiz("sorting/drag_drop Auswertung", {
         questionId: input.questionId,
         userOrder,
         sortOrder,
         correctRaw,
-        correctObj: correct,
         isCorrect,
-        lengthMatch: Array.isArray(userOrder) && userOrder.length === sortOrder.length,
       });
-      feedback.correctOrder = sortOrder;
+      feedback.correctOrder = sortOrder.map(Number);
       break;
     }
     case "matching": {
