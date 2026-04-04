@@ -165,6 +165,9 @@ export default function RegisterPage() {
             Anmelden
           </a>
         </p>
+        <a href="/" className="mt-4 block text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+          ← Zur Startseite
+        </a>
       </motion.div>
     </div>
   );
