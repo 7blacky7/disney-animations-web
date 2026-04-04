@@ -37,9 +37,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Oeffentliche Pfade durchlassen
+  // Oeffentliche Pfade durchlassen — mit bfcache-Prevention
   if (isPublicPath(pathname)) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    // Verhindert bfcache damit Framer Motion Animationen + ThemeProvider
+    // beim Browser-Zurueck korrekt initialisiert werden
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    return response;
   }
 
   // Session-Cookie pruefen
