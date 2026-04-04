@@ -1,0 +1,160 @@
+"use client";
+
+import { useState, Suspense } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
+import { signIn } from "@/lib/auth/client";
+import { dbg } from "@/lib/debug";
+import { useAccessibility } from "@/providers/AccessibilityProvider";
+import { TIMING } from "@/lib/animation-utils";
+import { cn } from "@/lib/utils";
+
+/**
+ * Login Form — Wiederverwendbar in Modal und Standalone-Seite.
+ *
+ * @param isModal - Wenn true, kein Hintergrund-Gradient, kompakteres Layout
+ * @param onSuccess - Callback nach erfolgreichem Login (z.B. Modal schliessen)
+ */
+
+interface LoginFormProps {
+  isModal?: boolean;
+  onSuccess?: () => void;
+}
+
+function LoginFormInner({ isModal = false, onSuccess }: LoginFormProps) {
+  const { prefersReducedMotion } = useAccessibility();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") ?? "/dashboard";
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+    dbg.auth("Login-Versuch", { email, redirect });
+
+    try {
+      const result = await signIn.email({ email, password });
+
+      if (result.error) {
+        dbg.auth.warn("Login fehlgeschlagen", { email, error: result.error.message });
+        setError(result.error.message ?? "Anmeldung fehlgeschlagen");
+        setIsLoading(false);
+        return;
+      }
+
+      dbg.auth("Login erfolgreich", { email, redirect });
+      if (onSuccess) {
+        onSuccess();
+      }
+      router.push(redirect);
+    } catch (err) {
+      dbg.auth.error("Login-Fehler", { email, error: err });
+      setError("Ein unerwarteter Fehler ist aufgetreten");
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <div className={cn(
+      "rounded-2xl border border-border/50 bg-card/80 p-8 shadow-xl backdrop-blur-sm",
+      !isModal && "w-full max-w-md",
+    )}>
+      <div className="mb-8 text-center">
+        <h1 className="font-heading text-2xl font-bold">Willkommen zurueck</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Melde dich an um fortzufahren
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium">E-Mail</label>
+          <input
+            id="login-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            className={cn(
+              "w-full rounded-lg border border-border bg-background px-3 py-2.5",
+              "text-sm placeholder:text-muted-foreground/60",
+              "focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
+            )}
+            placeholder="name@firma.de"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium">Passwort</label>
+          <input
+            id="login-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+            className={cn(
+              "w-full rounded-lg border border-border bg-background px-3 py-2.5",
+              "text-sm placeholder:text-muted-foreground/60",
+              "focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
+            )}
+            placeholder="Passwort eingeben"
+          />
+        </div>
+
+        {error && (
+          <motion.p
+            initial={prefersReducedMotion ? false : { opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-destructive"
+          >
+            {error}
+          </motion.p>
+        )}
+
+        <motion.button
+          type="submit"
+          disabled={isLoading}
+          whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+          whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+          transition={{ duration: TIMING.instant }}
+          className={cn(
+            "w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground",
+            "transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+            isLoading && "cursor-not-allowed opacity-60",
+          )}
+        >
+          {isLoading ? "Wird angemeldet..." : "Anmelden"}
+        </motion.button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Noch kein Konto?{" "}
+        <Link href="/register" className="font-medium text-primary hover:underline">
+          Registrieren
+        </Link>
+      </p>
+      {!isModal && (
+        <Link href="/" className="mt-4 block text-center text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+          ← Zur Startseite
+        </Link>
+      )}
+    </div>
+  );
+}
+
+export function LoginForm(props: LoginFormProps) {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center p-8">Laden...</div>}>
+      <LoginFormInner {...props} />
+    </Suspense>
+  );
+}
