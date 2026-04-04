@@ -58,8 +58,8 @@ Verwende Markdown für Code-Blöcke.`;
 const userSessions = new Map<string, string>();
 
 export async function sendTutorMessage(input: ChatInput): Promise<ChatResult> {
-  const session = await requireAuth();
-  const userId = session.user.id;
+  const { session: authSession } = await requireAuth();
+  const userId = authSession.user.id;
 
   dbg.server("AI-Tutor Nachricht", {
     userId,

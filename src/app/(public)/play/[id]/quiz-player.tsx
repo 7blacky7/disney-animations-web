@@ -833,9 +833,9 @@ export function QuizPlayer({ quizId, title, mode, questions: quizQuestions }: Qu
       {state === "playing" && (
         <AiTutorChat
           enabled={true}
-          questionContext={questions[currentQ]?.text}
+          questionContext={question?.text}
           quizTitle={title}
-          programmingLanguage={questions[currentQ]?.programmingLanguage}
+          programmingLanguage={question?.programmingLanguage}
         />
       )}
     </div>
