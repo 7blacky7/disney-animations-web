@@ -176,11 +176,18 @@ export default async function QuizPlayPage({
 }) {
   const { id } = await params;
 
-  const [quiz] = await db
-    .select()
-    .from(quizzes)
-    .where(eq(quizzes.id, id))
-    .limit(1);
+  let quiz;
+  try {
+    const [result] = await db
+      .select()
+      .from(quizzes)
+      .where(eq(quizzes.id, id))
+      .limit(1);
+    quiz = result;
+  } catch {
+    // Ungueltige UUID oder DB-Fehler → 404
+    notFound();
+  }
 
   if (!quiz) {
     notFound();
