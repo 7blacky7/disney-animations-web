@@ -178,21 +178,25 @@ export function HeroSection() {
           variants={prefersReducedMotion ? undefined : ctaVariants}
           className="mt-12 flex flex-col items-center gap-4 sm:flex-row"
         >
-          <AnimatedButton
-            shine
-            intensity="bold"
-            size="lg"
-            className="min-w-[200px] text-base px-8 py-3"
-          >
-            Entdecken
-          </AnimatedButton>
-          <AnimatedButton
-            variant="outline"
-            size="lg"
-            className="min-w-[200px] text-base px-8 py-3"
-          >
-            Mehr erfahren
-          </AnimatedButton>
+          <a href="/register">
+            <AnimatedButton
+              shine
+              intensity="bold"
+              size="lg"
+              className="min-w-[200px] text-base px-8 py-3"
+            >
+              Jetzt starten
+            </AnimatedButton>
+          </a>
+          <a href="/login">
+            <AnimatedButton
+              variant="outline"
+              size="lg"
+              className="min-w-[200px] text-base px-8 py-3"
+            >
+              Anmelden
+            </AnimatedButton>
+          </a>
         </motion.div>
       </motion.div>
 

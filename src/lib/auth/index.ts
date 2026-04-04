@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/users";
 import { sessions } from "@/lib/db/schema/sessions";
 import { accounts } from "@/lib/db/schema/accounts";
+import { tenants } from "@/lib/db/schema/tenants";
+import { eq } from "drizzle-orm";
 
 /**
  * Better-Auth Server Configuration
@@ -32,6 +34,31 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Dev: disabled for ease
+  },
+
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          // Neuen User dem ersten verfuegbaren Tenant zuweisen
+          const [defaultTenant] = await db
+            .select({ id: tenants.id })
+            .from(tenants)
+            .limit(1);
+
+          if (defaultTenant) {
+            return {
+              data: {
+                ...user,
+                tenantId: defaultTenant.id,
+                role: "user",
+              },
+            };
+          }
+          return { data: user };
+        },
+      },
+    },
   },
 
   session: {

@@ -20,6 +20,7 @@ const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "Showcase", href: "#showcase" },
   { label: "Stats", href: "#stats" },
+  { label: "Login", href: "/login" },
 ] as const;
 
 export function Header() {
@@ -84,7 +85,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <ThemeSwitcher />
           <a
-            href="#cta"
+            href="/register"
             className={cn(
               "hidden sm:inline-flex",
               "rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground",
@@ -92,7 +93,7 @@ export function Header() {
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
             )}
           >
-            Loslegen
+            Registrieren
           </a>
         </div>
       </nav>
