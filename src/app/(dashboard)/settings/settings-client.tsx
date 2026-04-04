@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
 import { updateTenantBranding } from "@/lib/actions/user-actions";
+import { updateTenantLandingSettings } from "@/lib/actions/tenant-actions";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,6 +25,8 @@ interface Tenant {
   logoUrl: string | null;
   primaryColor: string | null;
   accentColor: string | null;
+  showLogoOnLanding?: boolean;
+  quizAttribution?: "named" | "anonymous";
 }
 
 interface SettingsClientProps {
@@ -88,6 +91,7 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
       <Tabs defaultValue="branding" className="space-y-6">
         <TabsList>
           <TabsTrigger value="branding">Branding</TabsTrigger>
+          <TabsTrigger value="landing">Landing Page</TabsTrigger>
           <TabsTrigger value="mail">Mail</TabsTrigger>
           <TabsTrigger value="general">Allgemein</TabsTrigger>
         </TabsList>
@@ -170,6 +174,73 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
           <AnimatedButton shine intensity="bold" onClick={handleSaveBranding} disabled={isPending}>
             {isPending ? "Wird gespeichert..." : "Branding speichern"}
           </AnimatedButton>
+        </TabsContent>
+
+        {/* LANDING PAGE TAB */}
+        <TabsContent value="landing" className="space-y-8">
+          <section className="space-y-4">
+            <h2 className="text-lg font-semibold">Logo auf Landing Page</h2>
+            <p className="text-sm text-muted-foreground">
+              Wenn aktiviert, wird das Firmenlogo auf der oeffentlichen Startseite angezeigt.
+            </p>
+            <div className="flex items-center justify-between rounded-xl border border-border/40 p-4">
+              <div>
+                <p className="text-sm font-medium">Logo anzeigen</p>
+                <p className="text-xs text-muted-foreground">Opt-in: Firmenlogo auf der Landing Page sichtbar machen.</p>
+              </div>
+              <Switch
+                checked={tenant?.showLogoOnLanding ?? false}
+                onCheckedChange={(checked) => {
+                  startTransition(async () => {
+                    try {
+                      await updateTenantLandingSettings({ showLogoOnLanding: checked });
+                    } catch {
+                      // Handle error
+                    }
+                  });
+                }}
+                disabled={isPending}
+              />
+            </div>
+          </section>
+
+          <Separator />
+
+          <section className="space-y-4">
+            <h2 className="text-lg font-semibold">Quiz-Attribution</h2>
+            <p className="text-sm text-muted-foreground">
+              Bestimmt ob freigegebene Quizzes auf der Landing Page mit Firmennamen angezeigt werden.
+            </p>
+            <div className="flex gap-3">
+              {([
+                { value: "named" as const, label: "Mit Firmenname", desc: "\"Erstellt von [Firmenname]\" wird angezeigt" },
+                { value: "anonymous" as const, label: "Anonymisiert", desc: "Quiz ohne Firmenzuordnung angezeigt" },
+              ]).map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    startTransition(async () => {
+                      try {
+                        await updateTenantLandingSettings({ quizAttribution: option.value });
+                      } catch {
+                        // Handle error
+                      }
+                    });
+                  }}
+                  disabled={isPending}
+                  className={cn(
+                    "flex-1 rounded-xl border p-4 text-left transition-all",
+                    (tenant?.quizAttribution ?? "anonymous") === option.value
+                      ? "border-primary/50 bg-primary/5"
+                      : "border-border/40 hover:border-border",
+                  )}
+                >
+                  <p className="text-sm font-semibold">{option.label}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{option.desc}</p>
+                </button>
+              ))}
+            </div>
+          </section>
         </TabsContent>
 
         {/* MAIL TAB */}

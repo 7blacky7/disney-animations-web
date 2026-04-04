@@ -29,14 +29,27 @@ interface Quiz {
   visibility: string;
 }
 
+interface AssignedQuiz {
+  assignmentId: string;
+  quizId: string;
+  title: string;
+  description: string | null;
+  quizMode: string;
+  dueDate: Date | null;
+  status: "pending" | "in_progress" | "completed" | "overdue";
+  assignedAt: Date;
+}
+
 interface DashboardClientProps {
   stats: DashboardStats | null;
   quizzes?: Quiz[];
+  assignedQuizzes?: AssignedQuiz[];
+  userRole?: string;
 }
 
 const CARD_TRANSITION = { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const };
 
-export function DashboardClient({ stats, quizzes = [] }: DashboardClientProps) {
+export function DashboardClient({ stats, quizzes = [], assignedQuizzes = [], userRole = "user" }: DashboardClientProps) {
   const { prefersReducedMotion } = useAccessibility();
   const kpis = stats
     ? [
@@ -85,6 +98,65 @@ export function DashboardClient({ stats, quizzes = [] }: DashboardClientProps) {
           </motion.div>
         ))}
       </div>
+
+      {/* Zugewiesene Quizzes (fuer Mitarbeiter) */}
+      {assignedQuizzes.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-lg font-semibold">Deine Aufgaben</h2>
+            <span className="text-xs text-muted-foreground">
+              {assignedQuizzes.filter((q) => q.status !== "completed").length} offen
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {assignedQuizzes
+              .filter((q) => q.status !== "completed")
+              .map((assignment, i) => (
+                <motion.div
+                  key={assignment.assignmentId}
+                  initial={prefersReducedMotion ? false : { y: 15 }}
+                  animate={{ y: 0 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { ...CARD_TRANSITION, delay: 0.2 + i * 0.05 }}
+                >
+                  <div className="flex flex-col rounded-2xl border border-primary/20 bg-primary/[0.02] p-5 transition-all duration-200 hover:shadow-md hover:border-primary/30">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-heading text-sm font-semibold leading-tight">{assignment.title}</h3>
+                      <span className={cn(
+                        "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                        assignment.status === "pending" && "bg-chart-3/10 text-chart-3",
+                        assignment.status === "in_progress" && "bg-primary/10 text-primary",
+                        assignment.status === "overdue" && "bg-destructive/10 text-destructive",
+                      )}>
+                        {assignment.status === "pending" ? "Offen" : assignment.status === "in_progress" ? "Gestartet" : "Ueberfaellig"}
+                      </span>
+                    </div>
+                    {assignment.description && (
+                      <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">{assignment.description}</p>
+                    )}
+                    {assignment.dueDate && (
+                      <p className="mt-2 text-[10px] text-muted-foreground">
+                        Faellig bis: {new Date(assignment.dueDate).toLocaleDateString("de-DE")}
+                      </p>
+                    )}
+                    <Link
+                      href={`/play/${assignment.quizId}`}
+                      className={cn(
+                        "mt-4 inline-flex items-center justify-center gap-2 rounded-lg",
+                        "bg-primary px-4 py-2 text-sm font-medium text-primary-foreground",
+                        "transition-colors duration-200 hover:bg-primary/90",
+                      )}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                      Starten
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+          </div>
+        </div>
+      )}
 
       {/* Verfuegbare Quizzes */}
       {quizzes.length > 0 && (
