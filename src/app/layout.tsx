@@ -56,17 +56,6 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem("disney-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}var a=localStorage.getItem("disney-accent")||"amber";document.documentElement.setAttribute("data-accent",a)}catch(e){document.documentElement.setAttribute("data-accent","amber")}})()`,
           }}
         />
-        {/* bfcache: Force reload when restored from back/forward cache */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: [
-              "window.addEventListener('pageshow',function(e){",
-              "if(e.persisted){window.location.reload()}",
-              "});",
-              "window.addEventListener('unload',function(){});",
-            ].join(""),
-          }}
-        />
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
