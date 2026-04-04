@@ -251,3 +251,71 @@ export async function updateTenantLandingSettings(data: {
 
   return updated;
 }
+
+// ---------------------------------------------------------------------------
+// Firmen-Admin: AI Settings
+// ---------------------------------------------------------------------------
+
+/**
+ * AI-Einstellungen des Tenants aktualisieren (Admin-Ebene).
+ * Steuert ob und welcher KI-Assistent fuer den Lern-Support aktiviert ist.
+ *
+ * SECURITY: API-Key sollte in Produktion verschluesselt gespeichert werden.
+ * Aktuell als Plaintext — TODO: Verschluesselung implementieren.
+ */
+export async function updateTenantAiSettings(data: {
+  aiEnabled?: boolean;
+  aiProvider?: "claude_cli" | "claude_api" | "openai" | null;
+  aiApiKey?: string | null;
+  aiModel?: string | null;
+}) {
+  await requireRole("admin");
+  const { tenantId } = await getSessionUserData();
+
+  const [updated] = await db
+    .update(tenants)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(tenants.id, tenantId))
+    .returning();
+
+  // API-Key aus Response entfernen (nicht zurueck an Client senden)
+  if (updated) {
+    return {
+      ...updated,
+      aiApiKey: updated.aiApiKey ? "***" : null,
+    };
+  }
+
+  return updated;
+}
+
+/**
+ * AI-Konfiguration des eigenen Tenants laden.
+ * Maskiert den API-Key fuer den Client.
+ */
+export async function getTenantAiSettings() {
+  await requireRole("admin");
+  const { tenantId } = await getSessionUserData();
+
+  const [tenant] = await db
+    .select({
+      aiEnabled: tenants.aiEnabled,
+      aiProvider: tenants.aiProvider,
+      aiApiKey: tenants.aiApiKey,
+      aiModel: tenants.aiModel,
+    })
+    .from(tenants)
+    .where(eq(tenants.id, tenantId))
+    .limit(1);
+
+  if (!tenant) throw new Error("Mandant nicht gefunden");
+
+  return {
+    ...tenant,
+    aiApiKey: tenant.aiApiKey ? "***" : null,
+    hasApiKey: !!tenant.aiApiKey,
+  };
+}

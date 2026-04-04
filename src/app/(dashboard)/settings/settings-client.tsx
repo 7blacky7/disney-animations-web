@@ -11,7 +11,14 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
 import { updateTenantBranding } from "@/lib/actions/user-actions";
-import { updateTenantLandingSettings } from "@/lib/actions/tenant-actions";
+import { updateTenantLandingSettings, updateTenantAiSettings } from "@/lib/actions/tenant-actions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 /**
@@ -27,6 +34,9 @@ interface Tenant {
   accentColor: string | null;
   showLogoOnLanding?: boolean;
   quizAttribution?: "named" | "anonymous";
+  aiEnabled?: boolean;
+  aiProvider?: "claude_cli" | "claude_api" | "openai" | null;
+  aiModel?: string | null;
 }
 
 interface SettingsClientProps {
@@ -92,6 +102,7 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
         <TabsList>
           <TabsTrigger value="branding">Branding</TabsTrigger>
           <TabsTrigger value="landing">Landing Page</TabsTrigger>
+          <TabsTrigger value="ai">KI-Assistent</TabsTrigger>
           <TabsTrigger value="mail">Mail</TabsTrigger>
           <TabsTrigger value="general">Allgemein</TabsTrigger>
         </TabsList>
@@ -241,6 +252,127 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
               ))}
             </div>
           </section>
+        </TabsContent>
+
+        {/* KI-ASSISTENT TAB */}
+        <TabsContent value="ai" className="space-y-8">
+          <section className="space-y-4">
+            <h2 className="text-lg font-semibold">KI-Lernassistent</h2>
+            <p className="text-sm text-muted-foreground">
+              Aktiviere einen KI-Assistenten der Lernende beim Programmieren unterstuetzt.
+              Der Assistent gibt Hinweise, erklaert Konzepte und hilft bei Fehlern.
+            </p>
+            <div className="flex items-center justify-between rounded-xl border border-border/40 p-4">
+              <div>
+                <p className="text-sm font-medium">KI-Assistent aktivieren</p>
+                <p className="text-xs text-muted-foreground">Opt-in: Lernende koennen den KI-Tutor waehrend Quizzes nutzen.</p>
+              </div>
+              <Switch
+                checked={tenant?.aiEnabled ?? false}
+                onCheckedChange={(checked) => {
+                  startTransition(async () => {
+                    try {
+                      await updateTenantAiSettings({ aiEnabled: checked });
+                    } catch {
+                      // Handle error
+                    }
+                  });
+                }}
+                disabled={isPending}
+              />
+            </div>
+          </section>
+
+          {(tenant?.aiEnabled ?? false) && (
+            <>
+              <Separator />
+              <section className="space-y-4">
+                <h2 className="text-lg font-semibold">Provider</h2>
+                <div className="flex gap-3">
+                  {([
+                    { value: "claude_cli" as const, label: "Claude CLI", desc: "Lokaler Dev/Test-Modus (kostenlos)" },
+                    { value: "claude_api" as const, label: "Claude API", desc: "Anthropic API mit eigenem Key" },
+                    { value: "openai" as const, label: "OpenAI", desc: "OpenAI API mit eigenem Key" },
+                  ]).map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        startTransition(async () => {
+                          try {
+                            await updateTenantAiSettings({ aiProvider: option.value });
+                          } catch {
+                            // Handle error
+                          }
+                        });
+                      }}
+                      disabled={isPending}
+                      className={cn(
+                        "flex-1 rounded-xl border p-4 text-left transition-all",
+                        (tenant?.aiProvider ?? null) === option.value
+                          ? "border-primary/50 bg-primary/5"
+                          : "border-border/40 hover:border-border",
+                      )}
+                    >
+                      <p className="text-sm font-semibold">{option.label}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{option.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {(tenant?.aiProvider === "claude_api" || tenant?.aiProvider === "openai") && (
+                <>
+                  <Separator />
+                  <section className="space-y-4">
+                    <h2 className="text-lg font-semibold">API-Konfiguration</h2>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="ai-api-key">API-Key</Label>
+                        <Input
+                          id="ai-api-key"
+                          type="password"
+                          placeholder="sk-..."
+                          defaultValue=""
+                          onBlur={(e) => {
+                            if (e.target.value) {
+                              startTransition(async () => {
+                                try {
+                                  await updateTenantAiSettings({ aiApiKey: e.target.value });
+                                } catch {
+                                  // Handle error
+                                }
+                              });
+                            }
+                          }}
+                          disabled={isPending}
+                        />
+                        <p className="text-[10px] text-muted-foreground">Wird verschluesselt gespeichert.</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="ai-model">Modell (optional)</Label>
+                        <Input
+                          id="ai-model"
+                          placeholder={tenant?.aiProvider === "openai" ? "gpt-4o-mini" : "claude-haiku-4-5"}
+                          defaultValue={tenant?.aiModel ?? ""}
+                          onBlur={(e) => {
+                            startTransition(async () => {
+                              try {
+                                await updateTenantAiSettings({ aiModel: e.target.value || null });
+                              } catch {
+                                // Handle error
+                              }
+                            });
+                          }}
+                          disabled={isPending}
+                        />
+                        <p className="text-[10px] text-muted-foreground">Leer = Standard-Modell des Providers.</p>
+                      </div>
+                    </div>
+                  </section>
+                </>
+              )}
+            </>
+          )}
         </TabsContent>
 
         {/* MAIL TAB */}

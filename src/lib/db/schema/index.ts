@@ -4,7 +4,7 @@
  * All Drizzle ORM table definitions for the Quiz SaaS Platform.
  */
 
-export { tenants, quizAttributionEnum } from "./tenants";
+export { tenants, quizAttributionEnum, aiProviderEnum } from "./tenants";
 export { departments } from "./departments";
 export { users, userRoleEnum } from "./users";
 export { sessions } from "./sessions";
