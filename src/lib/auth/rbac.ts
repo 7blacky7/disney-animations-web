@@ -50,7 +50,7 @@ export function isDepartmentLead(role: UserRole): boolean {
 export const ROUTE_PERMISSIONS: Record<string, UserRole> = {
   "/tenants": "super_admin",
   "/users": "admin",
-  "/departments": "admin",
+  "/departments": "department_lead",
   "/settings": "admin",
   "/stats": "department_lead",
   "/quizzes": "department_lead",

@@ -1,10 +1,11 @@
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/users";
 import { eq } from "drizzle-orm";
 import type { UserRole } from "./rbac";
-import { hasRole } from "./rbac";
+import { hasRole, canAccessRoute, ROUTE_PERMISSIONS } from "./rbac";
 
 /**
  * Server-seitige Session-Helpers
@@ -78,4 +79,51 @@ export async function requireRole(requiredRole: UserRole) {
   }
 
   return session;
+}
+
+/**
+ * Auth-Guard fuer Dashboard: Prueft Session und gibt User-Daten zurueck.
+ * Redirected zu /login wenn nicht authentifiziert.
+ *
+ * WICHTIG: redirect() muss AUSSERHALB von try/catch aufgerufen werden,
+ * da es intern einen Error wirft den Next.js abfaengt.
+ */
+export async function requireAuth() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  const [dbUser] = await db
+    .select({ role: users.role, name: users.name, tenantId: users.tenantId })
+    .from(users)
+    .where(eq(users.id, session.user.id));
+
+  if (!dbUser) {
+    redirect("/login");
+  }
+
+  return {
+    session,
+    role: dbUser.role as UserRole,
+    name: dbUser.name,
+    tenantId: dbUser.tenantId,
+  };
+}
+
+/**
+ * RBAC-Guard fuer einzelne Routen.
+ * Prueft ob der User die noetige Rolle fuer den angegebenen Pfad hat.
+ * Redirected zu /dashboard wenn Zugriff verweigert.
+ *
+ * @param routePath - Der Dashboard-Pfad (z.B. "/users", "/settings")
+ */
+export async function requireRouteAccess(routePath: string) {
+  const { session, role, name, tenantId } = await requireAuth();
+
+  if (!canAccessRoute(role, routePath)) {
+    redirect("/dashboard");
+  }
+
+  return { session, role, name, tenantId };
 }

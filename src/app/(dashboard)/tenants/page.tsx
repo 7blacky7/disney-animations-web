@@ -1,8 +1,14 @@
+import { requireRouteAccess } from "@/lib/auth/session";
+
 /**
  * Tenants — Placeholder Page
  * TODO: Implement in Phase t
+ * RBAC: Erfordert "super_admin"-Rolle.
  */
-export default function TenantsPage() {
+export default async function TenantsPage() {
+  // RBAC-Guard: Prueft Auth + Rollen-Berechtigung fuer /tenants
+  await requireRouteAccess("/tenants");
+
   return (
     <div className="space-y-6">
       <div>

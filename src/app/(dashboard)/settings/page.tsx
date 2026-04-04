@@ -1,24 +1,18 @@
 import { getTenant } from "@/lib/actions/user-actions";
-import { getSession } from "@/lib/auth/session";
+import { requireRouteAccess } from "@/lib/auth/session";
 import { SettingsClient } from "./settings-client";
 
 /**
  * Settings Page — Tenant Branding + Mail + General Config
  * Server Component: Fetches tenant config from DB.
+ * RBAC: Erfordert mindestens "admin"-Rolle.
  */
 
-async function fetchTenant() {
-  try {
-    const session = await getSession();
-    if (!session) return null;
-    return await getTenant();
-  } catch {
-    return null;
-  }
-}
-
 export default async function SettingsPage() {
-  const tenant = await fetchTenant();
+  // RBAC-Guard: Prueft Auth + Rollen-Berechtigung fuer /settings
+  await requireRouteAccess("/settings");
 
-  return <SettingsClient tenant={tenant ?? null} />;
+  const tenant = await getTenant().catch(() => null);
+
+  return <SettingsClient tenant={tenant} />;
 }
