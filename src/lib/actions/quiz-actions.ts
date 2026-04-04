@@ -66,6 +66,7 @@ interface AnswerEvaluationResult {
   sliderTolerance?: number;
   blankAnswers?: string[];
   keywords?: string[];
+  codeSolution?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -527,6 +528,19 @@ export async function evaluateAndSubmitAnswer(input: EvaluateAnswerInput): Promi
         ? userText.length > 0
         : kw.some((k) => userText.includes(k.toLowerCase()));
       feedback.keywords = kw;
+      break;
+    }
+    case "code_input": {
+      // Zeichen-fuer-Zeichen Vergleich gegen Musterloesung
+      const solution = q.codeSolution ?? "";
+      const userCode = typeof input.answer === "string" ? input.answer : "";
+
+      // Normalisierung: Trailing whitespace entfernen, line endings vereinheitlichen
+      const normSolution = solution.replace(/\r\n/g, "\n").trimEnd();
+      const normUser = userCode.replace(/\r\n/g, "\n").trimEnd();
+
+      isCorrect = normSolution === normUser;
+      feedback.codeSolution = solution;
       break;
     }
   }

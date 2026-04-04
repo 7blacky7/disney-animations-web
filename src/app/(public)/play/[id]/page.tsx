@@ -140,6 +140,17 @@ function mapDbQuestionForClient(q: typeof questions.$inferSelect): ClientQuestio
         // SECURITY: NO correctIndex
       };
     }
+    case "code_input": {
+      // Parse referenceUrls from DB
+      const refUrls = parseJsonField(q.referenceUrls);
+      return {
+        ...base,
+        codeTemplate: q.codeTemplate ?? undefined,
+        programmingLanguage: q.programmingLanguage ?? undefined,
+        referenceUrls: Array.isArray(refUrls) ? refUrls as { url: string; title: string }[] : undefined,
+        // SECURITY: NO codeSolution — evaluated server-side
+      };
+    }
     default:
       return base;
   }

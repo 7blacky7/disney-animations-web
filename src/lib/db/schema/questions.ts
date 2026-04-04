@@ -2,7 +2,8 @@ import { integer, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-
 import { quizzes } from "./quizzes";
 
 /**
- * Frage-Typen — Alle 10 spielbaren Quiz-Typen.
+ * Frage-Typen — Alle 11 spielbaren Quiz-Typen.
+ * code_input: Programmier-Aufgabe mit Code-Editor + Live-Validierung
  */
 export const questionTypeEnum = pgEnum("question_type", [
   "multiple_choice",
@@ -15,6 +16,21 @@ export const questionTypeEnum = pgEnum("question_type", [
   "image_choice",
   "sorting",
   "timed",
+  "code_input",
+]);
+
+/**
+ * Programmiersprachen fuer Code-Input Fragen.
+ */
+export const programmingLanguageEnum = pgEnum("programming_language", [
+  "javascript",
+  "typescript",
+  "python",
+  "html",
+  "css",
+  "sql",
+  "json",
+  "markdown",
 ]);
 
 /**
@@ -23,6 +39,12 @@ export const questionTypeEnum = pgEnum("question_type", [
  * content: Die Fragestellung (Text)
  * options: JSON mit Antwortoptionen (typabhängig)
  * correctAnswer: JSON mit korrekter Antwort (typabhängig)
+ *
+ * Code-Input spezifisch:
+ * - codeTemplate: Geruest-Code mit Platzhaltern (wird im Editor vorbelegt)
+ * - codeSolution: Vollstaendige Musterloesung (fuer Zeichen-Validierung)
+ * - programmingLanguage: Sprache fuer Syntax-Highlighting
+ * - referenceUrls: JSON Array mit Links zu Lernmaterial
  */
 export const questions = pgTable("questions", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -35,5 +57,13 @@ export const questions = pgTable("questions", {
   order: integer("order").notNull().default(0),
   timeLimit: integer("time_limit"),
   points: integer("points").notNull().default(10),
+  /** Code-Input: Geruest-Code mit Platzhaltern */
+  codeTemplate: text("code_template"),
+  /** Code-Input: Vollstaendige Musterloesung */
+  codeSolution: text("code_solution"),
+  /** Code-Input: Programmiersprache fuer Syntax-Highlighting */
+  programmingLanguage: programmingLanguageEnum("programming_language"),
+  /** Lernmaterial-Links (JSON Array von { url, title }) */
+  referenceUrls: jsonb("reference_urls"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -19,7 +19,8 @@ export type QuestionType =
   | "free_text"
   | "image_choice"
   | "sorting"
-  | "timed";
+  | "timed"
+  | "code_input";
 
 /**
  * SECURITY: Client-safe question data — NO correct answers included.
@@ -53,8 +54,14 @@ export interface ClientQuestionData {
   imageUrls?: string[];
   /** Timed: extra-short time limit override */
   timedLimit?: number;
+  /** Code-Input: Geruest-Code mit Platzhaltern (KEIN codeSolution!) */
+  codeTemplate?: string;
+  /** Code-Input: Programmiersprache fuer Syntax-Highlighting */
+  programmingLanguage?: string;
+  /** Lernmaterial-Links (JSON Array von { url, title }) */
+  referenceUrls?: { url: string; title: string }[];
   // SECURITY: No correctIndex, correctAnswer, correctOrder,
-  //           sliderCorrect, sliderTolerance, blankAnswers, keywords
+  //           sliderCorrect, sliderTolerance, blankAnswers, keywords, codeSolution
 }
 
 /**
@@ -78,6 +85,8 @@ export interface AnswerFeedback {
   blankAnswers?: string[];
   /** Free text: keywords that should be present */
   keywords?: string[];
+  /** Code-Input: Musterloesung (fuer Feedback-Anzeige nach Abgabe) */
+  codeSolution?: string;
 }
 
 /**
