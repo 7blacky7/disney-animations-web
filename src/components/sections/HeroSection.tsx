@@ -118,11 +118,13 @@ export function HeroSection() {
         </motion.div>
       )}
 
-      {/* Content */}
+      {/* Content — whileInView statt initial/animate verhindert bfcache-Bug
+           (opacity:0 bleibt bei Browser-Zurueck stecken).
+           once: true stellt sicher dass Animation nur 1x spielt. */}
       <motion.div
         variants={prefersReducedMotion ? undefined : containerVariants}
-        initial={prefersReducedMotion ? undefined : "hidden"}
-        animate={prefersReducedMotion ? undefined : "visible"}
+        whileInView={prefersReducedMotion ? undefined : "visible"}
+        viewport={{ once: true, amount: 0.1 }}
         className="relative z-10 flex max-w-4xl flex-col items-center text-center"
       >
         {/* Badge */}
