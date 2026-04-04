@@ -6,17 +6,14 @@
  * - Direkte URL → Normale Seite (Fallback)
  */
 
-export default function PublicLayout({
-  children,
-  auth,
-}: {
+export default function PublicLayout(props: {
   children: React.ReactNode;
-  auth: React.ReactNode;
+  auth?: React.ReactNode;
 }) {
   return (
     <>
-      {children}
-      {auth}
+      {props.children}
+      {props.auth}
     </>
   );
 }
