@@ -93,7 +93,7 @@ export function DashboardClient({ stats, quizzes = [] }: DashboardClientProps) {
             <h2 className="font-heading text-lg font-semibold">Verfuegbare Quizzes</h2>
             <span className="text-xs text-muted-foreground">{quizzes.length} Quiz{quizzes.length !== 1 ? "zes" : ""}</span>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {quizzes.map((quiz, i) => (
               <motion.div
                 key={quiz.id}
