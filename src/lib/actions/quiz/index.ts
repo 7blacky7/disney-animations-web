@@ -53,3 +53,7 @@ export { assignQuiz } from "./assign-quiz";
 export { getMyAssignedQuizzes } from "./get-my-assigned-quizzes";
 export { getQuizAssignments } from "./get-quiz-assignments";
 export { removeQuizAssignment } from "./remove-quiz-assignment";
+
+// CSV Export/Import
+export { exportQuizAsCSV } from "./csv-export";
+export { importQuizFromCSV } from "./csv-import";
