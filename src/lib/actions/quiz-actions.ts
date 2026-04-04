@@ -396,7 +396,7 @@ export async function getDashboardStats() {
 
   const [avgResult] = await db
     .select({
-      avg: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.maxScore} > 0 THEN (${quizResults.score}::float / ${quizResults.maxScore}) * 100 ELSE 0 END), 0)`,
+      avg: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.maxScore} > 0 THEN LEAST((${quizResults.score}::float / ${quizResults.maxScore}) * 100, 100) ELSE NULL END), 0)`,
     })
     .from(quizResults)
     .where(sql`${quizResults.completedAt} IS NOT NULL`);
@@ -420,7 +420,7 @@ export async function getQuizStats() {
       quizId: quizzes.id,
       title: quizzes.title,
       plays: count(quizResults.id),
-      avgScore: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.maxScore} > 0 THEN (${quizResults.score}::float / ${quizResults.maxScore}) * 100 ELSE 0 END), 0)`,
+      avgScore: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.maxScore} > 0 THEN LEAST((${quizResults.score}::float / ${quizResults.maxScore}) * 100, 100) ELSE NULL END), 0)`,
       completionRate: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.completedAt} IS NOT NULL THEN 100 ELSE 0 END), 0)`,
       practiceRatio: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.isPractice} THEN 100 ELSE 0 END), 0)`,
     })
