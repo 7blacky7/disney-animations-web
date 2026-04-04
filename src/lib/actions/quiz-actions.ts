@@ -83,13 +83,14 @@ export async function createQuiz(input: CreateQuizInput) {
 
 /**
  * Quiz aktualisieren.
- * Berechtigung: Ersteller oder admin
+ * Berechtigung: Ersteller oder admin (gleicher Tenant)
  */
 export async function updateQuiz(
   quizId: string,
   data: Partial<CreateQuizInput> & { isPublished?: boolean },
 ) {
   const session = await requireSession();
+  const { tenantId, role } = await getSessionUserData();
 
   const [existing] = await db
     .select()
@@ -99,8 +100,13 @@ export async function updateQuiz(
 
   if (!existing) throw new Error("Quiz nicht gefunden");
 
-  const userRole = (session.user as Record<string, unknown>).role as string;
-  if (existing.createdBy !== session.user.id && userRole !== "admin" && userRole !== "super_admin") {
+  // Tenant-Check: Quiz muss zum eigenen Mandanten gehoeren
+  if (existing.tenantId !== tenantId) {
+    throw new Error("Kein Zugriff auf dieses Quiz");
+  }
+
+  // Berechtigungs-Check: Ersteller oder admin/super_admin (Role aus DB, nicht Session!)
+  if (existing.createdBy !== session.user.id && role !== "admin" && role !== "super_admin") {
     throw new Error("Keine Berechtigung");
   }
 
@@ -118,10 +124,11 @@ export async function updateQuiz(
 
 /**
  * Quiz loeschen.
- * Berechtigung: Ersteller oder admin
+ * Berechtigung: Ersteller oder admin (gleicher Tenant)
  */
 export async function deleteQuiz(quizId: string) {
   const session = await requireSession();
+  const { tenantId, role } = await getSessionUserData();
 
   const [existing] = await db
     .select()
@@ -131,8 +138,13 @@ export async function deleteQuiz(quizId: string) {
 
   if (!existing) throw new Error("Quiz nicht gefunden");
 
-  const userRole = (session.user as Record<string, unknown>).role as string;
-  if (existing.createdBy !== session.user.id && userRole !== "admin" && userRole !== "super_admin") {
+  // Tenant-Check: Quiz muss zum eigenen Mandanten gehoeren
+  if (existing.tenantId !== tenantId) {
+    throw new Error("Kein Zugriff auf dieses Quiz");
+  }
+
+  // Berechtigungs-Check: Ersteller oder admin/super_admin (Role aus DB, nicht Session!)
+  if (existing.createdBy !== session.user.id && role !== "admin" && role !== "super_admin") {
     throw new Error("Keine Berechtigung");
   }
 
@@ -269,9 +281,30 @@ export async function deleteQuestion(questionId: string) {
 
 /**
  * Quiz-Teilnahme starten.
+ * Prueft ob User Zugriff auf das Quiz hat (Tenant + Visibility).
  */
 export async function startQuizAttempt(quizId: string, isPractice = false) {
   const session = await requireSession();
+  const { tenantId, departmentId, role } = await getSessionUserData();
+
+  // Quiz laden und Zugriff pruefen
+  const [quiz] = await db
+    .select()
+    .from(quizzes)
+    .where(eq(quizzes.id, quizId))
+    .limit(1);
+
+  if (!quiz) throw new Error("Quiz nicht gefunden");
+
+  // Tenant-Check (admin/super_admin duerfen alles)
+  if (role !== "admin" && role !== "super_admin") {
+    if (quiz.tenantId !== tenantId) {
+      throw new Error("Kein Zugriff auf dieses Quiz");
+    }
+    if (quiz.visibility === "department" && quiz.departmentId !== departmentId) {
+      throw new Error("Kein Zugriff auf dieses Quiz");
+    }
+  }
 
   const [result] = await db.insert(quizResults).values({
     quizId,
@@ -286,9 +319,21 @@ export async function startQuizAttempt(quizId: string, isPractice = false) {
 
 /**
  * Antwort einreichen.
+ * Prueft ob das Result dem eingeloggten User gehoert.
  */
 export async function submitAnswer(input: SubmitAnswerInput) {
-  await requireSession();
+  const session = await requireSession();
+
+  // Ownership-Check: Result muss dem User gehoeren
+  const [resultOwner] = await db
+    .select({ userId: quizResults.userId })
+    .from(quizResults)
+    .where(eq(quizResults.id, input.resultId))
+    .limit(1);
+
+  if (!resultOwner || resultOwner.userId !== session.user.id) {
+    throw new Error("Kein Zugriff auf dieses Ergebnis");
+  }
 
   const [answer] = await db.insert(quizAnswers).values({
     resultId: input.resultId,
@@ -322,9 +367,21 @@ export async function submitAnswer(input: SubmitAnswerInput) {
 
 /**
  * Quiz-Teilnahme abschliessen.
+ * Prueft ob das Result dem eingeloggten User gehoert.
  */
 export async function completeQuizAttempt(resultId: string) {
-  await requireSession();
+  const session = await requireSession();
+
+  // Ownership-Check: Result muss dem User gehoeren
+  const [resultOwner] = await db
+    .select({ userId: quizResults.userId })
+    .from(quizResults)
+    .where(eq(quizResults.id, resultId))
+    .limit(1);
+
+  if (!resultOwner || resultOwner.userId !== session.user.id) {
+    throw new Error("Kein Zugriff auf dieses Ergebnis");
+  }
 
   // Gesamtpunktzahl berechnen
   const answers = await db
@@ -399,17 +456,26 @@ export async function getDashboardStats() {
     .from(users)
     .where(eq(users.tenantId, tenantId));
 
+  // Tenant-scoped: Nur Ergebnisse fuer Quizzes des eigenen Mandanten
   const [completedCount] = await db
     .select({ value: count() })
     .from(quizResults)
-    .where(sql`${quizResults.completedAt} IS NOT NULL`);
+    .innerJoin(quizzes, eq(quizResults.quizId, quizzes.id))
+    .where(and(
+      sql`${quizResults.completedAt} IS NOT NULL`,
+      eq(quizzes.tenantId, tenantId),
+    ));
 
   const [avgResult] = await db
     .select({
       avg: sql<number>`COALESCE(AVG(CASE WHEN ${quizResults.maxScore} > 0 THEN LEAST((${quizResults.score}::float / ${quizResults.maxScore}) * 100, 100) ELSE NULL END), 0)`,
     })
     .from(quizResults)
-    .where(sql`${quizResults.completedAt} IS NOT NULL`);
+    .innerJoin(quizzes, eq(quizResults.quizId, quizzes.id))
+    .where(and(
+      sql`${quizResults.completedAt} IS NOT NULL`,
+      eq(quizzes.tenantId, tenantId),
+    ));
 
   return {
     activeQuizzes: quizCount?.value ?? 0,

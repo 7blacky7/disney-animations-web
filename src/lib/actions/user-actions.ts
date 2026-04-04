@@ -32,12 +32,25 @@ export async function listUsers() {
 
 /**
  * Benutzer-Rolle aendern.
+ * Tenant-Check: Ziel-User muss im selben Mandanten sein.
  */
 export async function updateUserRole(
   userId: string,
   role: "admin" | "department_lead" | "user",
 ) {
   await requireRole("admin");
+  const tenantId = await getSessionTenantId();
+
+  // Tenant-Check: Ziel-User muss im selben Mandanten sein
+  const [targetUser] = await db
+    .select({ tenantId: users.tenantId })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!targetUser || targetUser.tenantId !== tenantId) {
+    throw new Error("Benutzer nicht gefunden");
+  }
 
   const [updated] = await db
     .update(users)
@@ -50,13 +63,26 @@ export async function updateUserRole(
 
 /**
  * Benutzer aus Mandant entfernen.
+ * Tenant-Check: Ziel-User muss im selben Mandanten sein.
  */
 export async function removeUser(userId: string) {
   const session = await requireRole("admin");
+  const tenantId = await getSessionTenantId();
 
   // Nicht sich selbst entfernen
   if (userId === session.user.id) {
     throw new Error("Du kannst dich nicht selbst entfernen");
+  }
+
+  // Tenant-Check: Ziel-User muss im selben Mandanten sein
+  const [targetUser] = await db
+    .select({ tenantId: users.tenantId })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!targetUser || targetUser.tenantId !== tenantId) {
+    throw new Error("Benutzer nicht gefunden");
   }
 
   await db.delete(users).where(eq(users.id, userId));
@@ -99,9 +125,23 @@ export async function createDepartment(name: string) {
 
 /**
  * Abteilung loeschen.
+ * Tenant-Check: Abteilung muss zum eigenen Mandanten gehoeren.
  */
 export async function deleteDepartment(departmentId: string) {
   await requireRole("admin");
+  const tenantId = await getSessionTenantId();
+
+  // Tenant-Check: Abteilung muss zum eigenen Mandanten gehoeren
+  const [dept] = await db
+    .select({ tenantId: departments.tenantId })
+    .from(departments)
+    .where(eq(departments.id, departmentId))
+    .limit(1);
+
+  if (!dept || dept.tenantId !== tenantId) {
+    throw new Error("Abteilung nicht gefunden");
+  }
+
   await db.delete(departments).where(eq(departments.id, departmentId));
   return { success: true };
 }

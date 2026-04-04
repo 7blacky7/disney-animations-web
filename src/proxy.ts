@@ -8,7 +8,7 @@ import type { NextRequest } from "next/server";
  * Geschuetzte Routen: /dashboard, /quizzes, /users, /departments, etc.
  *
  * Prueft ob eine Session existiert (via Cookie).
- * Detaillierte RBAC-Pruefung erfolgt server-seitig in den Pages.
+ * Setzt x-pathname Header fuer RBAC-Pruefung im Dashboard-Layout.
  */
 
 const PUBLIC_PATHS = [
@@ -52,7 +52,10 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  // x-pathname Header setzen — Layout liest diesen fuer RBAC-Pruefung
+  const response = NextResponse.next();
+  response.headers.set("x-pathname", pathname);
+  return response;
 }
 
 export const config = {
