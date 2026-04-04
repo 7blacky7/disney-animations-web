@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { quizzes, questions } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { getSession } from "@/lib/auth/session";
+import { users } from "@/lib/db/schema";
 import { QuizPlayer } from "./quiz-player";
 import type { ClientQuestionData } from "@/components/quiz/types";
 
@@ -183,6 +185,41 @@ export default async function QuizPlayPage({
   // SECURITY (F9): Unpublished Quizzes sind NICHT spielbar
   if (!quiz.isPublished) {
     notFound();
+  }
+
+  // SECURITY: Tenant-Isolation fuer nicht-globale Quizzes
+  // Globale Quizzes: Jeder darf spielen (auch ohne Login)
+  // Tenant/Department Quizzes: Nur User des eigenen Tenants/Departments
+  if (quiz.visibility !== "global") {
+    const session = await getSession();
+    if (!session) {
+      // Nicht eingeloggt → kein Zugriff auf nicht-globale Quizzes
+      notFound();
+    }
+
+    // User-Daten laden fuer Tenant/Dept Check
+    const [dbUser] = await db
+      .select({ tenantId: users.tenantId, departmentId: users.departmentId, role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+
+    if (!dbUser) {
+      notFound();
+    }
+
+    // Super-Admin darf alles
+    if (dbUser.role !== "super_admin") {
+      // Tenant-Check: Quiz muss zum eigenen Tenant gehoeren
+      if (quiz.tenantId !== dbUser.tenantId) {
+        notFound();
+      }
+
+      // Department-Check: Bei department-Visibility muss User in gleicher Abteilung sein
+      if (quiz.visibility === "department" && quiz.departmentId !== dbUser.departmentId) {
+        notFound();
+      }
+    }
   }
 
   const dbQuestions = await db

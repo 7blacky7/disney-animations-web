@@ -74,11 +74,22 @@ async function seed() {
   const devPasswordHash = await hashPassword("password123");
   console.log("🔑 Passwort-Hash generiert (password123)");
 
+  const superAdminId = randomUUID();
   const adminId = randomUUID();
   const devLeadId = randomUUID();
   const salesLeadId = randomUUID();
   const user1Id = randomUUID();
   const user2Id = randomUUID();
+
+  // Super-Admin: Plattform-Ebene (kein Tenant, verwaltet alle Firmen)
+  await db.insert(users).values({
+    id: superAdminId,
+    email: "super@quizplatform.de",
+    name: "Plattform Admin",
+    role: "super_admin",
+    passwordHash: devPasswordHash,
+  });
+  console.log("✅ Super-Admin: super@quizplatform.de (Passwort: password123)");
 
   await db.insert(users).values([
     {
@@ -131,7 +142,7 @@ async function seed() {
   // --- Accounts (better-auth Passwort-Eintraege) ---
   // better-auth speichert Passwoerter in der "account" Tabelle, NICHT in users.
   // providerId: "credential", accountId: userId, password: scrypt-hash
-  const userIds = [adminId, devLeadId, salesLeadId, user1Id, user2Id];
+  const userIds = [superAdminId, adminId, devLeadId, salesLeadId, user1Id, user2Id];
   for (const userId of userIds) {
     await db.insert(accounts).values({
       userId,
