@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { BfcacheRestore } from "@/components/BfcacheRestore";
 import {
   HeroSection,
   FeaturesSection,
@@ -14,7 +15,7 @@ export default async function Home() {
   const publicQuizzes = await listPublicQuizzes().catch(() => []);
 
   return (
-    <>
+    <BfcacheRestore>
       <Header />
       <main className="flex-1">
         <HeroSection />
@@ -27,6 +28,6 @@ export default async function Home() {
         <CTASection />
       </main>
       <Footer />
-    </>
+    </BfcacheRestore>
   );
 }
