@@ -42,8 +42,8 @@ const ACCENT_PRESETS = [
 export function SettingsClient({ tenant }: SettingsClientProps) {
   const { prefersReducedMotion } = useAccessibility();
   const [tenantName, setTenantName] = useState(tenant?.name ?? "");
-  const [selectedAccent, setSelectedAccent] = useState("amber");
-  const [customColor, setCustomColor] = useState(tenant?.accentColor ?? "#D97706");
+  const [selectedAccent, setSelectedAccent] = useState("indigo");
+  const [customColor, setCustomColor] = useState(tenant?.accentColor ?? "#4F46E5");
   const [darkModeDefault, setDarkModeDefault] = useState(false);
   const [mailProvider, setMailProvider] = useState<"graph" | "smtp">("smtp");
   const [smtpHost, setSmtpHost] = useState("");

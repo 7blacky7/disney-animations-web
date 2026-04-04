@@ -24,7 +24,7 @@ export function BfcacheRestore({ children }: { children: React.ReactNode }) {
     setKey((prev) => prev + 1);
   }, [pathname]);
 
-  // Disable bfcache: unload listener prevents browser from caching
+  // Re-Mount bei bfcache oder popstate
   useEffect(() => {
     function handlePageShow(event: PageTransitionEvent) {
       if (event.persisted) {
@@ -36,15 +36,9 @@ export function BfcacheRestore({ children }: { children: React.ReactNode }) {
       setKey((prev) => prev + 1);
     }
 
-    // unload listener prevents bfcache entirely
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const noop = () => {};
-    window.addEventListener("unload", noop);
-
     window.addEventListener("pageshow", handlePageShow);
     window.addEventListener("popstate", handlePopState);
     return () => {
-      window.removeEventListener("unload", noop);
       window.removeEventListener("pageshow", handlePageShow);
       window.removeEventListener("popstate", handlePopState);
     };

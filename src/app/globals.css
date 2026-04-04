@@ -73,9 +73,9 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.13 0.01 260);
 
-  /* Primary: warm amber — Orange/Gold Theme (Auftraggeber-Vorgabe) */
-  --primary: oklch(0.50 0.16 75);
-  --primary-foreground: oklch(0.98 0.01 75);
+  /* Primary: deep indigo — sophisticated, cinematic */
+  --primary: oklch(0.35 0.14 270);
+  --primary-foreground: oklch(0.98 0.005 270);
 
   /* Secondary: warm slate — understated elegance */
   --secondary: oklch(0.96 0.005 260);
@@ -94,7 +94,7 @@
   --success-foreground: oklch(0.98 0.01 152);
   --border: oklch(0.91 0.008 260);
   --input: oklch(0.91 0.008 260);
-  --ring: oklch(0.50 0.14 75);
+  --ring: oklch(0.50 0.10 270);
 
   /* Chart colors: sophisticated sequence */
   --chart-1: oklch(0.55 0.14 270);
@@ -118,7 +118,7 @@
   --hero-gradient-start: oklch(0.15 0.06 270);
   --hero-gradient-mid: oklch(0.12 0.08 285);
   --hero-gradient-end: oklch(0.10 0.04 250);
-  --glow-primary: oklch(0.60 0.18 75 / 30%);
+  --glow-primary: oklch(0.55 0.20 270 / 30%);
   --glow-accent: oklch(0.80 0.12 85 / 25%);
   --surface-elevated: oklch(1 0 0 / 80%);
 }
@@ -170,7 +170,7 @@
   --hero-gradient-start: oklch(0.10 0.04 270);
   --hero-gradient-mid: oklch(0.08 0.06 285);
   --hero-gradient-end: oklch(0.06 0.03 250);
-  --glow-primary: oklch(0.60 0.18 75 / 20%);
+  --glow-primary: oklch(0.55 0.20 270 / 20%);
   --glow-accent: oklch(0.80 0.12 85 / 15%);
   --surface-elevated: oklch(0.18 0.015 260 / 80%);
 }

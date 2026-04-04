@@ -94,7 +94,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch {
       // localStorage not available
     }
-    return "indigo";
+    return "amber";
   });
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
 
