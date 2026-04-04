@@ -30,15 +30,15 @@ import {
   SortingIcon,
   TimerIcon,
 } from "@/components/icons";
+import { AnswerEditor, type QuestionData } from "@/components/quiz/AnswerEditor";
+import { addQuestion as addQuestionAction } from "@/lib/actions/quiz";
 import { cn } from "@/lib/utils";
 
 /**
  * Quiz Builder — Wizard-style quiz creation
- * Phase 5: Metadaten → Fragen hinzufuegen → Vorschau → Publish
+ * Phase 5+: Metadaten → Fragen + Antworten → Vorschau → Publish
  *
- * TODO: Connect to real API (Server Actions)
- * TODO: DnD reorder questions
- * TODO: Live preview panel
+ * Antwort-Editor fuer alle 11 Fragetypen integriert.
  */
 
 const STEPS = ["Grundlagen", "Fragen", "Vorschau"] as const;
@@ -57,13 +57,7 @@ const QUESTION_TYPES = [
   { id: "timed", label: "Zeitdruck", icon: TimerIcon, color: "var(--destructive)" },
 ] as const;
 
-interface Question {
-  id: string;
-  type: string;
-  title: string;
-  options?: string[];
-  timeLimit?: number;
-}
+// QuestionData wird aus AnswerEditor importiert — enthält alle Antwort-Felder
 
 export function NewQuizClient() {
   const { prefersReducedMotion } = useAccessibility();
@@ -75,18 +69,29 @@ export function NewQuizClient() {
   const [mode, setMode] = useState("async");
   const [visibility, setVisibility] = useState("company");
   const [practiceAllowed, setPracticeAllowed] = useState(true);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [showTypePicker, setShowTypePicker] = useState(false);
 
   const stepIndex = STEPS.indexOf(currentStep);
 
   function addQuestion(typeId: string) {
-    const newQ: Question = {
+    const newQ: QuestionData = {
       id: `q-${Math.random().toString(36).slice(2) + Date.now().toString(36)}`,
       type: typeId,
       title: "",
-      options: typeId === "multiple_choice" ? ["", "", "", ""] : undefined,
-      timeLimit: typeId === "timed" ? 30 : undefined,
+      // Default-Werte je nach Typ
+      ...(typeId === "multiple_choice" || typeId === "image_choice" || typeId === "timed"
+        ? { options: ["", "", "", ""], correctIndex: 0 }
+        : {}),
+      ...(typeId === "true_false" ? { correctAnswer: true } : {}),
+      ...(typeId === "sorting" || typeId === "drag_drop" ? { items: ["", "", ""] } : {}),
+      ...(typeId === "matching" ? { matchLeft: ["", ""], matchRight: ["", ""] } : {}),
+      ...(typeId === "slider" ? { sliderMin: 0, sliderMax: 100, sliderCorrect: 50, sliderTolerance: 5 } : {}),
+      ...(typeId === "fill_blank" ? { blankAnswer: "" } : {}),
+      ...(typeId === "free_text" ? { keywords: [""] } : {}),
+      ...(typeId === "code_input" ? { codeTemplate: "", codeSolution: "", programmingLanguage: "javascript" } : {}),
+      ...(typeId === "timed" ? { timeLimit: 30 } : {}),
+      points: 10,
     };
     setQuestions((prev) => [...prev, newQ]);
     setShowTypePicker(false);
@@ -101,13 +106,69 @@ export function NewQuizClient() {
         company: "tenant",
         department: "department",
       };
-      await createQuiz({
+      const quiz = await createQuiz({
         title: title.trim(),
         description: description.trim() || undefined,
         quizMode: mode as "realtime" | "async",
         visibility: visibilityMap[visibility] ?? "tenant",
         isPracticeAllowed: practiceAllowed,
       });
+
+      // Fragen + Antworten speichern
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        if (!q.title.trim()) continue;
+
+        // options + correctAnswer JSON je nach Typ aufbauen
+        let options: unknown = null;
+        let correctAnswer: unknown = null;
+
+        switch (q.type) {
+          case "multiple_choice":
+          case "image_choice":
+          case "timed":
+            options = q.options?.filter(Boolean);
+            correctAnswer = q.correctIndex ?? 0;
+            break;
+          case "true_false":
+            correctAnswer = q.correctAnswer ?? true;
+            break;
+          case "fill_blank":
+            correctAnswer = q.blankAnswer ?? "";
+            break;
+          case "sorting":
+          case "drag_drop":
+            options = q.items?.filter(Boolean);
+            // Korrekte Reihenfolge = Index-Reihenfolge (0, 1, 2, ...)
+            correctAnswer = q.items?.map((_, idx) => idx) ?? [];
+            break;
+          case "matching":
+            options = { left: q.matchLeft?.filter(Boolean), right: q.matchRight?.filter(Boolean) };
+            break;
+          case "slider":
+            options = { min: q.sliderMin ?? 0, max: q.sliderMax ?? 100 };
+            correctAnswer = { value: q.sliderCorrect ?? 50, tolerance: q.sliderTolerance ?? 5 };
+            break;
+          case "free_text":
+            correctAnswer = { keywords: q.keywords?.filter(Boolean) };
+            break;
+          case "code_input":
+            // code_template und code_solution werden ueber separate Felder gespeichert
+            break;
+        }
+
+        await addQuestionAction({
+          quizId: quiz.id,
+          type: q.type,
+          content: q.title.trim(),
+          options,
+          correctAnswer,
+          order: i + 1,
+          timeLimit: q.timeLimit,
+          points: q.points ?? 10,
+        });
+      }
+
       router.push("/quizzes");
     } catch (err) {
       console.error("Failed to publish quiz:", err);
@@ -119,7 +180,7 @@ export function NewQuizClient() {
     setQuestions((prev) => prev.filter((q) => q.id !== id));
   }
 
-  function updateQuestion(id: string, updates: Partial<Question>) {
+  function updateQuestion(id: string, updates: Partial<QuestionData>) {
     setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, ...updates } : q)));
   }
 
@@ -273,27 +334,11 @@ export function NewQuizClient() {
                           placeholder="Frage eingeben..."
                           className="text-sm"
                         />
-                        {q.options && (
-                          <div className="space-y-2">
-                            {q.options.map((opt, oi) => (
-                              <div key={oi} className="flex items-center gap-2">
-                                <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border/40 text-[9px] text-muted-foreground">
-                                  {String.fromCharCode(65 + oi)}
-                                </span>
-                                <Input
-                                  value={opt}
-                                  onChange={(e) => {
-                                    const newOpts = [...(q.options ?? [])];
-                                    newOpts[oi] = e.target.value;
-                                    updateQuestion(q.id, { options: newOpts });
-                                  }}
-                                  placeholder={`Option ${String.fromCharCode(65 + oi)}`}
-                                  className="text-xs h-8"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {/* Antwort-Editor fuer den jeweiligen Fragetyp */}
+                        <AnswerEditor
+                          question={q}
+                          onUpdate={(updates) => updateQuestion(q.id, updates)}
+                        />
                       </div>
                     </div>
                   </motion.div>
