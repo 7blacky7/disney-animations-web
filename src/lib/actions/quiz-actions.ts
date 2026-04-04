@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { quizzes, questions, quizResults, quizAnswers, users } from "@/lib/db/schema";
-import { requireSession, requireRole, getSessionTenantId } from "@/lib/auth/session";
+import { requireSession, requireRole, getSessionTenantId, getSessionUserData } from "@/lib/auth/session";
 import { eq, and, desc, count, sql } from "drizzle-orm";
 
 /**
@@ -142,11 +142,16 @@ export async function deleteQuiz(quizId: string) {
 
 /**
  * Quizzes auflisten (mit Sichtbarkeits-Filterung).
+ *
+ * Visibility-Logik:
+ * - global/tenant: Sichtbar fuer alle im gleichen Mandanten
+ * - department: Nur sichtbar fuer User in der gleichen Abteilung
+ * - admin/super_admin: Sehen alle Mandanten-Quizzes
  */
 export async function listQuizzes() {
-  const tenantId = await getSessionTenantId();
+  const { tenantId, departmentId, role } = await getSessionUserData();
 
-  // Alle publizierten Quizzes des Mandanten
+  // Alle publizierten Quizzes des Mandanten laden
   const result = await db
     .select()
     .from(quizzes)
@@ -158,7 +163,19 @@ export async function listQuizzes() {
     )
     .orderBy(desc(quizzes.createdAt));
 
-  return result;
+  // Admin/Super-Admin sehen alle Mandanten-Quizzes
+  if (role === "admin" || role === "super_admin") {
+    return result;
+  }
+
+  // Visibility-Filter: department-Quizzes nur fuer eigene Abteilung
+  return result.filter((quiz) => {
+    if (quiz.visibility === "global" || quiz.visibility === "tenant") return true;
+    if (quiz.visibility === "department") {
+      return departmentId != null && quiz.departmentId === departmentId;
+    }
+    return true;
+  });
 }
 
 /**

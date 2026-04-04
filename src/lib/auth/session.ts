@@ -63,6 +63,29 @@ export async function getSessionTenantId(): Promise<string> {
 }
 
 /**
+ * Vollstaendige User-Daten fuer Sichtbarkeits-Pruefungen.
+ * Laedt tenantId, departmentId und role aus der DB.
+ */
+export async function getSessionUserData() {
+  const session = await requireSession();
+  const [dbUser] = await db
+    .select({
+      tenantId: users.tenantId,
+      departmentId: users.departmentId,
+      role: users.role,
+    })
+    .from(users)
+    .where(eq(users.id, session.user.id));
+
+  return {
+    userId: session.user.id,
+    tenantId: dbUser?.tenantId ?? "",
+    departmentId: dbUser?.departmentId ?? null,
+    role: (dbUser?.role ?? "user") as UserRole,
+  };
+}
+
+/**
  * Session mit Rollen-Check.
  * Wirft Error wenn Rolle nicht ausreicht.
  */
