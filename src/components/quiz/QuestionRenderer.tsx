@@ -10,6 +10,7 @@ import { ImageChoiceQuestion } from "./ImageChoiceQuestion";
 import { SortingQuestion } from "./SortingQuestion";
 import { TimedQuestion } from "./TimedQuestion";
 import { CodeInputQuestion } from "./CodeInputQuestion";
+import { TerminalQuestion } from "./TerminalQuestion";
 import type { QuestionProps } from "./types";
 
 /**
@@ -45,6 +46,8 @@ export function QuestionRenderer(props: QuestionProps) {
       return <TimedQuestion {...enhancedProps} />;
     case "code_input":
       return <CodeInputQuestion {...enhancedProps} />;
+    case "terminal":
+      return <TerminalQuestion {...enhancedProps} />;
     default:
       return (
         <div className="rounded-xl border border-border/40 bg-muted/20 p-6 text-center text-sm text-muted-foreground">
