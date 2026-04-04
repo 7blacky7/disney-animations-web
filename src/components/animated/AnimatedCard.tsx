@@ -29,10 +29,10 @@ interface AnimatedCardProps extends ComponentProps<typeof Card> {
   disableHover?: boolean;
 }
 
+// NO opacity:0 — content must always be visible (browser-back safe, Playwright-verified)
 const cardEntryVariants: Variants = {
-  hidden: { opacity: 0, y: 24, scale: 0.97 },
+  hidden: { y: 24, scale: 0.97 },
   visible: {
-    opacity: 1,
     y: 0,
     scale: 1,
     transition: { ...SPRING.snappy },

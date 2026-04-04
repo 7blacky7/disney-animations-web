@@ -508,8 +508,8 @@ function SliderDemo({ isPaused, hue }: { isPaused: boolean; hue: string }) {
       <p className="text-xs font-semibold">Wie sicher bist du?</p>
       <motion.p
         key={val}
-        initial={{ scale: 1.3, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        initial={{ scale: 1.3 }}
+        animate={{ scale: 1 }}
         transition={OVERSHOOT}
         className="text-center font-heading text-3xl font-bold"
         style={{ color: hue }}
@@ -611,8 +611,8 @@ function FreetextDemo({ isPaused }: { isPaused: boolean }) {
       </div>
       {isDone && (
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 4 }}
+          animate={{ y: 0 }}
           transition={{ ...QUIZ_SPRING.pop }}
           className="flex items-center gap-1.5 text-[10px] text-primary font-medium"
         >
