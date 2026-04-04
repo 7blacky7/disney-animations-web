@@ -26,13 +26,9 @@ export function Footer() {
           >
             GitHub
           </AnimatedLink>
-          <AnimatedLink
-            href="#"
-            thickness="thin"
-            className="text-sm text-muted-foreground"
-          >
+          <span className="text-sm text-muted-foreground/50 cursor-default" title="Folgt in Kuerze">
             Impressum
-          </AnimatedLink>
+          </span>
         </nav>
       </div>
     </footer>
