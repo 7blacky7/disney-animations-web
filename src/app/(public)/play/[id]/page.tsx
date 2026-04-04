@@ -82,18 +82,30 @@ function mapDbQuestion(q: typeof questions.$inferSelect): QuestionData {
         options: getOptions(),
         correctIndex: getCorrectIndex(),
       };
-    case "true_false":
+    case "true_false": {
+      // Seed format: correctRaw is a boolean (true/false)
+      // Manual format: correctRaw is { correct: true/false }
+      const tfAnswer = typeof correctRaw === "boolean"
+        ? correctRaw
+        : (correct?.correct as boolean) ?? false;
       return {
         ...base,
-        correctAnswer: (correct?.correct as boolean) ?? false,
+        correctAnswer: tfAnswer,
       };
+    }
     case "drag_drop":
-    case "sorting":
+    case "sorting": {
+      // Seed format: correctRaw is a number[] (e.g. [2, 0, 3, 1])
+      // Manual format: correctRaw is { correct: [2, 0, 3, 1] }
+      const sortOrder = Array.isArray(correctRaw)
+        ? (correctRaw as number[])
+        : (correct?.correct as number[]) ?? [];
       return {
         ...base,
         items: (optsArray as string[]) ?? (optsObj?.items as string[]) ?? [],
-        correctOrder: (correct?.correct as number[]) ?? [],
+        correctOrder: sortOrder,
       };
+    }
     case "matching":
       return {
         ...base,
@@ -108,15 +120,21 @@ function mapDbQuestion(q: typeof questions.$inferSelect): QuestionData {
         sliderCorrect: (correct?.value as number) ?? 50,
         sliderTolerance: (correct?.tolerance as number) ?? 1,
       };
-    case "fill_blank":
+    case "fill_blank": {
+      // Seed format: correctRaw is a plain string (e.g. "push")
+      // Manual format: correctRaw is { answer: "push", alternatives: [...] }
+      const blankAnswer = typeof correctRaw === "string"
+        ? correctRaw
+        : (correct?.answer as string) ?? "";
+      const blankAlts = typeof correctRaw === "string"
+        ? []
+        : ((correct?.alternatives as string[]) ?? []);
       return {
         ...base,
         blankText: q.content,
-        blankAnswers: [
-          (correct?.answer as string) ?? "",
-          ...((correct?.alternatives as string[]) ?? []),
-        ],
+        blankAnswers: [blankAnswer, ...blankAlts].filter(Boolean),
       };
+    }
     case "free_text":
       return {
         ...base,
