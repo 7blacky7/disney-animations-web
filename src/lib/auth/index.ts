@@ -39,23 +39,20 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user) => {
-          // Neuen User dem ersten verfuegbaren Tenant zuweisen
+        after: async (user) => {
+          // better-auth ignoriert Custom-Felder im before-Hook.
+          // Daher: Nach User-Erstellung direkt in DB updaten.
           const [defaultTenant] = await db
             .select({ id: tenants.id })
             .from(tenants)
             .limit(1);
 
           if (defaultTenant) {
-            return {
-              data: {
-                ...user,
-                tenantId: defaultTenant.id,
-                role: "user",
-              },
-            };
+            await db
+              .update(users)
+              .set({ tenantId: defaultTenant.id, role: "user" })
+              .where(eq(users.id, user.id));
           }
-          return { data: user };
         },
       },
     },
