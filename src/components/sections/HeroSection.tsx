@@ -137,7 +137,7 @@ export function HeroSection() {
             className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary"
             aria-hidden="true"
           />
-          12 Principles of Animation
+          Motion Studio
         </motion.div>
 
         {/* Headline — larger, bolder, more impact */}
