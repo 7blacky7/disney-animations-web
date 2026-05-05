@@ -51,7 +51,7 @@ import {
  * Nach Antwort-Abgabe wird evaluateAndSubmitAnswer() aufgerufen,
  * Server gibt Feedback (isCorrect, correctIndex, etc.) zurueck.
  *
- * Full Disney-grade quiz experience with:
+ * Full production-grade quiz experience with:
  * - 3-2-1 countdown before start (countdownNumber/Ring/Pulse)
  * - Staggered answer options (answerOptionsContainer/Item)
  * - Score pops & floating points (+10) on correct answers
@@ -59,7 +59,7 @@ import {
  * - Confetti celebration on quiz completion (>=80%)
  * - Animated results reveal with stats
  *
- * Disney Principles per section documented.
+ * Animation Principles per section documented.
  * All GPU-only (transform/opacity). No Spring + 3-keyframe!
  */
 

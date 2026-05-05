@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 /**
  * ThemeSwitcher — Floating dropdown in the Header
  *
- * Disney Principles:
+ * Animation Principles:
  * - Anticipation: dropdown scales from button origin
  * - Follow-through: spring overshoot on open
  * - Secondary Action: color dots pulse on selection

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 /**
  * Dashboard Sidebar — Collapsible, role-based navigation
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: active item highlighted with subtle glow
  * - Appeal: clean, professional, generous spacing
  */

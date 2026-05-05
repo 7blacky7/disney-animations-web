@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /**
- * AnimatedButton — Disney-inspired interactive button
+ * AnimatedButton — thoughtfully animated interactive button
  *
- * Disney Principles:
+ * Animation Principles:
  * - Anticipation: slight scale-down before press
  * - Squash & Stretch: subtle deformation on tap
  * - Follow-through: spring overshoot on release

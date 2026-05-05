@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 /**
  * My Results Client — Personal quiz history with animated score rings.
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: Score ring draws attention to each result
  * - Timing: Staggered reveals create flow
  * - Appeal: Clean, personal achievement view

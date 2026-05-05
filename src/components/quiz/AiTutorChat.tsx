@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
  * Nutzt sendTutorMessage() Server Action für AI-Antworten.
  * Nur sichtbar wenn Tenant ai_enabled=true (Prop).
  *
- * Disney Principles: Anticipation (FAB pulse), Follow-through (slide-in),
+ * Animation Principles: Anticipation (FAB pulse), Follow-through (slide-in),
  * Appeal (friendly chat UI)
  */
 

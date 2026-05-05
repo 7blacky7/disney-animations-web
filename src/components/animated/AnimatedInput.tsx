@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 /**
  * AnimatedInput — Focus: floating label + border glow
  *
- * Disney Principles:
+ * Animation Principles:
  * - Anticipation: label lifts before field activates
  * - Follow-through: spring overshoot on label float
  * - Staging: focus glow directs attention

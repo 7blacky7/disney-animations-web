@@ -1,8 +1,8 @@
 /**
- * GSAP Timeline Factory Presets — Disney Animation System
+ * GSAP Timeline Factory Presets — Animation System
  *
  * Pre-built GSAP timeline factories for common scroll-driven animations.
- * Each preset applies multiple Disney principles and handles cleanup.
+ * Each preset applies multiple animation principles and handles cleanup.
  *
  * Rules:
  * - Only transform + opacity (GPU-only, 60fps)

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  * Animates children into view when scrolled to.
  * Uses GSAP for precise scroll-linked control.
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: reveals content at the right moment
  * - Timing: scroll position determines animation start
  * - Slow In Slow Out: GSAP easing

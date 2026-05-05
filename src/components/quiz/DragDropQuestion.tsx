@@ -16,7 +16,7 @@ import type { QuestionProps } from "./types";
  * Server evaluates, feedback.correctOrder is used for visual
  * highlighting AFTER submission.
  *
- * Disney Principles: Staging (clear selection), Follow Through (bounce on place),
+ * Animation Principles: Staging (clear selection), Follow Through (bounce on place),
  * Appeal (clean numbered badges)
  */
 export function DragDropQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {

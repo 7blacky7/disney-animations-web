@@ -1,9 +1,9 @@
 /**
- * Horizontal Scroll Preset — Disney Animation System
+ * Horizontal Scroll Preset — Animation System
  *
  * Horizontal scroll section using ScrollTrigger pin + scrub.
  *
- * Disney Principles: Staging (directional storytelling), Timing, Slow In Slow Out
+ * Animation Principles: Staging (directional storytelling), Timing, Slow In Slow Out
  */
 
 import { gsap } from "gsap";
@@ -22,7 +22,7 @@ interface HorizontalScrollOptions {
 /**
  * Horizontal scroll section using ScrollTrigger pin + scrub.
  *
- * Disney Principles: Staging (directional storytelling), Timing, Slow In Slow Out
+ * Animation Principles: Staging (directional storytelling), Timing, Slow In Slow Out
  *
  * Pins a section and translates inner content horizontally as user scrolls.
  */

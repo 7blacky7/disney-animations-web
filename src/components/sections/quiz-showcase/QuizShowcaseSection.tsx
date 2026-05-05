@@ -31,7 +31,7 @@ import { BentoCard } from "./BentoCard";
  * - 7 Standard-Karten: rest
  * - Scroll-reveal Stagger Entrance
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: staggered reveal draws attention sequentially
  * - Timing: 6s auto-loop per demo
  * - Follow-through: overshoot-ease on hover

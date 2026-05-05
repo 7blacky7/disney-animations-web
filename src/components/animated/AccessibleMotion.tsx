@@ -11,7 +11,7 @@ import { getReducedMotionVariant } from "@/lib/animation-utils";
  * Wraps any Framer Motion animation and automatically replaces it
  * with opacity-only instant transitions when the user prefers reduced motion.
  *
- * Disney Principles:
+ * Animation Principles:
  * - Appeal: respectful of user preferences
  * - Staging: content appears without motion sickness risk
  */

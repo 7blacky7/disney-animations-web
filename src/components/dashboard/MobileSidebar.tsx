@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 /**
  * MobileSidebar — Sheet/Drawer overlay for mobile navigation
  *
- * Disney Principles:
+ * Animation Principles:
  * - Anticipation: slides in from left with overshoot
  * - Follow-through: backdrop fades with slight delay
  */

@@ -15,7 +15,7 @@ import type { QuestionProps } from "./types";
  * Server evaluates via evaluateAndSubmitAnswer, feedback.correctIndex
  * is used for visual highlighting AFTER submission.
  *
- * Disney Principles: Timing (urgency), Exaggeration (pulse),
+ * Animation Principles: Timing (urgency), Exaggeration (pulse),
  * Staging (red-hot urgency indicators), Appeal (dramatic countdown)
  */
 export function TimedQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {

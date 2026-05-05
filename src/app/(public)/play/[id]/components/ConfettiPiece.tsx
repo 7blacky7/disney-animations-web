@@ -5,7 +5,7 @@ import { confettiParticle } from "@/animations";
 
 /**
  * Confetti particle with randomized trajectory via index-based offsets.
- * Disney Principle: Follow Through (trajectory), Appeal (colors)
+ * Animation Principle: Follow Through (trajectory), Appeal (colors)
  */
 export function ConfettiPiece({ index }: { index: number }) {
   const xOffset = ((index % 6) - 2.5) * 60;

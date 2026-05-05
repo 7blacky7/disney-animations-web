@@ -16,7 +16,7 @@ import type { QuestionProps } from "./types";
  * Server evaluates via evaluateAndSubmitAnswer, feedback.correctIndex
  * is used for visual highlighting AFTER submission.
  *
- * Disney Principles: Appeal (visual grid), Staging (highlight selection),
+ * Animation Principles: Appeal (visual grid), Staging (highlight selection),
  * Follow Through (border animation on feedback)
  */
 export function ImageChoiceQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {

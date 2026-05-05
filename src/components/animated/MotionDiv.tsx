@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
  * Supports both custom Framer Motion variants and built-in presets.
  * Automatically respects reduced motion preferences.
  *
- * Disney Principles: Timing, Slow In Slow Out, Appeal
+ * Animation Principles: Timing, Slow In Slow Out, Appeal
  */
 
 type PresetVariant =

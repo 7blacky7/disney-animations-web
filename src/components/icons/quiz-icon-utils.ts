@@ -11,7 +11,7 @@ import { useAccessibility } from "@/providers/AccessibilityProvider";
  * - Static fallback elements ensure visibility without JS
  * - prefers-reduced-motion: stop all looping animations, show static state
  *
- * Disney Principles: Follow-through, Slow In Slow Out, Secondary Action, Appeal
+ * Animation Principles: Follow-through, Slow In Slow Out, Secondary Action, Appeal
  */
 
 export const LOOP = { repeat: Infinity, ease: "easeInOut" as const };

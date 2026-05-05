@@ -15,7 +15,7 @@ import type { QuestionProps } from "./types";
  * SECURITY: sliderCorrect and sliderTolerance are NOT available in question props.
  * Server evaluates, feedback provides correct value AFTER submission.
  *
- * Disney Principles: Follow Through (thumb overshoot on release),
+ * Animation Principles: Follow Through (thumb overshoot on release),
  * Timing (smooth value update), Appeal (gradient track)
  */
 export function SliderQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {

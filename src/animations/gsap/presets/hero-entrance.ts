@@ -1,9 +1,9 @@
 /**
- * Hero Entrance Preset — Disney Animation System
+ * Hero Entrance Preset — Animation System
  *
  * Orchestrated hero section entrance with staggered children.
  *
- * Disney Principles: Staging, Timing, Follow Through, Slow In Slow Out, Secondary Action
+ * Animation Principles: Staging, Timing, Follow Through, Slow In Slow Out, Secondary Action
  */
 
 import { gsap } from "gsap";
@@ -27,7 +27,7 @@ interface HeroEntranceOptions {
 /**
  * Orchestrated hero section entrance with staggered children.
  *
- * Disney Principles: Staging, Timing, Follow Through, Slow In Slow Out, Secondary Action
+ * Animation Principles: Staging, Timing, Follow Through, Slow In Slow Out, Secondary Action
  *
  * Children animate in sequence: first the container fades, then children
  * stagger in with spring-like easing (overshoot) for follow-through feel.

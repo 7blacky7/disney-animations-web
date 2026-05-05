@@ -1,9 +1,9 @@
 /**
- * Pinned Section Preset — Disney Animation System
+ * Pinned Section Preset — Animation System
  *
  * Pinned section for storytelling — content changes while section stays pinned.
  *
- * Disney Principles: Staging (sequential reveals), Timing, Slow In Slow Out,
+ * Animation Principles: Staging (sequential reveals), Timing, Slow In Slow Out,
  *                    Secondary Action (cross-fade between panels)
  */
 
@@ -28,7 +28,7 @@ interface PinnedSectionOptions {
 /**
  * Pinned section for storytelling — content changes while section stays pinned.
  *
- * Disney Principles: Staging (sequential reveals), Timing, Slow In Slow Out,
+ * Animation Principles: Staging (sequential reveals), Timing, Slow In Slow Out,
  *                    Secondary Action (cross-fade between panels)
  *
  * Each panel fades/slides in as the user scrolls through the pinned section.

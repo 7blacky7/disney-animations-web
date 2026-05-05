@@ -6,7 +6,7 @@ import { COUNTDOWN_SECONDS, TIMER_CIRCUMFERENCE } from "./quiz-constants";
 
 /**
  * Quiz Countdown Screen (3-2-1).
- * Disney Principle: Anticipation (builds tension), Timing (rhythmic countdown)
+ * Animation Principle: Anticipation (builds tension), Timing (rhythmic countdown)
  */
 export function CountdownScreen({ countdownValue }: { countdownValue: number }) {
   return (

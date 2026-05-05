@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
  * Uses Next.js <Link> for internal routes (client-side navigation,
  * prevents bfcache issues) and <a> for hash/external links.
  *
- * Disney Principles:
+ * Animation Principles:
  * - Anticipation: line starts from center and expands
  * - Follow-through: slight overshoot via CSS easing
  * - Appeal: smooth, refined micro-interaction

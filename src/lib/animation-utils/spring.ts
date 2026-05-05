@@ -17,7 +17,7 @@ export const SPRING = {
     damping: 24,
     mass: 0.8,
   },
-  /** Bouncy, playful — Disney-style follow-through and overlapping action */
+  /** Bouncy, playful — spring-driven follow-through and overlapping action */
   bouncy: {
     type: "spring" as const,
     stiffness: 400,

@@ -26,7 +26,7 @@ export {
   staggerItem,
   gridStaggerContainer,
   gridStaggerItem,
-  // Disney Principles
+  // Animation Principles
   anticipation,
   squashAndStretch,
   followThrough,

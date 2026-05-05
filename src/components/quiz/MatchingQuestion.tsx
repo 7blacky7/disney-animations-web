@@ -16,7 +16,7 @@ import type { QuestionProps } from "./types";
  * does NOT reveal correct pairs. Server evaluates correctness.
  * matchShuffleMap maps shuffledIdx → originalIdx for server evaluation.
  *
- * Disney Principles: Staging (highlight active selection),
+ * Animation Principles: Staging (highlight active selection),
  * Follow Through (connection animation), Appeal (colored pair badges)
  */
 export function MatchingQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {

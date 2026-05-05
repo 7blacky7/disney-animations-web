@@ -1,9 +1,9 @@
 /**
- * Parallax Layer Preset — Disney Animation System
+ * Parallax Layer Preset — Animation System
  *
  * Parallax scroll effect for depth layers.
  *
- * Disney Principles: Staging (depth), Slow In Slow Out, Arcs (curved feel)
+ * Animation Principles: Staging (depth), Slow In Slow Out, Arcs (curved feel)
  */
 
 import { gsap } from "gsap";
@@ -23,7 +23,7 @@ interface ParallaxLayerOptions {
 /**
  * Parallax scroll effect for depth layers.
  *
- * Disney Principles: Staging (depth), Slow In Slow Out, Arcs (curved feel)
+ * Animation Principles: Staging (depth), Slow In Slow Out, Arcs (curved feel)
  *
  * Elements move at different speeds relative to scroll, creating depth.
  */

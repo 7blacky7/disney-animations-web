@@ -13,7 +13,7 @@ import { useAccessibility } from "@/providers/AccessibilityProvider";
  * - Escape-Taste
  * - Browser-Zurueck (router.back())
  *
- * Disney Principles: Staging (focus auf Modal), Follow Through (slide-in),
+ * Animation Principles: Staging (focus auf Modal), Follow Through (slide-in),
  * Appeal (backdrop blur)
  */
 

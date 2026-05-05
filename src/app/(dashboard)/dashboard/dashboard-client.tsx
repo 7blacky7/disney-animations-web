@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 /**
  * Dashboard Client — Animated KPI cards and activity feed
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: KPIs draw attention first, then activity
  * - Timing: Staggered card reveals
  * - Appeal: Clean, professional card design

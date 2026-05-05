@@ -10,7 +10,7 @@
  * - Hero vs standard card differentiation
  * - whileInView-ready (no auto-start)
  *
- * Disney Principles per variant documented below.
+ * Animation Principles per variant documented below.
  * Rules: Only transform + opacity. No filter. No layout properties.
  */
 

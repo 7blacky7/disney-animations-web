@@ -1,8 +1,8 @@
 /**
- * Disney Animation Utilities
+ * Animation Utilities
  *
  * Timing constants, easing presets, spring configs, and utility functions
- * based on Disney's 12 Principles of Animation.
+ * based on the 12 Animation Principles of Animation.
  *
  * Rules:
  * - Only transform and opacity (GPU-accelerated, 60fps)

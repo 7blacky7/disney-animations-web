@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 /**
  * PublicQuizSection — Zeigt oeffentliche Quizzes auf der Landing Page.
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: Section-Header fuehrt den Blick
  * - Timing: Staggered card reveals
  * - Appeal: Einladende Quiz-Karten mit Play-CTA

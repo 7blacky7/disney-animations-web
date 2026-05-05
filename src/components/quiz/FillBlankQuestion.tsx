@@ -17,7 +17,7 @@ import type { QuestionProps } from "./types";
  * Server evaluates, feedback provides isCorrect and blankAnswers
  * for display AFTER submission.
  *
- * Disney Principles: Anticipation (focus on blank), Staging (highlight gap),
+ * Animation Principles: Anticipation (focus on blank), Staging (highlight gap),
  * Follow Through (reveal animation)
  */
 export function FillBlankQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {

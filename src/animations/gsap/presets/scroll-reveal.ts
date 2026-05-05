@@ -1,9 +1,9 @@
 /**
- * Scroll Reveal Preset — Disney Animation System
+ * Scroll Reveal Preset — Animation System
  *
  * Scroll-triggered reveal animation.
  *
- * Disney Principles: Staging, Timing, Slow In Slow Out, Arcs
+ * Animation Principles: Staging, Timing, Slow In Slow Out, Arcs
  */
 
 import { gsap } from "gsap";
@@ -29,7 +29,7 @@ interface ScrollRevealOptions {
 /**
  * Scroll-triggered reveal animation.
  *
- * Disney Principles: Staging, Timing, Slow In Slow Out, Arcs
+ * Animation Principles: Staging, Timing, Slow In Slow Out, Arcs
  *
  * Elements fade in from a direction as they enter the viewport.
  */

@@ -8,9 +8,9 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 /**
- * AnimatedCard — Disney-inspired card with entry and hover animations
+ * AnimatedCard — thoughtfully animated card with entry and hover animations
  *
- * Disney Principles:
+ * Animation Principles:
  * - Follow-through: spring overshoot on entry
  * - Staging: lift + glow draws attention on hover
  * - Slow In Slow Out: spring-based easing

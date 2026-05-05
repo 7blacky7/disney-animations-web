@@ -10,7 +10,7 @@ import { SPRING, STAGGER } from "@/lib/animation-utils";
 /**
  * StatsSection — Animated count-up statistics
  *
- * Disney Principles:
+ * Animation Principles:
  * - Timing: count-up syncs with scroll reveal
  * - Staging: stagger draws attention across stats
  * - Appeal: clean, typographic focus

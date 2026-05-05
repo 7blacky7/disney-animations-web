@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
  * - Neuen Tenant anlegen (Name + Slug)
  * - Tenant loeschen
  *
- * Disney Principles: Staging (Table first), Timing (staggered rows),
+ * Animation Principles: Staging (Table first), Timing (staggered rows),
  * Appeal (clean badges, color swatches)
  */
 

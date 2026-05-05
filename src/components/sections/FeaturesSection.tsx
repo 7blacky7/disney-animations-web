@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 /**
  * FeaturesSection — Feature Cards with Scroll-Reveal
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: staggered reveal draws attention sequentially
  * - Follow-through: cards overshoot on entry
  * - Secondary Action: icon animations complement the card reveal

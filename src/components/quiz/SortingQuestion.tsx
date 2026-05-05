@@ -17,7 +17,7 @@ import type { QuestionProps } from "./types";
  * Server evaluates, feedback.correctOrder is used for visual
  * highlighting AFTER submission.
  *
- * Disney Principles: Follow Through (item slide animation),
+ * Animation Principles: Follow Through (item slide animation),
  * Staging (clear move buttons), Appeal (smooth reorder)
  */
 export function SortingQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {

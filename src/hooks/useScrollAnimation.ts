@@ -6,7 +6,7 @@
  * Provides a ref-based API for attaching scroll-triggered animations
  * to any element. Handles registration, cleanup, and reduced motion.
  *
- * Disney Principles: Staging (scroll reveals), Timing, Slow In Slow Out
+ * Animation Principles: Staging (scroll reveals), Timing, Slow In Slow Out
  */
 
 import { useEffect, useRef, useCallback } from "react";

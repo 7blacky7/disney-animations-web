@@ -1,7 +1,7 @@
 /**
- * Framer Motion Variants — Disney Animation System
+ * Framer Motion Variants — Animation System
  *
- * Every variant implements at least 3 of Disney's 12 Principles:
+ * Every variant implements at least 3 of the 12 Animation Principles:
  * 1. Squash & Stretch    7. Arcs
  * 2. Anticipation        8. Secondary Action
  * 3. Staging             9. Timing
@@ -103,7 +103,7 @@ export const staggerItem: Variants = {
 };
 
 // ---------------------------------------------------------------------------
-// Disney Principle Variants
+// Animation Principle Variants
 // ---------------------------------------------------------------------------
 
 /**

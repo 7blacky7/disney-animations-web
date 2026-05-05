@@ -17,7 +17,7 @@ import type { QuestionProps } from "./types";
  * Server evaluates via evaluateAndSubmitAnswer, feedback provides
  * isCorrect and keywords for display AFTER submission.
  *
- * Disney Principles: Appeal (clean writing area),
+ * Animation Principles: Appeal (clean writing area),
  * Staging (focus on textarea), Follow Through (result reveal)
  */
 export function FreeTextQuestion({ question, onAnswer, showFeedback, disabled, prefersReducedMotion, feedback }: QuestionProps) {

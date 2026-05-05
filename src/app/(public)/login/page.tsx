@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 /**
  * Login Page — Email/Password Authentication
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: Centered card on gradient background
  * - Anticipation: Button scales on hover
  * - Follow Through: Spring on form entrance

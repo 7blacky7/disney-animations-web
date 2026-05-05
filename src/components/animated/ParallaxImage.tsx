@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  * The image moves at a different speed than the scroll,
  * creating depth and visual interest.
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: creates visual depth hierarchy
  * - Slow In Slow Out: smooth scroll-linked movement
  * - Appeal: cinematic depth effect

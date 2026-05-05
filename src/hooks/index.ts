@@ -1,7 +1,7 @@
 /**
  * Hooks — Central Barrel Export
  *
- * All custom hooks for the Disney Animation System.
+ * All custom hooks for the Animation System.
  */
 
 export { useReducedMotion } from "./useReducedMotion";

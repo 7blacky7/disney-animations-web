@@ -5,7 +5,7 @@ import { pointsFloat } from "@/animations";
 
 /**
  * Floating "+N" points indicator.
- * Disney Principle: Follow Through (float upward), Timing (brief appearance)
+ * Animation Principle: Follow Through (float upward), Timing (brief appearance)
  */
 export function FloatingPoints({ points, x }: { points: number; x: number }) {
   return (

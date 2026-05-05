@@ -7,7 +7,7 @@ import { TIMING } from "@/animations";
 
 /**
  * Quiz Intro Screen — Title + "Quiz starten" button.
- * Disney Principle: Staging (clear CTA), Appeal (centered layout)
+ * Animation Principle: Staging (clear CTA), Appeal (centered layout)
  */
 export function IntroScreen({
   title,

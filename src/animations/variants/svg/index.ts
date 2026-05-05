@@ -4,7 +4,7 @@
  * Framer Motion variants for motion.path, motion.circle, motion.line etc.
  * Used with pathLength, strokeDasharray, and draw effects.
  *
- * Every variant uses at least 3 Disney Principles.
+ * Every variant uses at least 3 animation principles.
  *
  * Rules:
  * - Only transform + opacity + pathLength/strokeDashoffset (GPU-friendly SVG)

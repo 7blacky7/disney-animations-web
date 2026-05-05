@@ -12,10 +12,10 @@ import { cn } from "@/lib/utils";
 /**
  * CTASection — Call-to-Action with maximum impact
  *
- * Disney Principles:
+ * Animation Principles:
  * - Staging: centered content, all attention on CTA
  * - Anticipation: parallax background creates anticipation
- * - Appeal: large CTA with Disney-quality animation
+ * - Appeal: large CTA with high-quality animation
  * - Exaggeration: bold, confident presentation
  */
 
