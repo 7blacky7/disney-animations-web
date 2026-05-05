@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAccessibility } from "@/providers/AccessibilityProvider";
-import { createQuiz } from "@/lib/actions/quiz";
+import {
+  createQuiz,
+  updateQuiz,
+  addQuestion as addQuestionAction,
+  updateQuestion as updateQuestionAction,
+  deleteQuestion as deleteQuestionAction,
+} from "@/lib/actions/quiz";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,14 +37,15 @@ import {
   TimerIcon,
 } from "@/components/icons";
 import { AnswerEditor, type QuestionData } from "@/components/quiz/AnswerEditor";
-import { addQuestion as addQuestionAction } from "@/lib/actions/quiz";
 import { cn } from "@/lib/utils";
 
 /**
- * Quiz Builder — Wizard-style quiz creation
- * Phase 5+: Metadaten → Fragen + Antworten → Vorschau → Publish
+ * Quiz Builder — Wizard-style quiz creation + edit.
  *
- * Antwort-Editor fuer alle 11 Fragetypen integriert.
+ * Modes:
+ *  - "create" (default): leerer Stand, startet bei "Grundlagen".
+ *  - "edit": vorbefüllt aus initialQuiz/initialQuestions, startet bei "Fragen";
+ *    Save ruft updateQuiz + diff der Fragen (add/update/delete).
  */
 
 const STEPS = ["Grundlagen", "Fragen", "Vorschau"] as const;
@@ -59,20 +66,66 @@ const QUESTION_TYPES = [
   { id: "terminal", label: "Terminal", icon: FreetextIcon, color: "var(--chart-3)" },
 ] as const;
 
-// QuestionData wird aus AnswerEditor importiert — enthält alle Antwort-Felder
+type FormVisibility = "global" | "company" | "department";
+type DbVisibility = "global" | "tenant" | "department";
 
-export function NewQuizClient() {
+function dbVisibilityToForm(v: DbVisibility): FormVisibility {
+  return v === "tenant" ? "company" : v;
+}
+
+interface InitialQuiz {
+  id: string;
+  title: string;
+  description: string | null;
+  quizMode: "realtime" | "async";
+  visibility: DbVisibility;
+  isPracticeAllowed: boolean;
+  isPublished: boolean;
+}
+
+export interface QuizBuilderProps {
+  mode?: "create" | "edit";
+  initialQuiz?: InitialQuiz;
+  initialQuestions?: QuestionData[];
+}
+
+/** Backwards-Compat Export: alte Imports nutzen NewQuizClient weiter. */
+export function NewQuizClient(props: QuizBuilderProps = {}) {
+  return <QuizBuilderClient {...props} />;
+}
+
+export function QuizBuilderClient({
+  mode = "create",
+  initialQuiz,
+  initialQuestions = [],
+}: QuizBuilderProps) {
   const { prefersReducedMotion } = useAccessibility();
   const router = useRouter();
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [currentStep, setCurrentStep] = useState<Step>("Grundlagen");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [mode, setMode] = useState("async");
-  const [visibility, setVisibility] = useState("company");
-  const [practiceAllowed, setPracticeAllowed] = useState(true);
-  const [questions, setQuestions] = useState<QuestionData[]>([]);
+
+  const isEdit = mode === "edit" && !!initialQuiz;
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<Step>(isEdit ? "Fragen" : "Grundlagen");
+  const [title, setTitle] = useState(initialQuiz?.title ?? "");
+  const [description, setDescription] = useState(initialQuiz?.description ?? "");
+  const [quizModeState, setQuizModeState] = useState<"async" | "realtime">(
+    initialQuiz?.quizMode ?? "async",
+  );
+  const [visibility, setVisibility] = useState<FormVisibility>(
+    initialQuiz ? dbVisibilityToForm(initialQuiz.visibility) : "company",
+  );
+  const [practiceAllowed, setPracticeAllowed] = useState(
+    initialQuiz?.isPracticeAllowed ?? true,
+  );
+  const [isPublished, setIsPublished] = useState(initialQuiz?.isPublished ?? false);
+  const [questions, setQuestions] = useState<QuestionData[]>(initialQuestions);
   const [showTypePicker, setShowTypePicker] = useState(false);
+
+  // Snapshot der initial geladenen Frage-IDs — für Diff beim Save (edit-mode).
+  const initialIdsRef = useRef<Set<string>>(
+    new Set(initialQuestions.map((q) => q.id)),
+  );
 
   const stepIndex = STEPS.indexOf(currentStep);
 
@@ -81,7 +134,6 @@ export function NewQuizClient() {
       id: `q-${Math.random().toString(36).slice(2) + Date.now().toString(36)}`,
       type: typeId,
       title: "",
-      // Default-Werte je nach Typ
       ...(typeId === "multiple_choice" || typeId === "image_choice" || typeId === "timed"
         ? { options: ["", "", "", ""], correctIndex: 0 }
         : {}),
@@ -100,109 +152,167 @@ export function NewQuizClient() {
     setShowTypePicker(false);
   }
 
-  async function handlePublish() {
-    if (!title.trim() || isPublishing) return;
-    setIsPublishing(true);
-    try {
-      const visibilityMap: Record<string, "global" | "tenant" | "department"> = {
-        public: "global",
-        company: "tenant",
-        department: "department",
-      };
-      const quiz = await createQuiz({
-        title: title.trim(),
-        description: description.trim() || undefined,
-        quizMode: mode as "realtime" | "async",
-        visibility: visibilityMap[visibility] ?? "tenant",
-        isPracticeAllowed: practiceAllowed,
-      });
-
-      // Fragen + Antworten speichern
-      for (let i = 0; i < questions.length; i++) {
-        const q = questions[i];
-        if (!q.title.trim()) continue;
-
-        // options + correctAnswer JSON je nach Typ aufbauen
-        let options: unknown = null;
-        let correctAnswer: unknown = null;
-
-        switch (q.type) {
-          case "multiple_choice":
-          case "image_choice":
-          case "timed":
-            options = q.options?.filter(Boolean);
-            correctAnswer = q.correctIndex ?? 0;
-            break;
-          case "true_false":
-            correctAnswer = q.correctAnswer ?? true;
-            break;
-          case "fill_blank":
-            // Kanonisches Format: Objekt mit answer + alternatives
-            correctAnswer = { answer: q.blankAnswer ?? "", alternatives: [] };
-            break;
-          case "sorting":
-          case "drag_drop":
-            options = q.items?.filter(Boolean);
-            // Korrekte Reihenfolge = Index-Reihenfolge (0, 1, 2, ...)
-            correctAnswer = q.items?.map((_, idx) => idx) ?? [];
-            break;
-          case "matching":
-            options = { left: q.matchLeft?.filter(Boolean), right: q.matchRight?.filter(Boolean) };
-            break;
-          case "slider":
-            options = { min: q.sliderMin ?? 0, max: q.sliderMax ?? 100 };
-            correctAnswer = { value: q.sliderCorrect ?? 50, tolerance: q.sliderTolerance ?? 5 };
-            break;
-          case "free_text":
-            correctAnswer = { keywords: q.keywords?.filter(Boolean) };
-            break;
-          case "code_input":
-            // code_template und code_solution werden ueber separate Felder gespeichert
-            break;
-          case "terminal":
-            correctAnswer = {
-              commands: q.expectedCommands?.filter(Boolean) ?? [],
-              output: q.expectedOutput ?? "",
-            };
-            break;
-        }
-
-        await addQuestionAction({
-          quizId: quiz.id,
-          type: q.type,
-          content: q.title.trim(),
-          options,
-          correctAnswer,
-          order: i + 1,
-          timeLimit: q.timeLimit,
-          points: q.points ?? 10,
-        });
-      }
-
-      router.push("/quizzes");
-    } catch (err) {
-      console.error("Failed to publish quiz:", err);
-      setIsPublishing(false);
-    }
-  }
-
   function removeQuestion(id: string) {
     setQuestions((prev) => prev.filter((q) => q.id !== id));
   }
 
-  function updateQuestion(id: string, updates: Partial<QuestionData>) {
+  function updateLocalQuestion(id: string, updates: Partial<QuestionData>) {
     setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, ...updates } : q)));
   }
+
+  /** QuestionData → DB-Insert-Shape (options + correctAnswer JSON). */
+  function buildQuestionPayload(q: QuestionData, order: number) {
+    let options: unknown = null;
+    let correctAnswer: unknown = null;
+
+    switch (q.type) {
+      case "multiple_choice":
+      case "image_choice":
+      case "timed":
+        options = q.options?.filter(Boolean);
+        correctAnswer = q.correctIndex ?? 0;
+        break;
+      case "true_false":
+        correctAnswer = q.correctAnswer ?? true;
+        break;
+      case "fill_blank":
+        correctAnswer = { answer: q.blankAnswer ?? "", alternatives: [] };
+        break;
+      case "sorting":
+      case "drag_drop":
+        options = q.items?.filter(Boolean);
+        correctAnswer = q.items?.map((_, idx) => idx) ?? [];
+        break;
+      case "matching":
+        options = { left: q.matchLeft?.filter(Boolean), right: q.matchRight?.filter(Boolean) };
+        break;
+      case "slider":
+        options = { min: q.sliderMin ?? 0, max: q.sliderMax ?? 100 };
+        correctAnswer = { value: q.sliderCorrect ?? 50, tolerance: q.sliderTolerance ?? 5 };
+        break;
+      case "free_text":
+        correctAnswer = { keywords: q.keywords?.filter(Boolean) };
+        break;
+      case "terminal":
+        correctAnswer = {
+          commands: q.expectedCommands?.filter(Boolean) ?? [],
+          output: q.expectedOutput ?? "",
+        };
+        break;
+    }
+
+    return {
+      type: q.type,
+      content: q.title.trim(),
+      options,
+      correctAnswer,
+      order,
+      timeLimit: q.timeLimit,
+      points: q.points ?? 10,
+      codeTemplate: q.codeTemplate,
+      codeSolution: q.codeSolution,
+      programmingLanguage: q.programmingLanguage,
+    };
+  }
+
+  const visibilityMap: Record<FormVisibility, DbVisibility> = {
+    global: "global",
+    company: "tenant",
+    department: "department",
+  };
+
+  async function handleSubmit() {
+    if (!title.trim() || isSaving) return;
+    setIsSaving(true);
+    setError(null);
+    try {
+      if (isEdit && initialQuiz) {
+        // --- EDIT-Pfad ---
+        await updateQuiz(initialQuiz.id, {
+          title: title.trim(),
+          description: description.trim() || undefined,
+          quizMode: quizModeState,
+          visibility: visibilityMap[visibility],
+          isPracticeAllowed: practiceAllowed,
+          isPublished,
+        });
+
+        const initialIds = initialIdsRef.current;
+        const currentIds = new Set(questions.map((q) => q.id));
+
+        // Updates + neue Fragen
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i];
+          if (!q.title.trim()) continue;
+          const payload = buildQuestionPayload(q, i + 1);
+          if (initialIds.has(q.id)) {
+            await updateQuestionAction(q.id, payload);
+          } else {
+            await addQuestionAction({ quizId: initialQuiz.id, ...payload });
+          }
+        }
+
+        // Gelöschte Fragen entfernen
+        for (const id of initialIds) {
+          if (!currentIds.has(id)) {
+            await deleteQuestionAction(id);
+          }
+        }
+
+        router.push("/quizzes");
+        router.refresh();
+      } else {
+        // --- CREATE-Pfad ---
+        const quiz = await createQuiz({
+          title: title.trim(),
+          description: description.trim() || undefined,
+          quizMode: quizModeState,
+          visibility: visibilityMap[visibility],
+          isPracticeAllowed: practiceAllowed,
+        });
+
+        for (let i = 0; i < questions.length; i++) {
+          const q = questions[i];
+          if (!q.title.trim()) continue;
+          const payload = buildQuestionPayload(q, i + 1);
+          await addQuestionAction({ quizId: quiz.id, ...payload });
+        }
+
+        router.push("/quizzes");
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Speichern fehlgeschlagen");
+      setIsSaving(false);
+    }
+  }
+
+  const headerTitle = isEdit ? "Quiz bearbeiten" : "Neues Quiz erstellen";
+  const headerSub = isEdit
+    ? "Änderungen werden erst nach „Speichern“ übernommen."
+    : "Erstelle ein Quiz in drei einfachen Schritten.";
+  const submitLabel = isEdit ? "Speichern" : "Quiz veroeffentlichen";
+  const submitProgressLabel = isEdit ? "Wird gespeichert…" : "Wird veroeffentlicht...";
+
+  // Memo: nur Submit erlaubt wenn Titel da und (im edit) etwas änderbar.
+  const canSubmit = useMemo(() => Boolean(title.trim()), [title]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       {/* Header */}
       <div>
-        <h1 className="font-heading text-2xl font-bold tracking-tight">Neues Quiz erstellen</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Erstelle ein Quiz in drei einfachen Schritten.
-        </p>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">{headerTitle}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{headerSub}</p>
       </div>
+
+      {error && (
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+        >
+          {error}
+        </div>
+      )}
 
       {/* Step Indicator */}
       <div className="flex items-center gap-2">
@@ -254,7 +364,7 @@ export function NewQuizClient() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Quiz-Modus</Label>
-                  <Select value={mode} onValueChange={(v) => setMode(v ?? "async")}>
+                  <Select value={quizModeState} onValueChange={(v) => setQuizModeState((v as "async" | "realtime") ?? "async")}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="async">Asynchron (jeder fuer sich)</SelectItem>
@@ -264,7 +374,7 @@ export function NewQuizClient() {
                 </div>
                 <div className="space-y-2">
                   <Label>Sichtbarkeit</Label>
-                  <Select value={visibility} onValueChange={(v) => setVisibility(v ?? "company")}>
+                  <Select value={visibility} onValueChange={(v) => setVisibility((v as FormVisibility) ?? "company")}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="global">Oeffentlich</SelectItem>
@@ -281,6 +391,15 @@ export function NewQuizClient() {
                 </div>
                 <Switch checked={practiceAllowed} onCheckedChange={setPracticeAllowed} />
               </div>
+              {isEdit && (
+                <div className="flex items-center justify-between rounded-xl border border-border/40 p-4">
+                  <div>
+                    <p className="text-sm font-medium">Veröffentlicht</p>
+                    <p className="text-xs text-muted-foreground">Nur veröffentlichte Quizzes sind spielbar.</p>
+                  </div>
+                  <Switch checked={isPublished} onCheckedChange={setIsPublished} />
+                </div>
+              )}
             </div>
             <div className="flex justify-end">
               <AnimatedButton shine onClick={() => setCurrentStep("Fragen")}>
@@ -302,12 +421,10 @@ export function NewQuizClient() {
             transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-6"
           >
-            {/* Question list */}
             <div className="space-y-3">
               {questions.map((q, i) => {
                 const typeInfo = QUESTION_TYPES.find((t) => t.id === q.type);
                 const TypeIcon = typeInfo?.icon ?? MCIcon;
-
                 return (
                   <motion.div
                     key={q.id}
@@ -332,6 +449,7 @@ export function NewQuizClient() {
                           <button
                             onClick={() => removeQuestion(q.id)}
                             className="text-muted-foreground/50 hover:text-destructive transition-colors"
+                            aria-label="Frage entfernen"
                           >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-4 w-4">
                               <path d="M18 6 6 18M6 6l12 12" />
@@ -340,14 +458,13 @@ export function NewQuizClient() {
                         </div>
                         <Input
                           value={q.title}
-                          onChange={(e) => updateQuestion(q.id, { title: e.target.value })}
+                          onChange={(e) => updateLocalQuestion(q.id, { title: e.target.value })}
                           placeholder="Frage eingeben..."
                           className="text-sm"
                         />
-                        {/* Antwort-Editor fuer den jeweiligen Fragetyp */}
                         <AnswerEditor
                           question={q}
-                          onUpdate={(updates) => updateQuestion(q.id, updates)}
+                          onUpdate={(updates) => updateLocalQuestion(q.id, updates)}
                         />
                       </div>
                     </div>
@@ -356,7 +473,6 @@ export function NewQuizClient() {
               })}
             </div>
 
-            {/* Add question button */}
             <button
               onClick={() => setShowTypePicker(true)}
               className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border/50 p-6 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
@@ -367,7 +483,6 @@ export function NewQuizClient() {
               Frage hinzufuegen
             </button>
 
-            {/* Type Picker Modal */}
             <AnimatePresence>
               {showTypePicker && (
                 <>
@@ -384,10 +499,10 @@ export function NewQuizClient() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 10 }}
                     transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                    className="fixed inset-x-4 top-[10%] z-50 mx-auto max-w-2xl rounded-2xl border border-border/50 bg-background p-6 shadow-xl sm:inset-x-auto"
+                    className="fixed left-1/2 top-[10%] z-50 w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 rounded-2xl border border-border/50 bg-background p-6 shadow-xl"
                   >
                     <h2 className="font-heading text-lg font-bold">Frage-Typ waehlen</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">Waehle einen der 10 Quiz-Typen.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Waehle einen der Quiz-Typen.</p>
                     <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
                       {QUESTION_TYPES.map((type) => {
                         const Icon = type.icon;
@@ -416,7 +531,6 @@ export function NewQuizClient() {
               )}
             </AnimatePresence>
 
-            {/* Navigation */}
             <div className="flex justify-between">
               <Button variant="outline" onClick={() => setCurrentStep("Grundlagen")}>Zurueck</Button>
               <AnimatedButton shine onClick={() => setCurrentStep("Vorschau")} disabled={questions.length === 0}>
@@ -441,9 +555,9 @@ export function NewQuizClient() {
             <div className="rounded-2xl border border-border/40 bg-card p-6 space-y-4">
               <h2 className="font-heading text-xl font-bold">{title || "Ohne Titel"}</h2>
               <p className="text-sm text-muted-foreground">{description || "Keine Beschreibung"}</p>
-              <div className="flex gap-2 text-xs">
+              <div className="flex gap-2 text-xs flex-wrap">
                 <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-primary font-medium">
-                  {mode === "realtime" ? "Echtzeit" : "Asynchron"}
+                  {quizModeState === "realtime" ? "Echtzeit" : "Asynchron"}
                 </span>
                 <span className="rounded-full bg-muted px-2.5 py-0.5 text-muted-foreground font-medium">
                   {visibility === "global" ? "Oeffentlich" : visibility === "company" ? "Firmenintern" : "Abteilung"}
@@ -451,6 +565,16 @@ export function NewQuizClient() {
                 <span className="rounded-full bg-muted px-2.5 py-0.5 text-muted-foreground font-medium">
                   {questions.length} Fragen
                 </span>
+                {isEdit && (
+                  <span className={cn(
+                    "rounded-full px-2.5 py-0.5 font-medium",
+                    isPublished
+                      ? "bg-success/10 text-success"
+                      : "bg-muted text-muted-foreground",
+                  )}>
+                    {isPublished ? "Veröffentlicht" : "Entwurf"}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -466,8 +590,8 @@ export function NewQuizClient() {
 
             <div className="flex justify-between">
               <Button variant="outline" onClick={() => setCurrentStep("Fragen")}>Zurueck bearbeiten</Button>
-              <AnimatedButton shine intensity="bold" onClick={handlePublish} disabled={isPublishing || !title.trim()}>
-                {isPublishing ? "Wird veroeffentlicht..." : "Quiz veroeffentlichen"}
+              <AnimatedButton shine intensity="bold" onClick={handleSubmit} disabled={isSaving || !canSubmit}>
+                {isSaving ? submitProgressLabel : submitLabel}
               </AnimatedButton>
             </div>
           </motion.div>
