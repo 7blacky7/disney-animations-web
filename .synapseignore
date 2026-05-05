@@ -1,4 +1,20 @@
 node_modules/
 .next/
-docs/
-*.lock
+dist/
+build/
+out/
+coverage/
+.env
+.env.local
+.env*.local
+.DS_Store
+.git/
+.gitignore
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+test-results/
+Pasted Image.png
+drizzle/
+.synapse/
+.cursor/

@@ -13,7 +13,7 @@ export const invitations = pgTable("invitations", {
   departmentId: uuid("department_id").references(() => departments.id, { onDelete: "set null" }),
   email: text("email").notNull(),
   role: userRoleEnum("role").notNull().default("user"),
-  invitedBy: uuid("invited_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  invitedBy: text("invited_by").notNull().references(() => users.id, { onDelete: "cascade" }),
   token: text("token").notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   acceptedAt: timestamp("accepted_at", { withTimezone: true }),

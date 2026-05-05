@@ -24,7 +24,7 @@ export const quizzes = pgTable("quizzes", {
   id: uuid("id").primaryKey().defaultRandom(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
   departmentId: uuid("department_id").references(() => departments.id, { onDelete: "set null" }),
-  createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdBy: text("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   description: text("description"),
   quizMode: quizModeEnum("quiz_mode").notNull().default("async"),

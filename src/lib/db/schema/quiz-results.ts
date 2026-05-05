@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { quizzes } from "./quizzes";
 import { users } from "./users";
 
@@ -8,7 +8,7 @@ import { users } from "./users";
 export const quizResults = pgTable("quiz_results", {
   id: uuid("id").primaryKey().defaultRandom(),
   quizId: uuid("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   score: integer("score").notNull().default(0),
   maxScore: integer("max_score").notNull().default(0),
   isPractice: boolean("is_practice").notNull().default(false),
