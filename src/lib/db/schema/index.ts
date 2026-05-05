@@ -8,6 +8,8 @@ export { tenants, quizAttributionEnum, aiProviderEnum } from "./tenants";
 export { departments } from "./departments";
 export { users, userRoleEnum } from "./users";
 export { sessions } from "./sessions";
+export { accounts } from "./accounts";
+export { verifications } from "./verifications";
 export { quizzes, quizModeEnum, visibilityEnum } from "./quizzes";
 export { questions, questionTypeEnum, programmingLanguageEnum } from "./questions";
 export { quizResults } from "./quiz-results";

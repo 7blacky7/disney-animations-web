@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/users";
 import { sessions } from "@/lib/db/schema/sessions";
 import { accounts } from "@/lib/db/schema/accounts";
+import { verifications } from "@/lib/db/schema/verifications";
 import { tenants } from "@/lib/db/schema/tenants";
 import { eq } from "drizzle-orm";
 
@@ -28,6 +29,7 @@ export const auth = betterAuth({
       user: users,
       session: sessions,
       account: accounts,
+      verification: verifications,
     },
   }),
 
