@@ -15,6 +15,5 @@ package-lock.json
 yarn.lock
 test-results/
 Pasted Image.png
-drizzle/
 .synapse/
 .cursor/
