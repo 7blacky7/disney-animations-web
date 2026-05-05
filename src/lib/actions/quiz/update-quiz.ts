@@ -8,14 +8,17 @@ import type { CreateQuizInput } from "./_types";
 
 /**
  * Quiz aktualisieren.
- * Berechtigung: Ersteller oder admin (gleicher Tenant)
+ * Berechtigung:
+ *   - admin / super_admin (alle Quizzes des eigenen Tenants)
+ *   - department_lead (eigene Quizzes ODER Quizzes seiner Abteilung)
+ *   - alle anderen: nur eigene Quizzes
  */
 export async function updateQuiz(
   quizId: string,
   data: Partial<CreateQuizInput> & { isPublished?: boolean },
 ) {
   const session = await requireSession();
-  const { tenantId, role } = await getSessionUserData();
+  const { tenantId, departmentId, role } = await getSessionUserData();
 
   const [existing] = await db
     .select()
@@ -25,13 +28,18 @@ export async function updateQuiz(
 
   if (!existing) throw new Error("Quiz nicht gefunden");
 
-  // Tenant-Check: Quiz muss zum eigenen Mandanten gehoeren
-  if (existing.tenantId !== tenantId) {
+  if (existing.tenantId !== tenantId && role !== "super_admin") {
     throw new Error("Kein Zugriff auf dieses Quiz");
   }
 
-  // Berechtigungs-Check: Ersteller oder admin/super_admin (Role aus DB, nicht Session!)
-  if (existing.createdBy !== session.user.id && role !== "admin" && role !== "super_admin") {
+  const isCreator = existing.createdBy === session.user.id;
+  const isAdmin = role === "admin" || role === "super_admin";
+  const isLeadOfQuizDept =
+    role === "department_lead" &&
+    existing.departmentId !== null &&
+    existing.departmentId === departmentId;
+
+  if (!isCreator && !isAdmin && !isLeadOfQuizDept) {
     throw new Error("Keine Berechtigung");
   }
 
