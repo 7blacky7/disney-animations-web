@@ -245,7 +245,7 @@ export function NewQuizClient() {
             <div className="rounded-2xl border border-border/40 bg-card p-6 space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="quiz-title">Quiz-Titel</Label>
-                <Input id="quiz-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="z.B. Disney Animations Grundlagen" className="text-base" />
+                <Input id="quiz-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="z.B. JavaScript Grundlagen" className="text-base" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="quiz-desc">Beschreibung</Label>

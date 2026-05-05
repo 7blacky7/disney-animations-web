@@ -14,6 +14,6 @@ export { TIMING, type TimingKey } from "./timing";
 export { EASING, type EasingKey } from "./easing";
 export { SPRING, type SpringKey } from "./spring";
 export { STAGGER } from "./stagger";
-export { createDisneyTransition } from "./disney-transition";
+export { createMotionTransition } from "./motion-transition";
 export { getReducedMotionVariant, prefersReducedMotion } from "./reduced-motion";
 export { GSAP_EASE, type GsapEaseKey } from "./gsap-ease";

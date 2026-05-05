@@ -15,7 +15,7 @@ import {
  * Features:
  * - Light / Dark toggle with system preference fallback
  * - 5 accent color themes (Custom mode — prepared for Auth)
- * - localStorage persistence (key: "disney-theme", "disney-accent")
+ * - localStorage persistence (key: "ui-theme", "ui-accent"; reads legacy "disney-*" keys for migration)
  * - No FOUC: dark class applied via blocking script in <head>
  *
  * Architecture:
@@ -48,8 +48,10 @@ interface ThemeContextValue {
 // Constants
 // ---------------------------------------------------------------------------
 
-const STORAGE_KEY_THEME = "disney-theme";
-const STORAGE_KEY_ACCENT = "disney-accent";
+const STORAGE_KEY_THEME = "ui-theme";
+const STORAGE_KEY_ACCENT = "ui-accent";
+const LEGACY_KEY_THEME = "disney-theme";
+const LEGACY_KEY_ACCENT = "disney-accent";
 
 export const ACCENT_THEMES: { id: AccentTheme; label: string; preview: string }[] = [
   { id: "indigo", label: "Indigo", preview: "oklch(0.55 0.20 270)" },
@@ -79,7 +81,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>(() => {
     if (typeof window === "undefined") return "system";
     try {
-      const stored = localStorage.getItem(STORAGE_KEY_THEME) as ThemeMode | null;
+      const stored = (localStorage.getItem(STORAGE_KEY_THEME) ?? localStorage.getItem(LEGACY_KEY_THEME)) as ThemeMode | null;
       if (stored && ["light", "dark", "system"].includes(stored)) return stored;
     } catch {
       // localStorage not available
@@ -89,7 +91,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [accent, setAccentState] = useState<AccentTheme>(() => {
     if (typeof window === "undefined") return "amber";
     try {
-      const stored = localStorage.getItem(STORAGE_KEY_ACCENT) as AccentTheme | null;
+      const stored = (localStorage.getItem(STORAGE_KEY_ACCENT) ?? localStorage.getItem(LEGACY_KEY_ACCENT)) as AccentTheme | null;
       if (stored && ACCENT_THEMES.some((t) => t.id === stored)) return stored;
     } catch {
       // localStorage not available

@@ -34,9 +34,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Disney Animations — Zeitlose Prinzipien, moderne Technik",
+  title: "Quiz Studio — Lernplattform mit lebendigen Animationen",
   description:
-    "Interaktive Showcase-Website: Disney's 12 Animationsprinzipien, umgesetzt mit GSAP, Framer Motion und Lottie. Enterprise-Level Design.",
+    "Quiz- und Lernplattform für Teams. Multiple-Choice, Code-Eingaben, Drag & Drop und mehr — mit Animationen die jede Interaktion auf den Punkt bringen.",
 };
 
 export default function RootLayout({
@@ -54,7 +54,7 @@ export default function RootLayout({
         {/* Prevent FOUC: apply theme class before paint */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("disney-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}var a=localStorage.getItem("disney-accent")||"amber";document.documentElement.setAttribute("data-accent",a)}catch(e){document.documentElement.setAttribute("data-accent","amber")}})()`,
+            __html: `(function(){try{var t=localStorage.getItem("ui-theme")||localStorage.getItem("disney-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.classList.add("dark")}var a=localStorage.getItem("ui-accent")||localStorage.getItem("disney-accent")||"amber";document.documentElement.setAttribute("data-accent",a)}catch(e){document.documentElement.setAttribute("data-accent","amber")}})()`,
           }}
         />
       </head>

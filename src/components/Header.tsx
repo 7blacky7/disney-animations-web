@@ -67,8 +67,8 @@ export function Header() {
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           )}
         >
-          <span className="text-primary">Disney</span>
-          <span className="text-muted-foreground font-normal ml-1">Animations</span>
+          <span className="text-primary">Quiz</span>
+          <span className="text-muted-foreground font-normal ml-1">Studio</span>
         </a>
 
         {/* Navigation Links */}

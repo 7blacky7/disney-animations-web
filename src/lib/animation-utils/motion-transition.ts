@@ -1,13 +1,13 @@
 /**
- * Disney Transition Factory
+ * Motion Transition Factory
  *
- * Creates a Framer Motion transition with Disney-quality defaults.
+ * Creates a Framer Motion transition with sensible animation defaults.
  * Combines timing, easing, and spring physics into a single config.
  *
- * Disney Principles applied:
+ * Principles applied:
  * - Slow In Slow Out (default easing)
  * - Timing (appropriate durations)
- * - Straight Ahead / Pose to Pose (spring physics)
+ * - Spring physics (when set)
  */
 
 import type { Transition } from "framer-motion";
@@ -16,7 +16,7 @@ import { TIMING, type TimingKey } from "./timing";
 import { EASING, type EasingKey } from "./easing";
 import { SPRING, type SpringKey } from "./spring";
 
-interface DisneyTransitionOptions {
+interface MotionTransitionOptions {
   /** Base timing key */
   timing?: TimingKey;
   /** Override duration in seconds */
@@ -29,8 +29,8 @@ interface DisneyTransitionOptions {
   delay?: number;
 }
 
-export function createDisneyTransition(
-  options: DisneyTransitionOptions = {},
+export function createMotionTransition(
+  options: MotionTransitionOptions = {},
 ): Transition {
   const {
     timing = "normal",

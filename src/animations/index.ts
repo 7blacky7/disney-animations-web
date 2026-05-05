@@ -6,7 +6,7 @@
  *
  * @example
  * ```tsx
- * import { fadeIn, slideUp, SPRING, createDisneyTransition } from "@/animations";
+ * import { fadeIn, slideUp, SPRING, createMotionTransition } from "@/animations";
  * ```
  */
 
@@ -185,7 +185,7 @@ export {
   SPRING,
   STAGGER,
   GSAP_EASE,
-  createDisneyTransition,
+  createMotionTransition,
   getReducedMotionVariant,
   prefersReducedMotion,
 } from "@/lib/animation-utils";

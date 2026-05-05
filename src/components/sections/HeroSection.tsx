@@ -9,33 +9,32 @@ import { SPRING } from "@/lib/animation-utils";
 import { cn } from "@/lib/utils";
 
 /**
- * HeroSection — Beeindruckende Eingangsanimation
+ * HeroSection — Landing entrance with orchestrated reveal
  *
- * Disney Principles:
- * - Staging: Orchestrated stagger leads the eye
- * - Anticipation: Elements enter from below with spring
- * - Follow-through: Spring overshoot on entrance
- * - Appeal: Geometric background adds visual depth
- * - Secondary Action: Scroll indicator bounces
+ * Animation Principles applied:
+ * - Staging: orchestrated stagger leads the eye
+ * - Anticipation: elements rise from below with spring
+ * - Follow-through: spring overshoot on entrance
+ * - Secondary Action: scroll indicator bounces
  *
  * Orchestration:
  * 1. Badge fades in
- * 2. Headline slides up (stagger per word)
- * 3. Subtitle fades in
- * 4. CTA button enters with Disney spring
+ * 2. Headline words stagger up
+ * 3. Subtitle slides up
+ * 4. CTA buttons enter with bouncy spring
  * 5. Scroll indicator appears last with bounce loop
  */
 
 const containerVariants = {
   visible: {
     transition: {
-      staggerChildren: 0.18,
-      delayChildren: 0.15,
+      staggerChildren: 0.16,
+      delayChildren: 0.1,
     },
   },
 };
 
-/** Badge — subtle scale for anticipation (NO opacity:0 — bfcache safe) */
+/** Badge — subtle scale for anticipation (no opacity:0 — bfcache safe) */
 const badgeVariants = {
   hidden: { y: 12, scale: 0.95 },
   visible: {
@@ -45,17 +44,26 @@ const badgeVariants = {
   },
 };
 
-/** Headline — dramatic spring entrance */
-const headlineVariants = {
-  hidden: { y: 50, scale: 0.97 },
+/** Headline acts as a sub-stagger container for words */
+const headlineContainerVariants = {
+  visible: {
+    transition: {
+      staggerChildren: 0.06,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+/** Each headline word springs up individually */
+const wordVariants = {
+  hidden: { y: 32 },
   visible: {
     y: 0,
-    scale: 1,
     transition: {
       type: "spring" as const,
-      stiffness: 200,
-      damping: 18,
-      mass: 1,
+      stiffness: 220,
+      damping: 22,
+      mass: 0.9,
     },
   },
 };
@@ -87,7 +95,6 @@ export function HeroSection() {
     offset: ["start start", "end start"],
   });
 
-  // Parallax for background shapes
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const bgOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
@@ -102,7 +109,7 @@ export function HeroSection() {
         aria-hidden="true"
       />
 
-      {/* Animated geometric background */}
+      {/* Subtle geometric background */}
       {!prefersReducedMotion && (
         <motion.div
           style={{ y: bgY, opacity: bgOpacity }}
@@ -113,9 +120,7 @@ export function HeroSection() {
         </motion.div>
       )}
 
-      {/* Content — whileInView statt initial/animate verhindert bfcache-Bug
-           (opacity:0 bleibt bei Browser-Zurueck stecken).
-           once: true stellt sicher dass Animation nur 1x spielt. */}
+      {/* Content */}
       <motion.div
         variants={prefersReducedMotion ? undefined : containerVariants}
         initial={prefersReducedMotion ? undefined : "hidden"}
@@ -137,57 +142,58 @@ export function HeroSection() {
             className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-primary"
             aria-hidden="true"
           />
-          Motion Studio
+          Quiz Studio · Beta
         </motion.div>
 
-        {/* Headline — larger, bolder, more impact */}
+        {/* Headline — word-staggered for cinematic entrance */}
         <motion.h1
-          variants={prefersReducedMotion ? undefined : headlineVariants}
+          variants={prefersReducedMotion ? undefined : headlineContainerVariants}
           className={cn(
-            "font-heading text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-7xl xl:text-8xl",
+            "font-heading text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl",
             "bg-gradient-to-b from-foreground via-foreground/90 to-foreground/50 bg-clip-text text-transparent",
             "leading-[1.05]",
           )}
         >
-          Animationen,
+          <Word>Animationen,</Word>
           <br />
-          die sich{" "}
-          <span
+          <Word>die</Word>{" "}
+          <Word>sich</Word>{" "}
+          <Word
             className={cn(
-              "relative inline-block",
+              "relative",
               "bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent",
             )}
           >
             lebendig
-            {/* Decorative underline */}
             <span
               className="absolute -bottom-1 left-0 h-1 w-full rounded-full bg-gradient-to-r from-primary to-accent opacity-60"
               aria-hidden="true"
             />
-          </span>{" "}
-          anfuehlen
+          </Word>{" "}
+          <Word>anfühlen</Word>
         </motion.h1>
 
-        {/* Subtitle — more breathing room */}
+        {/* Subtitle */}
         <motion.p
           variants={prefersReducedMotion ? undefined : subtitleVariants}
           className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl lg:text-2xl lg:leading-relaxed"
         >
-          Eine Showcase-Website, die zeigt wie Disney&apos;s zeitlose
-          Animationsprinzipien moderne Web-Interfaces verwandeln.
+          Eine Quiz- und Lernplattform für Teams.
+          <br className="hidden sm:block" />
+          Mit Animationen, die jede Interaktion auf den Punkt bringen.
         </motion.p>
 
-        {/* CTA Buttons — bigger, bolder */}
+        {/* CTA Buttons — three actions: signup, signin, demo */}
         <motion.div
           variants={prefersReducedMotion ? undefined : ctaVariants}
-          className="mt-12 flex flex-col items-center gap-4 sm:flex-row"
+          className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center"
         >
           <Link href="/register">
             <AnimatedButton
               shine
               intensity="bold"
               size="lg"
-              className="min-w-[200px] text-base px-8 py-3"
+              className="min-w-[180px] text-base px-8 py-3"
             >
               Jetzt starten
             </AnimatedButton>
@@ -196,11 +202,20 @@ export function HeroSection() {
             <AnimatedButton
               variant="outline"
               size="lg"
-              className="min-w-[200px] text-base px-8 py-3"
+              className="min-w-[180px] text-base px-8 py-3"
             >
               Anmelden
             </AnimatedButton>
           </Link>
+          <a href="#showcase" data-testid="hero-demo-cta">
+            <AnimatedButton
+              variant="ghost"
+              size="lg"
+              className="min-w-[180px] text-base px-8 py-3"
+            >
+              Beispiele ansehen ↓
+            </AnimatedButton>
+          </a>
         </motion.div>
       </motion.div>
 
@@ -212,14 +227,16 @@ export function HeroSection() {
           transition={{ delay: 1.2, duration: 0.6 }}
           className="absolute bottom-4 left-1/2 -translate-x-1/2"
         >
-          <motion.div
+          <motion.a
+            href="#features"
+            aria-label="Zum nächsten Abschnitt scrollen"
             animate={{ y: [0, 8, 0] }}
             transition={{
               duration: 1.2,
               repeat: Infinity,
               ease: [0.34, 1.56, 0.64, 1] as const,
             }}
-            className="flex flex-col items-center gap-2"
+            className="flex flex-col items-center gap-2 cursor-pointer"
           >
             <span className="text-xs text-muted-foreground">Scroll</span>
             <svg
@@ -252,7 +269,7 @@ export function HeroSection() {
                 }}
               />
             </svg>
-          </motion.div>
+          </motion.a>
         </motion.div>
       )}
     </section>
@@ -260,34 +277,38 @@ export function HeroSection() {
 }
 
 /**
- * Geometric background shapes — subtle, non-distracting
- * Creates depth without competing with content.
+ * Single word in the headline — independently staggered.
+ * inline-block is required so transform: translateY works.
+ */
+function Word({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.span
+      variants={wordVariants}
+      className={cn("inline-block", className)}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+/**
+ * Reduced background — single primary orb + dot grid + noise.
+ * Less visual noise, more focus on the content.
  */
 function GeometricBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Primary gradient orb — top right, strong presence */}
+      {/* Primary gradient orb — top right, single strong accent */}
       <div
         className={cn(
           "absolute -top-[15%] -right-[5%] h-[700px] w-[700px]",
           "rounded-full bg-glow-primary",
-          "blur-3xl",
-        )}
-      />
-      {/* Accent orb — bottom left, warm contrast (contained within bounds) */}
-      <div
-        className={cn(
-          "absolute bottom-[5%] left-[2%] h-[400px] w-[400px]",
-          "rounded-full bg-glow-accent",
-          "blur-3xl",
-        )}
-      />
-      {/* Center ambient — subtle depth */}
-      <div
-        className={cn(
-          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-          "h-[400px] w-[800px]",
-          "rounded-full bg-primary/[0.02]",
           "blur-3xl",
         )}
       />
@@ -301,7 +322,7 @@ function GeometricBackground() {
           "[mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black_10%,transparent_100%)]",
         )}
       />
-      {/* Noise overlay for texture — via CSS */}
+      {/* Film-grain noise — adds tactile depth */}
       <div
         className={cn(
           "absolute inset-0 opacity-[0.015]",

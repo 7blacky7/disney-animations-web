@@ -156,8 +156,8 @@ export function QuizShowcaseSection() {
             Jeder Quiz — ein Erlebnis
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Von Multiple Choice bis Zeitdruck. Jeder Typ nutzt einzigartige
-            Disney-Animationsprinzipien fuer lebendige Interaktionen.
+            Von Multiple Choice bis Zeitdruck. Jeder Typ nutzt eigene
+            Animations-Patterns für lebendige Interaktionen.
           </p>
         </ScrollReveal>
 

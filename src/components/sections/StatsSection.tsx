@@ -24,7 +24,7 @@ interface Stat {
 }
 
 const stats: Stat[] = [
-  { value: 12, suffix: "", label: "Disney Prinzipien" },
+  { value: 12, suffix: "", label: "Animation-Prinzipien" },
   { value: 60, suffix: "fps", label: "Fluessige Animationen" },
   { value: 100, suffix: "%", label: "Accessible" },
   { value: 4, suffix: "", label: "Quiz-Typen" },

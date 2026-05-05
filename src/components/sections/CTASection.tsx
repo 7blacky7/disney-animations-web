@@ -75,8 +75,8 @@ export function CTASection() {
             </span>
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Entdecke, wie die 12 Disney-Prinzipien jede Interaktion in
-            ein unvergessliches Erlebnis verwandeln.
+            Entdecke, wie durchdachte Animation jede Interaktion in
+            ein unvergessliches Erlebnis verwandelt.
           </p>
         </ScrollReveal>
 
