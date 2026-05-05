@@ -12,6 +12,8 @@ export { listDepartments } from "./list-departments";
 export { createDepartment } from "./create-department";
 export { deleteDepartment } from "./delete-department";
 export { renameDepartment } from "./rename-department";
+export { uploadDepartmentLogo } from "./upload-department-logo";
+export { deleteDepartmentLogo } from "./delete-department-logo";
 export { inviteUser } from "./invite-user";
 export { listInvitations } from "./list-invitations";
 export { getTenant } from "./get-tenant";
