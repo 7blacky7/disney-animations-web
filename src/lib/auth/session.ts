@@ -118,7 +118,12 @@ export async function requireAuth() {
   }
 
   const [dbUser] = await db
-    .select({ role: users.role, name: users.name, tenantId: users.tenantId })
+    .select({
+      role: users.role,
+      name: users.name,
+      tenantId: users.tenantId,
+      departmentId: users.departmentId,
+    })
     .from(users)
     .where(eq(users.id, session.user.id));
 
@@ -131,6 +136,7 @@ export async function requireAuth() {
     role: dbUser.role as UserRole,
     name: dbUser.name,
     tenantId: dbUser.tenantId,
+    departmentId: dbUser.departmentId,
   };
 }
 

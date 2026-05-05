@@ -5,31 +5,23 @@ import { canAccessRoute } from "@/lib/auth/rbac";
 import type { UserRole as RbacRole } from "@/lib/auth/rbac";
 import { db } from "@/lib/db";
 import { tenants } from "@/lib/db/schema/tenants";
+import { departments } from "@/lib/db/schema/departments";
+import { departmentLogos } from "@/lib/db/schema/department-logos";
 import { eq } from "drizzle-orm";
 import { DashboardShell } from "./dashboard-shell";
 import type { UserRole } from "@/lib/navigation";
 
 /**
- * Dashboard Layout — Server Component wrapper that loads session data,
- * then passes to the client-side DashboardShell.
- *
- * Auth-Guard: Unauthentifizierte User werden zu /login redirected.
- * RBAC-Guard: canAccessRoute() prueft ob die Rolle fuer den Pfad ausreicht.
- * requireAuth() laedt Session + User-Daten aus der DB (nicht aus der Session).
- *
- * WICHTIG: headers() wird sequentiell aufgerufen (nicht thread-safe bei parallelen Aufrufen).
+ * Dashboard Layout — Server Component.
+ * Lädt Tenant-Name + Logo + ggf. Department-Name + Logo für Branding.
  */
-
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Auth-Guard: redirect zu /login wenn nicht eingeloggt
-  const { role, name, tenantId } = await requireAuth();
+  const { role, name, tenantId, departmentId } = await requireAuth();
 
-  // RBAC-Guard: Pathname aus Proxy-Header lesen, Route-Berechtigung pruefen
-  // headers() sequentiell nach requireAuth() aufrufen (nicht parallel!)
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") || "/dashboard";
 
@@ -37,14 +29,37 @@ export default async function DashboardLayout({
     redirect("/dashboard");
   }
 
-  // Tenant-Name laden (sequentiell wegen headers()-Einschraenkung)
-  let tenantName = "Quiz Platform";
+  let tenantName = "Quiz Studio";
+  let tenantLogoUrl: string | null = null;
   if (tenantId) {
     const [tenant] = await db
-      .select({ name: tenants.name })
+      .select({ name: tenants.name, logoUrl: tenants.logoUrl })
       .from(tenants)
       .where(eq(tenants.id, tenantId));
-    if (tenant) tenantName = tenant.name;
+    if (tenant) {
+      tenantName = tenant.name;
+      tenantLogoUrl = tenant.logoUrl;
+    }
+  }
+
+  let departmentName: string | null = null;
+  let departmentLogoUrl: string | null = null;
+  if (departmentId) {
+    const [dept] = await db
+      .select({
+        name: departments.name,
+        logoUpdatedAt: departmentLogos.updatedAt,
+      })
+      .from(departments)
+      .leftJoin(departmentLogos, eq(departmentLogos.departmentId, departments.id))
+      .where(eq(departments.id, departmentId))
+      .limit(1);
+    if (dept) {
+      departmentName = dept.name;
+      if (dept.logoUpdatedAt) {
+        departmentLogoUrl = `/api/departments/${departmentId}/logo?v=${dept.logoUpdatedAt.getTime()}`;
+      }
+    }
   }
 
   const initials = name
@@ -60,6 +75,9 @@ export default async function DashboardLayout({
       userName={name}
       userInitials={initials}
       tenantName={tenantName}
+      tenantLogoUrl={tenantLogoUrl}
+      departmentName={departmentName}
+      departmentLogoUrl={departmentLogoUrl}
     >
       {children}
     </DashboardShell>

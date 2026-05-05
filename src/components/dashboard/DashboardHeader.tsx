@@ -21,6 +21,8 @@ import { cn } from "@/lib/utils";
 interface DashboardHeaderProps {
   /** Tenant name for branding */
   tenantName?: string;
+  /** Tenant logo URL (optional) */
+  tenantLogoUrl?: string | null;
   /** User display name */
   userName?: string;
   /** User initials for avatar */
@@ -30,7 +32,8 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({
-  tenantName = "Quiz Platform",
+  tenantName = "Quiz Studio",
+  tenantLogoUrl = null,
   userName = "Benutzer",
   userInitials = "U",
   onMenuClick,
@@ -59,9 +62,13 @@ export function DashboardHeader({
           </svg>
         </button>
 
-        {/* Tenant name / breadcrumb placeholder */}
-        <span className="text-sm font-medium text-muted-foreground hidden sm:inline">
-          {tenantName}
+        {/* Tenant brand: small logo + name */}
+        <span className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          {tenantLogoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={tenantLogoUrl} alt="" className="h-5 w-5 rounded object-contain bg-card" />
+          )}
+          <span className="truncate max-w-[16rem]" title={tenantName}>{tenantName}</span>
         </span>
       </div>
 
