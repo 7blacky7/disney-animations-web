@@ -11,7 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatedButton } from "@/components/animated/AnimatedButton";
 import { updateTenantBranding } from "@/lib/actions/user";
-import { updateTenantLandingSettings, updateTenantAiSettings } from "@/lib/actions/tenant";
+import { updateTenantLandingSettings, updateTenantAiSettings, uploadTenantLogo, deleteTenantLogo } from "@/lib/actions/tenant";
+import { useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -62,6 +63,47 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
   const [smtpHost, setSmtpHost] = useState("");
   const [smtpPort, setSmtpPort] = useState("587");
   const [isPending, startTransition] = useTransition();
+  const [feedback, setFeedback] = useState<{ kind: "success" | "error"; msg: string } | null>(null);
+  const [logoUrl, setLogoUrl] = useState(tenant?.logoUrl ?? null);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleLogoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFeedback(null);
+    setLogoUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("logo", file);
+      await uploadTenantLogo(fd);
+      setLogoUrl(`/api/tenants/${tenant?.id}/logo?v=${Date.now()}`);
+      setFeedback({ kind: "success", msg: "Logo aktualisiert." });
+    } catch (err) {
+      setFeedback({ kind: "error", msg: err instanceof Error ? err.message : "Upload fehlgeschlagen" });
+    } finally {
+      setLogoUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleLogoDelete() {
+    setFeedback(null);
+    setLogoUploading(true);
+    try {
+      await deleteTenantLogo();
+      setLogoUrl(null);
+      setFeedback({ kind: "success", msg: "Logo entfernt." });
+    } catch (err) {
+      setFeedback({ kind: "error", msg: err instanceof Error ? err.message : "Löschen fehlgeschlagen" });
+    } finally {
+      setLogoUploading(false);
+    }
+  }
+
+  function reportError(err: unknown, fallback: string) {
+    setFeedback({ kind: "error", msg: err instanceof Error ? err.message : fallback });
+  }
 
   function handleSaveBranding() {
     startTransition(async () => {
@@ -98,6 +140,20 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
         </div>
       )}
 
+      {feedback && (
+        <div
+          role="alert"
+          className={
+            "rounded-md border px-3 py-2 text-sm " +
+            (feedback.kind === "success"
+              ? "border-success/40 bg-success/10 text-success"
+              : "border-destructive/40 bg-destructive/10 text-destructive")
+          }
+        >
+          {feedback.msg}
+        </div>
+      )}
+
       <Tabs defaultValue="branding" className="space-y-6">
         <TabsList>
           <TabsTrigger value="branding">Branding</TabsTrigger>
@@ -119,9 +175,44 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
               <div className="space-y-2">
                 <Label>Logo</Label>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/30 text-muted-foreground text-xs">Logo</div>
-                  <Button variant="outline" size="sm">Hochladen</Button>
+                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border/60 bg-muted/30 text-muted-foreground text-xs">
+                    {logoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={logoUrl} alt="Logo" className="h-full w-full object-contain" />
+                    ) : (
+                      "Logo"
+                    )}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={handleLogoSelect}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    disabled={logoUploading}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {logoUploading ? "Lädt…" : logoUrl ? "Ändern" : "Hochladen"}
+                  </Button>
+                  {logoUrl && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
+                      disabled={logoUploading}
+                      onClick={handleLogoDelete}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      Entfernen
+                    </Button>
+                  )}
                 </div>
+                <p className="text-xs text-muted-foreground">PNG, JPEG oder WebP, max 500 KB.</p>
               </div>
             </div>
           </section>
@@ -202,11 +293,13 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
               <Switch
                 checked={tenant?.showLogoOnLanding ?? false}
                 onCheckedChange={(checked) => {
+                  setFeedback(null);
                   startTransition(async () => {
                     try {
                       await updateTenantLandingSettings({ showLogoOnLanding: checked });
-                    } catch {
-                      // Handle error
+                      setFeedback({ kind: "success", msg: "Einstellung gespeichert." });
+                    } catch (err) {
+                      reportError(err, "Aktualisierung fehlgeschlagen");
                     }
                   });
                 }}
@@ -230,11 +323,13 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
                 <button
                   key={option.value}
                   onClick={() => {
+                    setFeedback(null);
                     startTransition(async () => {
                       try {
                         await updateTenantLandingSettings({ quizAttribution: option.value });
-                      } catch {
-                        // Handle error
+                        setFeedback({ kind: "success", msg: "Quiz-Attribution gespeichert." });
+                      } catch (err) {
+                        reportError(err, "Aktualisierung fehlgeschlagen");
                       }
                     });
                   }}
@@ -270,11 +365,13 @@ export function SettingsClient({ tenant }: SettingsClientProps) {
               <Switch
                 checked={tenant?.aiEnabled ?? false}
                 onCheckedChange={(checked) => {
+                  setFeedback(null);
                   startTransition(async () => {
                     try {
                       await updateTenantAiSettings({ aiEnabled: checked });
-                    } catch {
-                      // Handle error
+                      setFeedback({ kind: "success", msg: "KI-Einstellung gespeichert." });
+                    } catch (err) {
+                      reportError(err, "Aktualisierung fehlgeschlagen");
                     }
                   });
                 }}

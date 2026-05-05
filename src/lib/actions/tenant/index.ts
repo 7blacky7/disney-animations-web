@@ -13,3 +13,5 @@ export { listTenantUsers } from "./list-tenant-users";
 export { updateTenantLandingSettings } from "./update-tenant-landing-settings";
 export { updateTenantAiSettings } from "./update-tenant-ai-settings";
 export { getTenantAiSettings } from "./get-tenant-ai-settings";
+export { uploadTenantLogo } from "./upload-tenant-logo";
+export { deleteTenantLogo } from "./delete-tenant-logo";

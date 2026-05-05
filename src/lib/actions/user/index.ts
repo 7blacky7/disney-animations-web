@@ -11,6 +11,7 @@ export { assignUserToDepartment } from "./assign-user-to-department";
 export { listDepartments } from "./list-departments";
 export { createDepartment } from "./create-department";
 export { deleteDepartment } from "./delete-department";
+export { renameDepartment } from "./rename-department";
 export { inviteUser } from "./invite-user";
 export { listInvitations } from "./list-invitations";
 export { getTenant } from "./get-tenant";

@@ -17,3 +17,4 @@ export { quizAnswers } from "./quiz-answers";
 export { quizAssignments, assignmentStatusEnum } from "./quiz-assignments";
 export { learningPaths, learningPathLevels } from "./learning-paths";
 export { invitations } from "./invitations";
+export { tenantLogos } from "./tenant-logos";
